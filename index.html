@@ -199,18 +199,6 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
         </div>
       </div>
 
-      <div class="field">
-        <span class="lbl"><span class="es">¿Habló con el dueño?</span><span class="en">Did you reach the owner?</span></span>
-        <div class="seg" role="radiogroup">
-          <label><input type="radio" name="reached" id="reached-yes" value="yes" checked><span><span class="es">Sí</span><span class="en">Yes</span></span></label>
-          <label><input type="radio" name="reached" id="reached-no" value="no"><span><span class="es">No, no estaba</span><span class="en">No, not there</span></span></label>
-        </div>
-      </div>
-      <div class="field">
-        <label for="r-next"><span class="es">¿Cuándo vuelve a llamar?</span><span class="en">When will you call back?</span></label>
-        <input type="text" id="r-next" value="mañana a las 3 de la tarde">
-        <span class="hint"><span class="es">Use la hora que le dio el personal. Escríbalo en español: "hoy a las 4".</span><span class="en">Use the time staff gave you. Type it in Spanish, e.g. "hoy a las 4".</span></span>
-      </div>
 
       <div class="field">
         <span class="lbl"><span class="es">¿Qué le importa más al dueño?</span><span class="en">What matters most to the owner?</span></span>
@@ -438,8 +426,8 @@ const PAINS=[
   evEs:'Un dueño en San Antonio dijo: «Necesitamos ayuda, necesitamos ventas». Por eso dijo que sí.',
   evEn:'An owner in San Antonio said: "We need help, we need sales." That\'s why they said yes.',
   quoteEs:'«Necesitamos ayuda, necesitamos ventas.»',quoteEn:'"We need help, we need sales."',
-  hookEs:R=>`Como le comenté, queremos ayudarle a vender más: sus clientes pueden ordenar en línea directo con ${R}, y usted no paga comisión por pedido.`,
-  hookEn:R=>`As I mentioned, we want to help you sell more: your customers can order online directly from ${R}, and you don't pay a commission per order.`,
+  hookEs:R=>`Queremos ayudarle a vender más: sus clientes pueden ordenar en línea directo con ${R}, y usted no paga comisión por pedido.`,
+  hookEn:R=>`We want to help you sell more: your customers can order online directly from ${R}, and you don't pay a commission per order.`,
   shortEs:'queremos ayudarle a recibir más pedidos en línea, directo de sus clientes y sin comisión por pedido',
   shortEn:'we want to help you get more online orders, directly from your customers and with no per-order commission',
   head:'Más pedidos en línea, directo de sus clientes',
@@ -448,15 +436,15 @@ const PAINS=[
   evEs:'MealPool ya está disponible: pedidos de almuerzo en grupo, por adelantado, de oficinas y negocios cercanos. Es el mensaje que mejor funciona: pedidos que se repiten, de gente que trabaja cerca.',
   evEn:'MealPool is live: group lunch pre-orders from nearby offices and businesses. It\'s the pitch that lands best: repeat orders from people who work nearby.',
   quoteEs:'«Sus próximos clientes de la comida están a la vuelta de la esquina.»',quoteEn:'"Your next lunch customers could be right around the corner."',
-  hookEs:R=>`Como le comenté, con MealPool le ayudamos a llenar la hora de la comida en ${R} con pedidos en grupo de oficinas y negocios cercanos. Los pedidos llegan por adelantado y usted decide cuántos acepta.`,
-  hookEn:R=>`As I mentioned, with MealPool we help fill lunchtime at ${R} with group orders from nearby offices and businesses. Orders come in ahead of time and you decide how many to accept.`,
+  hookEs:R=>`Con MealPool le ayudamos a llenar la hora de la comida en ${R} con pedidos en grupo de oficinas y negocios cercanos. Los pedidos llegan por adelantado y usted decide cuántos acepta.`,
+  hookEn:R=>`With MealPool we help fill lunchtime at ${R} with group orders from nearby offices and businesses. Orders come in ahead of time and you decide how many to accept.`,
   shortEs:'con MealPool puede recibir pedidos de almuerzo en grupo, por adelantado, de oficinas y negocios cercanos',
   shortEn:'with MealPool you can get group lunch pre-orders from nearby offices and businesses',
   head:'Sus próximos clientes de la comida están a la vuelta de la esquina',
   bullets:['Pedidos en grupo de oficinas cercanas, con MealPool','Llegan por adelantado y usted decide cuántos acepta','Usted no paga comisión por pedido']},
  {id:'personal',es:'Le falta personal o tiempo',en:'Short on staff or time',tag:'ok',
   evEs:'El dueño estaba atendiendo él mismo porque le faltaba personal. Le gustó que el representante le armara todo.',
-  evEn:'The owner was working the floor because they were short-staffed. He liked that the rep would build everything.',
+  evEn:'The owner was working the floor because they were short-staffed. They liked that the rep would build everything.',
   quoteEs:'«Ando un poco corto de personal y estoy ayudando.»',quoteEn:'"I\'m a little short on staff and I\'m helping out."',
   hookEs:R=>`Sé que anda con poco personal. Por eso nosotros armamos la tienda en línea de ${R} con su menú y sus precios. Usted no tiene que hacer nada.`,
   hookEn:R=>`I know you're short-staffed. That's why we build ${R}'s online store with your menu and prices. You don't have to do anything.`,
@@ -502,23 +490,14 @@ function updLogoPrev(){const p=$('logo-prev');p.innerHTML='';if(logoImg){const i
 /* ---------- Helpers ---------- */
 const v=id=>$(id).value.trim();
 const pain=()=>PAINS.find(p=>p.id===(document.querySelector('input[name=pain]:checked')||{}).value)||PAINS[0];
-const reached=()=>($('reached-yes').checked);
 
 function renderWhy(){const p=pain(),en=document.documentElement.getAttribute('data-lang')==='en';
   $('why').innerHTML=`<span class="eyebrow">${en?'Why this angle':'Por qué este enfoque'}</span><p class="quote">${en?p.quoteEn:p.quoteEs}</p><p>${en?p.evEn:p.evEs}</p>${p.tag==='warn'?`<p class="pill warn" style="justify-self:start">${en?'Feature in development: confirm before sending':'Función en desarrollo: confirme antes de enviar'}</p>`:''}`;}
 
-function buildWA(){const p=pain(),R=v('r-name')||'su restaurante',O=v('r-owner'),rep=v('r-rep')||'[su nombre]',next=v('r-next')||'mañana',link=v('r-link');
-  const linkEs=link?`Aquí puede ver la tienda en línea que preparamos para ${R}, con su menú y sus precios:\n${link}`:`Aquí puede ver la tienda en línea que preparamos para ${R}:\n[enlace de la tienda demo]`;
-  const linkEn=link?`Here's the online store we set up for ${R}, with your menu and prices:\n${link}`:`Here's the online store we set up for ${R}:\n[demo store link]`;
-  const gEs=`Buen día${O?', '+O:''}.`, gEn=`Good day${O?', '+O:''}.`;
-  let es,en;
-  if(reached()){
-    es=`${gEs} Soy ${rep}, de SalesVu. Gracias por su tiempo hoy.\n\n${p.hookEs(R)}\n\n${linkEs}\n\n¿Le parece bien si le llamo ${next} para ver los detalles? Cualquier pregunta, me escribe por aquí.\n\nSaludos,\n${rep} · SalesVu`;
-    en=`${gEn} This is ${rep} from SalesVu. Thank you for your time today.\n\n${p.hookEn(R)}\n\n${linkEn}\n\nWould it be OK if I call you ${next} to go over the details? Any questions, message me here.\n\nBest,\n${rep} · SalesVu`;
-  }else{
-    es=`${gEs} Soy ${rep}, de SalesVu. Hoy llamé a ${R} y me dijeron que usted no estaba en ese momento.\n\nLe escribo porque ${p.shortEs}.\n\n${linkEs}\n\nLe vuelvo a llamar ${next}. Si prefiere, contésteme por aquí a la hora que le quede mejor.\n\nSaludos,\n${rep} · SalesVu`;
-    en=`${gEn} This is ${rep} from SalesVu. I called ${R} today and was told you weren't in at the time.\n\nI'm writing because ${p.shortEn}.\n\n${linkEn}\n\nI'll call you back ${next} (time as typed). If you'd rather, reply here whenever suits you.\n\nBest,\n${rep} · SalesVu`;
-  }
+/* WhatsApp follow-up: 4 short lines a busy owner reads in 10 seconds. The CRM keeps the call log and callback time. */
+function buildWA(){const p=pain(),R=v('r-name')||'su restaurante',O=v('r-owner'),rep=v('r-rep')||'[su nombre]',link=v('r-link');
+  const es=[`Hola${O?', '+O:''}, soy ${rep} de SalesVu 👋`,p.hookEs(R),`Así se ve su tienda en línea: ${link||'[enlace de la tienda demo]'}`,'¿Le cuento en 5 minutos cómo funciona?'].join('\n\n');
+  const en=[`Hi${O?' '+O:''}, it's ${rep} from SalesVu 👋`,p.hookEn(R),`Here's your online store: ${link||'[demo store link]'}`,'Can I walk you through it in 5 minutes?'].join('\n\n');
   $('wa').value=es;$('wa-en').textContent=en;$('miss-link').hidden=!!link;}
 
 /* ---------- Canvas drawing ---------- */
@@ -572,11 +551,11 @@ function copyImg(imgId,st){const src=$(imgId).src;const fail=()=>flash(st,EN()?'
   try{fetch(src).then(r=>r.blob()).then(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})])).then(()=>flash(st,EN()?'Image copied. Paste it in WhatsApp.':'Imagen copiada. Péguela en WhatsApp.'),fail);}catch(e){fail();}}
 $('copy-owner').onclick=()=>copyImg('img-owner','st-owner');
 
-$('reset').onclick=()=>{['r-name','r-owner','r-city','r-link'].forEach(i=>$(i).value='');$('r-next').value='mañana';logoImg=null;$('r-logo').value='';render();$('r-name').focus();};
+$('reset').onclick=()=>{['r-name','r-owner','r-city','r-link'].forEach(i=>$(i).value='');logoImg=null;$('r-logo').value='';render();$('r-name').focus();};
 
 /* ---------- Wire up ---------- */
 let t;document.getElementById('f').addEventListener('input',()=>{clearTimeout(t);t=setTimeout(render,120);});
-document.getElementById('f').addEventListener('change',e=>{if(e.target.name==='pain'||e.target.name==='reached')render();});
+document.getElementById('f').addEventListener('change',e=>{if(e.target.name==='pain')render();});
 document.getElementById('f').addEventListener('submit',e=>e.preventDefault());
 $('wa').addEventListener('input',e=>e.stopPropagation());
 
