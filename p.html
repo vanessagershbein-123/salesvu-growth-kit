@@ -161,6 +161,14 @@ input::placeholder{color:#9FB3CC}
 select option{color:#1B2B4B}
 .form-go{grid-column:1/-1;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .thanks{grid-column:1/-1;background:rgba(76,184,114,.18);border-radius:12px;padding:14px 16px;color:#D9F5E2}
+.contact-h{color:#9FB0CC;margin:32px 0 12px}
+.contact{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.contact a{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:center;text-decoration:none;color:#fff;background:var(--navy-2);border:1px solid var(--navy-line);border-radius:14px;padding:14px 16px}
+.contact a:hover{border-color:rgba(255,255,255,.4)}
+.contact a:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.contact .ico{grid-row:span 2;width:38px;height:38px}
+.contact small{color:#9FB0CC;font-size:13px}
+.contact strong{font-size:15px;overflow-wrap:break-word;min-width:0}
 footer{background:var(--navy);border-top:1px solid var(--navy-line);color:#9FB0CC;font-size:13px}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-block:22px 30px}
 .foot .wordmark{font-size:20px}
@@ -239,11 +247,12 @@ html{scroll-behavior:smooth}
     <form id="f" autocomplete="on">
       <div class="field"><label for="f-name" id="l-name"></label><input id="f-name" name="name" type="text" autocomplete="name"></div>
       <div class="field"><label for="f-phone" id="l-phone"></label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
-      <div class="field"><label for="f-meals" id="l-meals"></label><select id="f-meals" name="meals"></select></div>
       <div class="field"><label for="f-time" id="l-time"></label><select id="f-time" name="time"></select></div>
       <div class="form-go"><button type="submit" class="btn go" id="f-go"></button><span id="f-note" style="font-size:13px;color:#C9D4E6"></span></div>
       <div class="thanks" id="f-thanks" hidden></div>
     </form>
+    <p class="label contact-h" id="k-h"></p>
+    <div class="contact" id="contact"></div>
   </div></section>
 </main>
 <footer><div class="wrap foot"><span id="foot"></span><span class="wordmark">Sales<span class="vu">Vu</span></span></div></footer>
@@ -269,7 +278,10 @@ const I={office:'<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 
   gov:'<path d="M4 20h16M5 10h14M12 4l8 5H4l8-5Z"/><path d="M7 10v8M12 10v8M17 10v8"/>',cars:'<path d="M5 16h14M6 16l1.5-5h9L18 16"/><circle cx="8" cy="17.5" r="1.5"/><circle cx="16" cy="17.5" r="1.5"/>',
   industry:'<path d="M3 20V10l5 3V10l5 3V6h4v14H3Z"/>',cart:'<path d="M4 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L20 8H7"/><circle cx="10" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/>',
   pct:'<path d="M19 5 5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',people:'<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M14 19a4 4 0 0 1 7-2.6"/>',
-  mega:'<path d="M4 10v4a1 1 0 0 0 1 1h2l6 4V5L7 9H5a1 1 0 0 0-1 1Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/>',check:'<path d="m5 12 5 5 9-10"/>'};
+  mega:'<path d="M4 10v4a1 1 0 0 0 1 1h2l6 4V5L7 9H5a1 1 0 0 0-1 1Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/>',check:'<path d="m5 12 5 5 9-10"/>',
+  wa:'<path d="M4 20l1.3-3.9A8 8 0 1 1 8 19Z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 1c-1-.5-1.5-1-2-2l1-1-1-2Z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',web:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'};
 const CAT={office:['Oficinas','Offices','var(--blue)'],health:['Salud','Health','var(--green)'],school:['Escuelas','Schools','var(--teal)'],gov:['Gobierno','Government','var(--purple)'],cars:['Agencias y talleres','Dealers & shops','var(--orange)'],industry:['Industria y bodegas','Industry & warehouses','#64748B']};
 const radL=mi=>es?(mi===0.5?'media milla':mi===1?'1 milla':mi+' millas'):(mi===0.5?'half a mile':mi===1?'1 mile':mi+' miles');
 const txt=(id,t)=>{$(id).textContent=t;};
@@ -349,20 +361,29 @@ two('s-h',T('¿Le gusta MealPool?','Love MealPool?'),T('SalesVu trabaja para ust
 two('f-h',T('Venda su capacidad extra','Let\'s sell your extra capacity'),T('antes del próximo servicio','before the next service'));
 txt('f-sub',T(`Déjenos sus datos y ${rep} le contacta para dejar todo listo.`,`Leave your details and ${rep} will contact you to set everything up.`));
 txt('l-name',T('Su nombre','Your name'));txt('l-phone',T('Su WhatsApp o teléfono','Your WhatsApp or phone'));
-txt('l-meals',T('¿Cuántos almuerzos extra puede preparar al día?','How many extra lunches can you make a day?'));txt('l-time',T('Mejor hora para hablar','Best time to talk'));
-['10–20','20–50','50+',T('No sé todavía','Not sure yet')].forEach(a=>{const o=el('option');o.textContent=a;$('f-meals').appendChild(o);});
+txt('l-time',T('Mejor hora para hablar','Best time to talk'));
 [T('En la mañana','Morning'),T('Después de la comida (3–5 pm)','After lunch (3–5 pm)'),T('En la noche','Evening')].forEach(t=>{const o=el('option');o.textContent=t;$('f-time').appendChild(o);});
-txt('f-go',T('Enviar por WhatsApp','Send on WhatsApp'));
 const wa=(D.w||'').replace(/[^\d]/g,'');
-txt('f-note',wa?T(`Se abre WhatsApp con un mensaje para ${rep}.`,`WhatsApp opens with a message to ${rep}.`):T(`O responda directamente al WhatsApp de ${rep}.`,`Or reply directly to ${rep}'s WhatsApp.`));
+txt('f-go',wa?T('Enviar por WhatsApp','Send on WhatsApp'):T('Enviar','Send'));
+txt('f-note',wa?T(`Se abre WhatsApp con un mensaje para ${rep}.`,`WhatsApp opens with a message to ${rep}.`):T('Se abre su correo con el mensaje listo para SalesVu.','Your email opens with the message ready for SalesVu.'));
 $('f').addEventListener('submit',e=>{e.preventDefault();
-  const msg=T(`Hola ${rep}, soy ${$('f-name').value||'[nombre]'} de ${R}. Me interesa MealPool. Puedo preparar ${$('f-meals').value} almuerzos extra al día. Mejor hora: ${$('f-time').value}. Mi número: ${$('f-phone').value||'[número]'}.`,
-              `Hi ${rep}, this is ${$('f-name').value||'[name]'} from ${R}. I'm interested in MealPool. I can make ${$('f-meals').value} extra lunches a day. Best time: ${$('f-time').value}. My number: ${$('f-phone').value||'[number]'}.`);
+  const msg=T(`Hola ${rep}, soy ${$('f-name').value||'[nombre]'} de ${R}. Me interesa MealPool. Mejor hora: ${$('f-time').value}. Mi número: ${$('f-phone').value||'[número]'}.`,
+              `Hi ${rep}, this is ${$('f-name').value||'[name]'} from ${R}. I'm interested in MealPool. Best time: ${$('f-time').value}. My number: ${$('f-phone').value||'[number]'}.`);
   const t=$('f-thanks');t.hidden=false;
   if(wa){t.textContent=T('¡Gracias! Se abrió WhatsApp con su mensaje. Si no se abrió, copie este texto y mándelo: ','Thanks! WhatsApp opened with your message. If it didn\'t, copy this text and send it: ')+msg;window.location.href=`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;}
-  else t.textContent=T('¡Gracias! Copie este texto y respóndalo en el WhatsApp de su representante: ','Thanks! Copy this text and send it in your rep\'s WhatsApp: ')+msg;});
+  else{t.textContent=T(`¡Gracias! Se abrió su correo para enviarlo a ${SV_MAIL}. Si no se abrió, mande este texto a ${SV_MAIL} o llame al ${SV_PHONE}: `,`Thanks! Your email opened to send this to ${SV_MAIL}. If it didn't, send this text to ${SV_MAIL} or call ${SV_PHONE}: `)+msg;
+    window.location.href=`mailto:${SV_MAIL}?subject=${encodeURIComponent('MealPool · '+R)}&body=${encodeURIComponent(msg)}`;}});
 
 txt('g-fee',T('Puede aplicar una pequeña cuota única de instalación.','A small one-time setup fee may apply.'));
+/* Ways to reach us: the rep's WhatsApp (if the rep added it) plus SalesVu's public phone and email (salesvu.com). */
+const SV_PHONE='+1 888-900-5819',SV_TEL='+18889005819',SV_MAIL='support@salesvu.com';
+txt('k-h',T('O contáctenos directamente','Or contact us directly'));
+[wa&&['var(--green)',I.wa,T(`WhatsApp de ${rep}`,`WhatsApp ${rep}`),(D.w||'').trim().startsWith('+')?D.w.trim():'+'+wa,`https://wa.me/${wa}?text=${encodeURIComponent(T(`Hola ${rep}, soy de ${R}. Me interesa MealPool.`,`Hi ${rep}, this is ${R}. I'm interested in MealPool.`))}`],
+ ['var(--blue)',I.phone,T('Llame a SalesVu','Call SalesVu'),SV_PHONE,'tel:'+SV_TEL],
+ ['var(--purple)',I.mail,T('Escríbanos','Email us'),SV_MAIL,`mailto:${SV_MAIL}?subject=${encodeURIComponent('MealPool · '+R)}`],
+ ['var(--teal)',I.web,T('Visite','Visit'),'salesvu.com','https://www.salesvu.com/']].filter(Boolean)
+ .forEach(([c,ic,lbl,val,href])=>{const a=el('a','',`<span class="ico" style="background:${c}" aria-hidden="true">${SVG(ic)}</span><small></small><strong></strong>`);a.href=href;if(/^https/.test(href)){a.target='_blank';a.rel='noopener';}a.children[1].textContent=lbl;a.children[2].textContent=val;$('contact').appendChild(a);});
+
 txt('foot','MealPool by SalesVu · Restaurant Growth Solutions for the AI Age');
 
 /* Logo: the restaurant's name in the MealPool collateral style, with Mexican-food icons (Noto Emoji). */
