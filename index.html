@@ -508,15 +508,20 @@ function readLink(raw){let url;try{url=new URL(raw);}catch(e){return null;}const
   const pid=url.searchParams.get('query_place_id')||(raw.match(/place_id:([A-Za-z0-9_-]+)/)||[])[1];if(pid)out.pid=pid;
   const q=url.searchParams.get('q')||url.searchParams.get('query');if(q&&!out.name)out.name=q;
   return out;}
-async function osmQuery(q,near){let u='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=us&extratags=1&q='+encodeURIComponent(q);
+async function osmQuery(q,near){let u='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=us&extratags=1&addressdetails=1&q='+encodeURIComponent(q);
   if(near){const d=0.004;u+=`&bounded=1&viewbox=${near.lon-d},${near.lat+d},${near.lon+d},${near.lat-d}`;}
   const r=await fetch(u,{headers:{'Accept-Language':'es,en'}});if(!r.ok)throw new Error('OpenStreetMap '+r.status);return r.json();}
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
+/* "1905 Aldrich St, Austin, TX 78723" from OpenStreetMap's address parts (instead of its long, translated one-line version). */
+const US_ST={alabama:'AL',alaska:'AK',arizona:'AZ',arkansas:'AR',california:'CA',colorado:'CO',connecticut:'CT',delaware:'DE',florida:'FL',georgia:'GA',hawaii:'HI',idaho:'ID',illinois:'IL',indiana:'IN',iowa:'IA',kansas:'KS',kentucky:'KY',louisiana:'LA',maine:'ME',maryland:'MD',massachusetts:'MA',michigan:'MI',minnesota:'MN',mississippi:'MS',missouri:'MO',montana:'MT',nebraska:'NE',nevada:'NV','new hampshire':'NH','new jersey':'NJ','new mexico':'NM','new york':'NY','north carolina':'NC','north dakota':'ND',ohio:'OH',oklahoma:'OK',oregon:'OR',pennsylvania:'PA','rhode island':'RI','south carolina':'SC','south dakota':'SD',tennessee:'TN',texas:'TX',utah:'UT',vermont:'VT',virginia:'VA',washington:'WA','west virginia':'WV',wisconsin:'WI',wyoming:'WY','district of columbia':'DC'};
+function usAddr(a){if(!a||!a.road)return '';const road=a.road.replace(/\bStreet$/,'St').replace(/\bAvenue$/,'Ave').replace(/\bBoulevard$/,'Blvd').replace(/\bDrive$/,'Dr').replace(/\bRoad$/,'Rd');
+  const st=US_ST[(a.state||'').toLowerCase()]||a.state||'';
+  return [[a.house_number,road].filter(Boolean).join(' '),a.city||a.town||a.village||a.suburb||'',[st,a.postcode].filter(Boolean).join(' ')].filter(Boolean).join(', ');}
 /* OpenStreetMap's search is strict, so try simpler searches in turn (max 1 per second, per its usage policy).
    If only the street address matches, keep the location for the lunch map but don't auto-fill any answers. */
 async function osmSearch(name,addr,near){const tries=(near?[[name,false,near]]:[]).concat([[name+' '+addr,false],[name+' '+city(),false],[addr,true]]).filter(([q])=>q.trim());
   for(let i=0;i<tries.length;i++){if(i)await pause(1100);const [q,addrOnly,box]=tries[i];const j=await osmQuery(q,box);
-    if(j.length)return j.map(p=>{const t=p.extratags||{};return {src:'OpenStreetMap',addrOnly,name:addrOnly?name:(p.name||p.display_name.split(',')[0]),addr:p.display_name,lat:+p.lat,lon:+p.lon,
+    if(j.length)return j.map(p=>{const t=p.extratags||{};return {src:'OpenStreetMap',addrOnly,name:addrOnly?name:(p.name||p.display_name.split(',')[0]),addr:usAddr(p.address)||p.display_name,lat:+p.lat,lon:+p.lon,
       maps:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.lat+','+p.lon)}`,web:addrOnly?'':(t.website||t['contact:website']||''),phone:addrOnly?'':(t.phone||t['contact:phone']||''),
       hours:!addrOnly&&!!t.opening_hours,rating:null,ratings:null,photos:null};});}
   return [];}
@@ -688,7 +693,7 @@ function drawRadar(){const W=1080,H=1350,cv=document.createElement('canvas');cv.
   const cos=Math.cos(c.lat*Math.PI/180),inner=72; // keep dots outside the logo in the middle
   const pos=p=>{let dx=(p.lon-c.lon)*cos*69.17/mi*rad,dy=-(p.lat-c.lat)*69.17/mi*rad;let d=Math.hypot(dx,dy)||1;
     const nd=inner+(d/rad)*(rad-6-inner);dx*=nd/d;dy*=nd/d;return [cx+dx,cy+dy];};
-  lunch.places.filter(p=>!lunch.sel.has(p.id)).forEach(p=>{const [px,py]=pos(p);x.beginPath();x.arc(px,py,8,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.globalAlpha=.85;x.fill();x.globalAlpha=1;});
+  lunch.places.slice(0,180).filter(p=>!lunch.sel.has(p.id)).forEach(p=>{const [px,py]=pos(p);x.beginPath();x.arc(px,py,8,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.globalAlpha=.85;x.fill();x.globalAlpha=1;});
   const top=selected().slice(0,6);
   const pts=top.map(p=>pos(p)); // nudge numbered dots apart so nearby offices don't hide each other
   for(let it=0;it<40;it++)for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1],d=Math.hypot(dx,dy)||0.01;
@@ -792,7 +797,18 @@ function guessFromSite(u){let url;try{url=new URL(u);}catch(e){return {q:'',host
   const host=url.hostname.replace(/^www\./,''),parts=url.pathname.split('/').filter(Boolean),words=t=>decodeURIComponent(t).replace(/[-_.+]+/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\b\d{3,}\b/g,'').replace(/\s+/g,' ').trim();
   if(/doordash|ubereats|grubhub|postmates/.test(host)){const i=parts.findIndex(x=>/^(store|restaurant|menu)$/.test(x));return {q:words(parts[i+1]||parts[parts.length-1]||''),host,app:true};}
   if(/facebook\.com|instagram\.com/.test(host))return {q:words(parts[0]==='pages'?parts[1]||'':parts[0]||''),host};
-  return {q:words(host.replace(/\.(com|net|org|biz|us|co|menu|restaurant|site|online|info)(\.[a-z]{2})?$/,'')),host,domain:host};}
+  return {q:splitName(words(host.replace(/\.(com|net|org|biz|us|co|menu|restaurant|site|online|info)(\.[a-z]{2})?$/,''))),host,domain:host};}
+/* "veracruzfonda" → "Veracruz Fonda": split run-together web addresses on common restaurant words, then capitalize.
+   Only a best guess; the link helper reads the real name from the website when it's set up. */
+const NAME_WORDS=['taqueria','taquerias','tacos','taco','fonda','cocina','cantina','restaurante','restaurant','mexican','mexicana','mexicano','grill','kitchen','cafe','bar','tex','mex','burritos','burrito','mariscos','antojitos','tamales','tortilleria','panaderia','pupuseria','birria','barbacoa','carnitas','pollo','pollos','loco','casa','rancho','el','la','los','las','del','de','mi','tia','tio','abuela','mama','don','dona','senor','jalisco','oaxaca','veracruz','puebla','michoacan','guadalajara','monterrey','sonora','chihuahua','texas','street','express','house','y'];
+function splitName(q){if(!q||/\s/.test(q.trim()))return titleCase(q);let t=q.toLowerCase(),out=[];
+  const W=[...NAME_WORDS].sort((a,b)=>b.length-a.length);
+  while(t){const w=W.find(w=>t.startsWith(w)&&(t.length===w.length||t.length-w.length>=2));if(w){out.push(w);t=t.slice(w.length);continue;}
+    const e=W.find(w=>w.length>=4&&t.endsWith(w)&&t.length-w.length>=3);if(e){out.push(t.slice(0,-e.length),e);t='';break;}
+    out.push(t);t='';}
+  // join leftover single letters back onto neighbours so we never show "L A"
+  return titleCase(out.join(' ').replace(/\b(\w)\s(?=\w\b)/g,'$1'));}
+function titleCase(q){return String(q||'').replace(/\b([a-zà-ÿ])/g,(m,c)=>c.toUpperCase()).replace(/\b(De|Del|Y)\b(?!$)/g,(m,w,i)=>i===0?m:m.toLowerCase());}
 async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
   if(/https?:\/\//i.test(v('r-addr')))$('r-addr').value=pickLink(v('r-addr'));
   let raw=v('r-addr'),link=isURL(raw)?readLink(raw):null;
@@ -1051,7 +1067,7 @@ function pkOffices(n,total){const [cv,x]=pkPage(),es=olang()==='es',T=(a,b)=>es?
   [1,.5].forEach(k=>{x.beginPath();x.arc(cx,cyy,rad*k,0,Math.PI*2);x.fillStyle=k===1?PK.soft:'#EEF3FF';x.fill();x.setLineDash([8,8]);x.strokeStyle='rgba(15,23,41,.14)';x.lineWidth=2;x.stroke();x.setLineDash([]);
     x.font=`600 18px ${F}`;x.fillStyle=PK.muted;x.textAlign='center';x.fillText(`${mi*k} mi`,cx,cyy-rad*k-8);});
   const pos=p=>{let dx=(p.lon-c.lon)*cos*69.17/mi*rad,dy=-(p.lat-c.lat)*69.17/mi*rad,d=Math.hypot(dx,dy)||1,nd=inner+(d/rad)*(rad-8-inner);return [cx+dx*nd/d,cyy+dy*nd/d];};
-  lunch.places.forEach(p=>{const [px,py]=pos(p);x.beginPath();x.arc(px,py,6,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.globalAlpha=.75;x.fill();x.globalAlpha=1;});
+  lunch.places.slice(0,180).forEach(p=>{const [px,py]=pos(p);x.beginPath();x.arc(px,py,6,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.globalAlpha=.75;x.fill();x.globalAlpha=1;});
   const top=(selected().length?selected():lunch.places).slice(0,4),pts=top.map(pos);
   for(let it=0;it<40;it++)for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1],d=Math.hypot(dx,dy)||.01;if(d<34){const m=(34-d)/2,ux=d>.01?dx/d:Math.cos(i+j),uy=d>.01?dy/d:Math.sin(i+j);pts[i][0]-=ux*m;pts[i][1]-=uy*m;pts[j][0]+=ux*m;pts[j][1]+=uy*m;}}
   top.forEach((p,i)=>{const [px,py]=pts[i];x.beginPath();x.arc(px,py,15,0,Math.PI*2);x.fillStyle=PK.blue;x.fill();x.lineWidth=3;x.strokeStyle='#fff';x.stroke();x.fillStyle='#fff';x.font=`800 17px ${F}`;x.textAlign='center';x.fillText(String(i+1),px,py+6);});
@@ -1132,7 +1148,8 @@ let packPages=[];
 function buildPack(){const sec=$('sec-pack');const any=on('m-offices')||on('m-presence')||on('m-kit');sec.hidden=!any;if(!any){packPages=[];return;}
   const es=olang()==='es',kinds=[[pkCover,es?'Portada':'Cover']];
   if(on('m-offices')&&lunch.places.length)kinds.push([pkOffices,es?'Oficinas cerca':'Nearby offices']);
-  if(on('m-presence'))kinds.push([pkPresence,es?'Presencia en línea':'Online presence']);
+  // Skip the presence page until at least one answer is known: a page of "to check" rows isn't worth sending.
+  if(on('m-presence')&&(()=>{const r=evaluate();return r.good.length+r.bad.length>0;})())kinds.push([pkPresence,es?'Presencia en línea':'Online presence']);
   if(on('m-kit'))kinds.push([pkKit,es?'Kit MealPool':'MealPool kit']);
   const pages=kinds.map(([f,t],i)=>[f(i+1,kinds.length),t]);
   packPages=pages.map(([c,t])=>({c,t,url:c.toDataURL('image/png')}));

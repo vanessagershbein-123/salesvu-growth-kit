@@ -359,7 +359,9 @@ two('s-h',T('¿Le gusta MealPool?','Love MealPool?'),T('SalesVu trabaja para ust
 
 /* Form: sends the owner's answers to the rep on WhatsApp (nothing is stored on a server). */
 two('f-h',T('Venda su capacidad extra','Let\'s sell your extra capacity'),T('antes del próximo servicio','before the next service'));
-txt('f-sub',T(`Déjenos sus datos y ${rep} le contacta para dejar todo listo.`,`Leave your details and ${rep} will contact you to set everything up.`));
+const OW=(D.o||'').trim();
+txt('f-sub',T(`${OW?OW+', d':'D'}éjenos sus datos y ${rep} le contacta para dejar todo listo.`,`${OW?OW+', l':'L'}eave your details and ${rep} will contact you to set everything up.`));
+if(OW)$('f-name').value=OW;
 txt('l-name',T('Su nombre','Your name'));txt('l-phone',T('Su WhatsApp o teléfono','Your WhatsApp or phone'));
 txt('l-time',T('Mejor hora para hablar','Best time to talk'));
 [T('En la mañana','Morning'),T('Después de la comida (3–5 pm)','After lunch (3–5 pm)'),T('En la noche','Evening')].forEach(t=>{const o=el('option');o.textContent=t;$('f-time').appendChild(o);});
