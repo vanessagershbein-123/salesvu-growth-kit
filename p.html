@@ -254,7 +254,7 @@ const $=id=>document.getElementById(id);
 /* The tool puts this restaurant's details after #d= (base64 JSON). With no data, show a clearly marked example. */
 function readData(){try{const h=new URLSearchParams(location.hash.slice(1)).get('d');if(!h)return null;
   const b=atob(h.replace(/-/g,'+').replace(/_/g,'/'));return JSON.parse(decodeURIComponent(escape(b)));}catch(e){return null;}}
-const EXAMPLE={n:'Taquería Los Compadres',c:'Houston, TX',r:'Andrea',lg:'es',demo:1,
+const EXAMPLE={n:'Taquería Los Compadres',c:'Houston, TX',lg:'es',demo:1,
   ofs:{n:43,r:1,top:[['Frost Bank',0.1,'office'],['EaDo Family Dental',0.1,'health'],['Urban Office',0.2,'office'],['Houston International Brokers',0.2,'office'],['Iridium Pharmacy',0.2,'health']],cats:[['office',21],['gov',8],['school',6],['health',5]]},
   pr:{good:['gmaps','fb'],bad:['order','apps','web']},kit:1};
 const D=readData()||EXAMPLE,HP=new URLSearchParams(location.hash.slice(1)),es=(HP.get('lang')||D.lg)!=='en',T=(a,b)=>es?a:b;
