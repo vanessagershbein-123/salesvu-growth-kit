@@ -1,565 +1,1082 @@
 <!doctype html>
 <html lang="es">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kit de Ventas SalesVu</title>
+<title>SalesVu Call Prep</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Emoji:wght@500&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-/* Layout: navy brand band, then two tabs. Generator = form column + output column; Guide = single reading column. Tokens follow salesvu.com (Inter, #0066FF, navy). */
+/* One flow: a short form → a call brief for the rep → an owner pack (PDF + WhatsApp images).
+   Tokens follow salesvu.com and the MealPool collateral: navy type, SalesVu blue, MealPool green. */
 :root{
   --bg:#F5F7FB; --surface:#FFFFFF; --fg:#0F1B33; --muted:#5B6B82; --line:#E2E8F0;
-  --blue:#0066FF; --btn:#0066FF; --blue-ink:#0052CC; --blue-soft:rgba(0,102,255,.09); --band:#0A1A2E; --band-fg:#F1F5F9;
-  --ok:#15803D; --ok-soft:rgba(21,128,61,.10); --warn:#9A5B00; --warn-soft:rgba(234,150,0,.14);
+  --blue:#0066FF; --btn:#0066FF; --blue-ink:#0052CC; --blue-soft:rgba(0,102,255,.08);
+  --navy:#0A1A2E; --band-fg:#F1F5F9;
+  --ok:#15803D; --ok-soft:rgba(21,128,61,.10); --bad:#B45309; --bad-soft:rgba(234,120,0,.12);
+  --green-soft:#EAF7F0; --green-ink:#0E5C3A; --lav:#EEEAFB; --lav-ink:#6D4FD8;
   --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --r-lg:18px; --r-md:12px;
+  --r-lg:16px; --r-md:12px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0A1A2E; --surface:#0F2340; --fg:#EEF2F8; --muted:#97A6BC; --line:#1F3553;
-  --blue:#4B93FF; --btn:#1664E6; --blue-ink:#7AB0FF; --blue-soft:rgba(75,147,255,.15); --band:#06121F; --band-fg:#F1F5F9;
-  --ok:#4ADE80; --ok-soft:rgba(74,222,128,.12); --warn:#FBBF24; --warn-soft:rgba(251,191,36,.13); color-scheme:dark}}
+  --blue:#4B93FF; --btn:#1664E6; --blue-ink:#7AB0FF; --blue-soft:rgba(75,147,255,.14);
+  --navy:#06121F; --ok:#4ADE80; --ok-soft:rgba(74,222,128,.12); --bad:#FBBF24; --bad-soft:rgba(251,191,36,.13);
+  --green-soft:rgba(74,222,128,.10); --green-ink:#86EFAC; --lav:rgba(167,139,250,.16); --lav-ink:#C4B5FD; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0A1A2E; --surface:#0F2340; --fg:#EEF2F8; --muted:#97A6BC; --line:#1F3553;
-  --blue:#4B93FF; --btn:#1664E6; --blue-ink:#7AB0FF; --blue-soft:rgba(75,147,255,.15); --band:#06121F; --band-fg:#F1F5F9;
-  --ok:#4ADE80; --ok-soft:rgba(74,222,128,.12); --warn:#FBBF24; --warn-soft:rgba(251,191,36,.13); color-scheme:dark}
+  --blue:#4B93FF; --btn:#1664E6; --blue-ink:#7AB0FF; --blue-soft:rgba(75,147,255,.14);
+  --navy:#06121F; --ok:#4ADE80; --ok-soft:rgba(74,222,128,.12); --bad:#FBBF24; --bad-soft:rgba(251,191,36,.13);
+  --green-soft:rgba(74,222,128,.10); --green-ink:#86EFAC; --lav:rgba(167,139,250,.16); --lav-ink:#C4B5FD; color-scheme:dark}
 
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
 :root:not([data-lang="en"]) .en{display:none!important}
 :root[data-lang="en"] .es{display:none!important}
+[hidden]{display:none!important}
+a{color:var(--blue-ink);text-underline-offset:3px}
 
-.band{background:var(--band);color:var(--band-fg);padding:18px 16px 0}
-.wrap{max-width:1180px;margin:0 auto}
-.band-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:12px}
-.wordmark{font-weight:800;font-size:24px;letter-spacing:-.02em}
-.wordmark b{color:#4B93FF;font-weight:800}
-.kit-pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:rgba(75,147,255,.18);color:#BFD7FF;letter-spacing:.02em}
+/* Header */
+.top{background:var(--navy);color:var(--band-fg)}
+.top-in{max-width:1080px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.wordmark{font-weight:800;font-size:22px;letter-spacing:-.02em;text-decoration:none;color:#fff}
+.wordmark b{color:#4B93FF}
+.top-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.top-link{all:unset;cursor:pointer;font-size:13px;font-weight:600;color:#C9D4E3;padding:6px 10px;border-radius:999px}
+.top-link:hover{color:#fff;background:rgba(255,255,255,.08)}
+.top-link:focus-visible,.lang button:focus-visible{outline:2px solid #4B93FF;outline-offset:2px}
 .lang{display:inline-flex;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:3px}
-.lang button{all:unset;cursor:pointer;font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;color:#C9D4E3}
+.lang button{all:unset;cursor:pointer;font-size:13px;font-weight:600;padding:4px 11px;border-radius:999px;color:#C9D4E3}
 .lang button[aria-pressed="true"]{background:#fff;color:#0A1A2E}
-.lang button:focus-visible{outline:2px solid #4B93FF;outline-offset:2px}
-.band h1{font-size:clamp(22px,3.2vw,30px);line-height:1.2;letter-spacing:-.02em;margin:22px 0 6px;text-wrap:balance;font-weight:700}
-.band p.lede{margin:0;color:#B8C4D6;max-width:68ch;font-size:15px}
-.tabs{display:flex;gap:4px;margin-top:22px;overflow-x:auto}
-.tabs a{color:#B8C4D6;text-decoration:none;font-weight:600;font-size:14px;padding:12px 16px;border-radius:12px 12px 0 0;white-space:nowrap}
-.tabs a[aria-current="page"]{background:var(--bg);color:var(--fg)}
-.tabs a:focus-visible{outline:2px solid #4B93FF}
 
-main{padding:24px 16px 64px}
-.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--blue-soft);color:var(--blue-ink);letter-spacing:.01em}
-.pill.ok{background:var(--ok-soft);color:var(--ok)}
-.pill.warn{background:var(--warn-soft);color:var(--warn)}
-.eyebrow{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+main{max-width:1080px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-right,0px)) 120px max(16px,env(safe-area-inset-left,0px))}
+h1{font-size:clamp(26px,3.6vw,34px);line-height:1.15;letter-spacing:-.025em;margin:0;text-wrap:balance}
+h2{font-size:21px;line-height:1.25;letter-spacing:-.015em;margin:0;text-wrap:balance}
+h3{font-size:16px;margin:0;letter-spacing:-.01em}
+p{margin:0}
+.muted{color:var(--muted)}
+.hint{font-size:12.5px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px}
 
-/* Generator */
-.gen{display:grid;grid-template-columns:minmax(0,390px) minmax(0,1fr);gap:24px;align-items:start}
-@media (max-width:880px){.gen{grid-template-columns:minmax(0,1fr)}}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
-.form{display:grid;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
-@media (max-width:880px){.form{position:static}}
+/* Form */
+.new{display:grid;gap:22px;max-width:760px;margin:0 auto}
+.new-head{display:grid;gap:6px}
 .field{display:grid;gap:6px;min-width:0}
 .field label,.field .lbl{font-size:13px;font-weight:600}
-.field .hint{font-size:12px;color:var(--muted)}
-input[type=text],input[type=url]{font:inherit;font-size:15px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
-input:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-color:transparent}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media (max-width:420px){.row2{grid-template-columns:1fr}}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px}
-.seg label{display:block;text-align:center;font-size:13px;font-weight:600;padding:8px 6px;border-radius:9px;cursor:pointer;color:var(--muted)}
+input[type=text],input[type=url],input[type=password],select,textarea{font:inherit;font-size:16px;width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+textarea{resize:vertical;line-height:1.5}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-color:transparent}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px}
+.mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:10px;border:0;padding:0;margin:0}
+.mods legend{font-size:13px;font-weight:600;margin-bottom:8px;padding:0}
+.mod{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--bg);cursor:pointer}
+.mod input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--blue)}
+.mod strong{display:block;font-size:15px}
+.mod small{display:block;color:var(--muted);font-size:13px;line-height:1.45;margin-top:2px}
+.mod:has(input:checked){border-color:var(--blue);background:var(--blue-soft)}
+.mod:has(input:focus-visible){outline:2px solid var(--blue)}
+.more{border-top:1px solid var(--line);padding-top:14px}
+.more summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--muted)}
+.more[open] summary{margin-bottom:14px}
+.seg{display:inline-flex;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px;flex-wrap:wrap}
+.seg label{font-size:13px;font-weight:600;padding:6px 11px;border-radius:7px;cursor:pointer;color:var(--muted)}
 .seg input{position:absolute;opacity:0;pointer-events:none}
-.seg input:checked+span{color:var(--fg)}
-.seg label:has(input:checked){background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);color:var(--fg)}
+.seg label:has(input:checked){background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(10,26,46,.10)}
 .seg label:has(input:focus-visible){outline:2px solid var(--blue)}
-.pains{display:grid;gap:8px}
-.pain{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:var(--bg)}
-.pain input{margin-top:3px;accent-color:var(--blue)}
-.pain strong{font-size:14px;display:block}
-.pain small{display:block;color:var(--muted);font-size:12px;line-height:1.45;margin-top:2px}
-.pain:has(input:checked){border-color:var(--blue);background:var(--blue-soft)}
-.pain:has(input:focus-visible){outline:2px solid var(--blue)}
 .logo-row{display:flex;align-items:center;gap:12px}
-.logo-prev{width:52px;height:52px;border-radius:50%;border:1px dashed var(--line);display:grid;place-items:center;overflow:hidden;font-weight:700;color:var(--muted);background:var(--bg);flex:none}
-.logo-prev img{width:100%;height:100%;object-fit:cover}
-.btn{font:inherit;font-size:14px;font-weight:600;border-radius:10px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;gap:6px}
+.logo-prev{width:48px;height:48px;border-radius:50%;overflow:hidden;flex:none;border:1px solid var(--line)}
+.logo-prev img{width:100%;height:100%;display:block}
+
+.btn{font:inherit;font-size:14px;font-weight:600;border-radius:10px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--blue)}
 .btn.primary{background:var(--btn);border-color:var(--btn);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.big{font-size:17px;padding:14px 26px;border-radius:12px}
+.btn.small{font-size:13px;padding:6px 10px;border-radius:8px}
 .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-.btn.small{font-size:13px;padding:6px 10px}
-.swatches{display:flex;gap:8px;flex-wrap:wrap}
-.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
-.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--blue)}
-.sw:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.btn[disabled]{opacity:.65;cursor:progress}
+.go-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.status{font-size:13px;color:var(--muted);min-height:1.2em}
+.status.err{color:var(--bad);font-weight:600}
+.status.okc{color:var(--ok)}
 
-.outs{display:grid;gap:20px;min-width:0}
-.why{display:grid;gap:8px;padding:16px 18px;border-radius:var(--r-lg);background:var(--blue-soft);border:1px solid transparent}
-.why p{margin:0;font-size:14px}
-.why .quote{font-size:15px;font-weight:600}
-.warnbox{padding:12px 14px;border-radius:12px;background:var(--warn-soft);color:var(--fg);font-size:13px}
-.warnbox strong{color:var(--warn)}
-.out{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;display:grid;gap:14px;min-width:0}
-.out-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.out-head h2,.out-head h3{margin:0;font-size:17px;letter-spacing:-.01em}
-.out-head p{margin:2px 0 0;color:var(--muted);font-size:13px;max-width:56ch}
-.num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--btn);color:#fff;font-size:12px;font-weight:700;margin-right:8px;vertical-align:2px}
-textarea{font:inherit;font-size:15px;line-height:1.55;width:100%;min-height:260px;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg);resize:vertical}
-details{font-size:13px;color:var(--muted)}
-details summary{cursor:pointer;font-weight:600}
-details pre{white-space:pre-wrap;font-family:var(--font);font-size:13px;background:var(--bg);border-radius:10px;padding:12px;margin:8px 0 0;color:var(--fg)}
-.imgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:20px}
-.shot{display:grid;gap:10px;justify-items:start}
-.shot img{width:100%;max-width:380px;border-radius:12px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(10,26,46,.10)}
-.status{font-size:12px;color:var(--ok);min-height:1em}
-.missing{font-size:12px;color:var(--warn);font-weight:600}
+/* Brief */
+.brief{display:grid;gap:22px}
+.brief-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.brief-head .where{color:var(--muted);font-size:14px;margin-top:4px}
+.facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.fact{font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.sec{display:grid;gap:16px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.tag-private{font-size:12px;font-weight:700;color:var(--lav-ink);background:var(--lav);padding:3px 10px;border-radius:999px}
+.say{font-size:19px;line-height:1.45;font-weight:600;letter-spacing:-.01em;max-width:62ch}
+.bul{margin:0;padding-left:20px;display:grid;gap:6px;max-width:70ch}
+.notes{background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;font-size:14px;white-space:pre-wrap}
+.split{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.split{grid-template-columns:minmax(0,1fr)}}
+.map{height:340px;border-radius:12px;border:1px solid var(--line);z-index:0;background:var(--bg)}
+.big-num{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big-num strong{font-size:44px;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line);display:inline-flex;gap:6px;align-items:center;background:var(--bg)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.callout{background:var(--green-soft);color:var(--green-ink);border-radius:12px;padding:14px 16px;font-weight:700;font-size:15px}
+.tips{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.tips li{display:grid;gap:2px;font-size:14px}
+.tips li strong{font-size:14px}
+details.sub{border-top:1px solid var(--line);padding-top:12px}
+details.sub>summary{cursor:pointer;font-size:14px;font-weight:600}
+details.sub[open]>summary{margin-bottom:14px}
+.plist{display:grid;max-height:360px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.prow{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
+.prow:last-child{border-bottom:0}
+.prow input{accent-color:var(--blue);width:16px;height:16px}
+.prow strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.prow small{color:var(--muted);font-size:12px}
+.prow a{font-size:12px;text-decoration:none;white-space:nowrap}
+.prow:has(input:checked){background:var(--blue-soft)}
 
-/* Guide */
-.guide{display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px;align-items:start}
-@media (max-width:880px){.guide{grid-template-columns:minmax(0,1fr)}.toc{display:none}}
-.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:2px;font-size:14px}
-.toc a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:8px}
-.toc a:hover{background:var(--surface);color:var(--fg)}
-.sec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;margin-bottom:18px;scroll-margin-top:16px}
-.sec h2{font-size:20px;letter-spacing:-.015em;margin:6px 0 10px;text-wrap:balance}
-.sec p,.sec li{max-width:68ch}
-.sec ul,.sec ol{padding-left:20px;margin:8px 0}
-.sec li{margin:4px 0}
-.script{background:var(--blue-soft);padding:16px 18px;border-radius:12px;font-size:17px;font-weight:600;line-height:1.45;margin:12px 0}
-.script small{display:block;font-weight:400;font-size:13px;color:var(--muted);margin-top:6px}
-.evid{font-size:13px;color:var(--muted);margin-top:6px}
-.tbl{overflow-x:auto;margin-top:10px}
-table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
-th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.obj{display:grid;gap:12px;margin-top:10px}
-.obj-item{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg)}
-.obj-item .they{font-weight:700}
-.obj-item .you{margin-top:6px}
-.dont li::marker{color:var(--warn)}
-.checklist{list-style:none;padding:0}
-.checklist li{display:flex;gap:10px}
-.checklist li::before{content:"";flex:none;width:16px;height:16px;border:2px solid var(--blue);border-radius:4px;margin-top:3px}
-dl.gloss{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr);gap:10px 18px;margin:10px 0 0}
-dl.gloss dt{font-weight:700}
-dl.gloss dd{margin:0;color:var(--fg)}
-@media (max-width:520px){dl.gloss{grid-template-columns:1fr}dl.gloss dd{margin-bottom:8px}}
-footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font-size:12px}
+.checks{display:grid}
+.crow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.crow:last-child{border-bottom:0}
+.crow .src{font-size:11px;font-weight:700;color:var(--blue-ink);background:var(--blue-soft);padding:1px 7px;border-radius:999px;margin-left:6px}
+.state{font:inherit;font-size:13px;font-weight:700;min-width:64px;padding:5px 10px;border-radius:999px;border:1px solid transparent;cursor:pointer}
+.state.yes{background:var(--ok-soft);color:var(--ok)}
+.state.no{background:var(--bad-soft);color:var(--bad)}
+.state.unk{background:var(--bg);color:var(--muted);border-color:var(--line)}
+.state:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.help{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.help li{padding:12px 14px;border-radius:12px;background:var(--bg);border:1px solid var(--line);display:grid;gap:6px;font-size:14px}
+.pill{justify-self:start;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--blue-soft);color:var(--blue-ink)}
+.pill.kit{background:var(--ok-soft);color:var(--ok)}
+.pill.owner{background:var(--bad-soft);color:var(--bad)}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:460px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{font-size:12px;color:var(--muted);font-weight:600}
+
+.pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));gap:16px}
+.page{display:grid;gap:8px;align-content:start;min-width:0}
+.page img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px;border:1px solid var(--line);display:block;background:#fff}
+.page .btns{display:flex;gap:6px;flex-wrap:wrap}
+.page span{font-size:12.5px;color:var(--muted)}
+.wa{min-height:220px}
+.wa-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:22px;align-items:start}
+@media (max-width:860px){.wa-row{grid-template-columns:minmax(0,1fr)}}
+details pre{white-space:pre-wrap;font-family:var(--font);font-size:13px;background:var(--bg);border-radius:10px;padding:12px;margin:8px 0 0}
+
+.bar{position:sticky;bottom:0;z-index:20;margin-top:28px;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -8px 24px rgba(10,26,46,.10);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.bar .status{flex:1 1 160px}
+
+dialog{border:1px solid var(--line);border-radius:var(--r-lg);padding:0;background:var(--surface);color:var(--fg);width:min(520px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(6,18,31,.55)}
+.dlg{display:grid;gap:14px;padding:22px}
+footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));color:var(--muted);font-size:12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
+</head>
+<body>
 
-<header class="band">
-  <div class="wrap">
-    <div class="band-top">
-      <div class="brand"><span class="wordmark">Sales<b>Vu</b></span><span class="kit-pill"><span class="es">Kit de ventas</span><span class="en">Sales kit</span></span></div>
+<header class="top">
+  <div class="top-in">
+    <a class="wordmark" href="#nueva" id="home">Sales<b>Vu</b></a>
+    <div class="top-actions">
+      <a class="top-link" href="guia.html"><span class="es">Guía de llamada</span><span class="en">Call guide</span></a>
+      <button type="button" class="top-link" id="open-settings" aria-haspopup="dialog"><span class="es">Ajustes</span><span class="en">Settings</span></button>
       <div class="lang" role="group" aria-label="Idioma / Language">
-        <button type="button" id="lang-es" aria-pressed="true">Español</button>
-        <button type="button" id="lang-en" aria-pressed="false">English</button>
+        <button type="button" id="lang-es" aria-pressed="true">ES</button>
+        <button type="button" id="lang-en" aria-pressed="false">EN</button>
       </div>
     </div>
-    <h1><span class="es">Todo lo que necesita antes, durante y después de cada llamada</span><span class="en">Everything a rep needs before, during and after each call</span></h1>
-    <p class="lede"><span class="es">Para los representantes que llaman a restaurantes mexicanos en EE. UU. Basado en las llamadas y el CRM de SalesVu revisados el 14 de octubre de 2026.</span><span class="en">For the reps calling Mexican restaurants in the US. Built from SalesVu's call transcripts and CRM, reviewed Oct 14, 2026.</span></p>
-    <nav class="tabs" aria-label="Secciones">
-      <a href="#generador" id="tab-gen" aria-current="page"><span class="es">Generador de material</span><span class="en">Collateral generator</span></a>
-      <a href="#guia" id="tab-guide"><span class="es">Guía de llamada</span><span class="en">Call guide</span></a>
-      <a href="regalos.html" style="margin-left:auto"><span class="es">Regalos para el restaurante ↗</span><span class="en">Gifts for the restaurant ↗</span></a>
-    </nav>
   </div>
 </header>
 
-<main class="wrap">
-<!-- ================= GENERATOR ================= -->
-<section id="view-gen" aria-labelledby="tab-gen">
-  <div class="gen">
-    <form class="panel form" id="f" autocomplete="off">
-      <div>
-        <h2 style="margin:0;font-size:19px;letter-spacing:-.01em"><span class="es">El restaurante</span><span class="en">The restaurant</span></h2>
-      </div>
+<main>
+<!-- ================= 1. NEW CALL ================= -->
+<section id="view-new" aria-labelledby="new-h">
+  <form class="card new" id="f" autocomplete="off">
+    <div class="new-head">
+      <h1 id="new-h"><span class="es">Prepare su próxima llamada</span><span class="en">Prepare your next call</span></h1>
+      <p class="muted"><span class="es">Escriba el restaurante, elija qué necesita y presione Generar.</span><span class="en">Type the restaurant, choose what you need, and press Generate.</span></p>
+    </div>
+    <div class="grid2">
       <div class="field">
-        <label for="r-name"><span class="es">Nombre del restaurante</span><span class="en">Restaurant name</span></label>
+        <label for="r-name"><span class="es">Restaurante</span><span class="en">Restaurant</span></label>
         <input type="text" id="r-name" value="Taquería Los Compadres">
       </div>
-      <div class="row2">
-        <div class="field">
-          <label for="r-owner"><span class="es">Nombre del dueño</span><span class="en">Owner's name</span></label>
-          <input type="text" id="r-owner" value="Don Ramiro" placeholder="Opcional">
-        </div>
-        <div class="field">
-          <label for="r-city"><span class="es">Ciudad</span><span class="en">City</span></label>
-          <input type="text" id="r-city" value="Houston, TX">
-        </div>
-      </div>
       <div class="field">
-        <span class="lbl"><span class="es">Logo del restaurante</span><span class="en">Restaurant logo</span></span>
-        <div class="logo-row">
-          <div class="logo-prev" id="logo-prev">TC</div>
-          <div style="display:grid;gap:6px">
-            <label class="btn small" for="r-logo" style="width:max-content"><span class="es">Subir logo</span><span class="en">Upload logo</span></label>
-            <input type="file" id="r-logo" accept="image/*" hidden>
-            <span class="hint"><span class="es">Una captura de Google Maps o Facebook sirve. Sin logo, se usan las iniciales.</span><span class="en">A screenshot from Google Maps or Facebook works. Without one, initials are used.</span></span>
-          </div>
-        </div>
+        <label for="r-addr"><span class="es">Dirección o enlace de Google Maps</span><span class="en">Address or Google Maps link</span></label>
+        <input type="text" id="r-addr" value="2400 Navigation Blvd, Houston, TX" placeholder="Calle y ciudad, o https://www.google.com/maps/place/…">
       </div>
-
-
-      <div class="field">
-        <span class="lbl"><span class="es">¿Qué le importa más al dueño?</span><span class="en">What matters most to the owner?</span></span>
-        <div class="pains" id="pains"></div>
-      </div>
-
-      <div class="field">
-        <label for="r-link"><span class="es">Enlace de la tienda demo (del CRM)</span><span class="en">Demo store link (from the CRM)</span></label>
-        <input type="url" id="r-link" placeholder="https://…">
-        <span class="hint"><span class="es">Pegue el enlace de la tienda que ya se preparó para este restaurante. Se usa en el mensaje y en el código QR.</span><span class="en">Paste the link to the store already built for this restaurant. It goes in the message and the QR code.</span></span>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label for="r-rep"><span class="es">Su nombre</span><span class="en">Your name</span></label>
-          <input type="text" id="r-rep" value="Andrea">
-        </div>
-      </div>
-      <button type="button" class="btn small" id="reset" style="justify-self:start"><span class="es">Borrar el ejemplo</span><span class="en">Clear the example</span></button>
-    </form>
-
-    <div class="outs">
-      <div class="why" id="why"></div>
-
-      <article class="out">
-        <div class="out-head">
-          <div>
-            <h2><span class="es">Mensaje de WhatsApp para el dueño</span><span class="en">WhatsApp message to the owner</span></h2>
-            <p><span class="es">Mándelo en la primera hora después de la llamada. Con el primer cliente, seguir el mismo día convirtió un "no" en un "sí". Puede editar el texto aquí.</span><span class="en">Send it within an hour of the call. With the first customer, a same-day follow-up turned a "no" into a "yes". You can edit the text here.</span></p>
-          </div>
-          <button type="button" class="btn primary small" id="copy-wa"><span class="es">Copiar mensaje</span><span class="en">Copy message</span></button>
-        </div>
-        <span class="missing" id="miss-link" hidden><span class="es">Falta el enlace de la tienda demo. Péguelo antes de enviar.</span><span class="en">The demo store link is missing. Paste it before sending.</span></span>
-        <textarea id="wa" aria-label="Mensaje de WhatsApp"></textarea>
-        <div class="status" id="st-wa" role="status"></div>
-        <details><summary><span class="es">Ver en inglés (para revisión del equipo)</span><span class="en">English version (for team review)</span></summary><pre id="wa-en"></pre></details>
-      </article>
-
-      <article class="out">
-        <div class="out-head">
-          <div>
-            <h2><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h2>
-            <p><span class="es">Una propuesta en una sola imagen, con su logo. Mándela junto con el mensaje para que el dueño recuerde quién llamó.</span><span class="en">A one-image proposal with their logo. Send it with the message so the owner remembers who called.</span></p>
-          </div>
-          <button type="button" class="btn small" id="copy-owner"><span class="es">Copiar imagen</span><span class="en">Copy image</span></button>
-        </div>
-        <div class="shot"><img id="img-owner" alt="Propuesta para el dueño"><span class="hint" style="font-size:12px;color:var(--muted)"><span class="es">Para guardarla: mantenga presionada la imagen en el celular, o clic derecho en la computadora.</span><span class="en">To save: long-press the image on a phone, or right-click on a computer.</span></span></div>
-        <div class="status" id="st-owner" role="status"></div>
-      </article>
-
-
-      <div class="warnbox"><strong><span class="es">Antes de enviar:</span><span class="en">Before sending:</span></strong> <span class="es">usted revisa y envía; la herramienta no manda nada. No agregue precios ni cuotas hasta que Sebastian confirme la oferta.</span><span class="en">you review and send; the tool sends nothing. Don't add prices or fees until Sebastian confirms the offer.</span></div>
     </div>
-  </div>
+    <div class="field">
+      <label for="r-notes"><span class="es">Notas (opcional)</span><span class="en">Notes (optional)</span></label>
+      <textarea id="r-notes" rows="2" placeholder="Ej.: El dueño es Ramiro. Ya usa DoorDash. Cierra a las 3.">El dueño es Ramiro. Ya está en DoorDash.</textarea>
+    </div>
+
+    <fieldset class="mods">
+      <legend><span class="es">¿Qué quiere preparar?</span><span class="en">What do you want to prepare?</span></legend>
+      <label class="mod"><input type="checkbox" id="m-offices" checked><span><strong><span class="es">Oficinas cerca y MealPool</span><span class="en">Nearby offices and MealPool</span></strong><small><span class="es">Quién puede pedirle almuerzo, el mapa y cómo posicionar MealPool.</span><span class="en">Who could order lunch, the map, and how to position MealPool.</span></small></span></label>
+      <label class="mod"><input type="checkbox" id="m-presence" checked><span><strong><span class="es">Presencia en línea</span><span class="en">Online presence</span></strong><small><span class="es">Qué le falta para recibir pedidos directos y cómo ayuda SalesVu.</span><span class="en">What they're missing to get direct orders, and how SalesVu helps.</span></small></span></label>
+      <label class="mod"><input type="checkbox" id="m-comp" checked><span><strong><span class="es">Competencia cerca</span><span class="en">Nearby competitors</span></strong><small><span class="es">Restaurantes mexicanos de la zona. Solo para usted.</span><span class="en">Mexican restaurants in the area. For you only.</span></small></span></label>
+      <label class="mod"><input type="checkbox" id="m-kit" checked><span><strong><span class="es">Kit MealPool para el dueño</span><span class="en">MealPool kit for the owner</span></strong><small><span class="es">Calcomanía, publicación y estado de WhatsApp con su logo.</span><span class="en">Sticker, post and WhatsApp Status with their logo.</span></small></span></label>
+    </fieldset>
+
+    <details class="more" id="more">
+      <summary><span class="es">Más opciones</span><span class="en">More options</span></summary>
+      <div class="grid2">
+        <div class="field"><label for="r-owner"><span class="es">Nombre del dueño</span><span class="en">Owner's name</span></label><input type="text" id="r-owner" placeholder="Don Ramiro"></div>
+        <div class="field"><label for="r-rep"><span class="es">Su nombre</span><span class="en">Your name</span></label><input type="text" id="r-rep" value="Andrea"></div>
+        <div class="field"><label for="r-link"><span class="es">Enlace de la tienda en línea (del CRM)</span><span class="en">Online store link (from the CRM)</span></label><input type="url" id="r-link" placeholder="https://…"></div>
+        <div class="field">
+          <span class="lbl"><span class="es">Logo</span><span class="en">Logo</span></span>
+          <div class="logo-row"><div class="logo-prev" id="logo-prev"></div><label class="btn small" for="r-logo"><span class="es">Subir logo</span><span class="en">Upload logo</span></label><input type="file" id="r-logo" accept="image/*" hidden><span class="hint"><span class="es">Si no hay, se crea uno.</span><span class="en">One is made if there's none.</span></span></div>
+        </div>
+        <div class="field"><span class="lbl"><span class="es">Idioma del dueño</span><span class="en">Owner's language</span></span>
+          <div class="seg" role="radiogroup" aria-label="Idioma del dueño"><label><input type="radio" name="olang" value="es" checked><span>Español</span></label><label><input type="radio" name="olang" value="en"><span>English</span></label></div></div>
+        <div class="field"><span class="lbl"><span class="es">Distancia</span><span class="en">Distance</span></span>
+          <div class="seg" role="radiogroup" aria-label="Distancia"><label><input type="radio" name="radius" value="0.5"><span>½ mi</span></label><label><input type="radio" name="radius" value="1" checked><span>1 mi</span></label><label><input type="radio" name="radius" value="2"><span>2 mi</span></label></div></div>
+      </div>
+    </details>
+
+    <div class="go-row">
+      <button type="submit" class="btn primary big" id="go"><span class="es">Generar</span><span class="en">Generate</span></button>
+      <div class="status" id="go-st" role="status"></div>
+    </div>
+  </form>
 </section>
 
-<!-- ================= GUIDE ================= -->
-<section id="view-guide" aria-labelledby="tab-guide" hidden>
-  <div class="guide">
-    <nav class="toc" aria-label="Contenido">
-      <a href="#g-antes"><span class="es">1. Antes de llamar</span><span class="en">1. Before the call</span></a>
-      <a href="#g-abrir"><span class="es">2. Los primeros 10 segundos</span><span class="en">2. The first 10 seconds</span></a>
-      <a href="#g-noesta"><span class="es">3. Si el dueño no está</span><span class="en">3. If the owner isn't there</span></a>
-      <a href="#g-dueno"><span class="es">4. Con el dueño</span><span class="en">4. With the owner</span></a>
-      <a href="#g-precio"><span class="es">5. La pregunta del precio</span><span class="en">5. The price question</span></a>
-      <a href="#g-obj"><span class="es">6. Objeciones</span><span class="en">6. Objections</span></a>
-      <a href="#g-despues"><span class="es">7. Después de la llamada</span><span class="en">7. After the call</span></a>
-      <a href="#g-registro"><span class="es">8. Cómo registrar la llamada</span><span class="en">8. Logging the call</span></a>
-      <a href="#g-nodecir"><span class="es">9. Lo que no debe decir</span><span class="en">9. What not to say</span></a>
-      <a href="#g-demo"><span class="es">10. Lista para la demo</span><span class="en">10. Demo checklist</span></a>
-      <a href="#g-glosario"><span class="es">11. Glosario</span><span class="en">11. Glossary</span></a>
-    </nav>
+<!-- ================= 2. CALL BRIEF ================= -->
+<section id="view-brief" class="brief" hidden aria-labelledby="b-name">
+  <div class="brief-head">
     <div>
-      <div class="sec" id="g-antes">
-        <span class="pill"><span class="es">Del CRM</span><span class="en">From the CRM</span></span>
-        <h2><span class="es">1. Antes de llamar</span><span class="en">1. Before the call</span></h2>
-        <ul>
-          <li><span class="es"><strong>Llame primero a restaurantes de un solo local</strong>, donde el dueño está en el negocio. Las cadenas (Velvet Taco, King Taco, Taco Cabana) casi nunca compran.</span><span class="en"><strong>Call single-location restaurants first</strong>, where the owner is on site. Chains (Velvet Taco, King Taco, Taco Cabana) rarely buy.</span></li>
-          <li><span class="es">Revise si el número ya aparece en otro registro. Uno de cada cinco números está repetido.</span><span class="en">Check whether the number appears on another record. About 1 in 5 numbers is a duplicate.</span></li>
-          <li><span class="es">Abra la tienda demo del restaurante en el CRM para tenerla lista.</span><span class="en">Open the restaurant's demo store in the CRM so it's ready.</span></li>
-          <li><span class="es">Revise los mensajes de voz pendientes primero: son las personas más interesadas. Hay 11 sin contestar, algunos de hace un mes.</span><span class="en">Check pending voicemails first: those are the most interested people. 11 are unanswered, some a month old.</span></li>
-        </ul>
-      </div>
+      <h1 id="b-name"></h1>
+      <p class="where" id="b-where"></p>
+      <div class="facts" id="b-facts"></div>
+    </div>
+    <div class="go-row">
+      <select id="b-match" aria-label="Otro resultado" hidden></select>
+      <button type="button" class="btn" id="b-edit"><span class="es">Editar</span><span class="en">Edit</span></button>
+    </div>
+  </div>
 
-      <div class="sec" id="g-abrir">
-        <span class="pill ok"><span class="es">Funciona en las llamadas</span><span class="en">Works on calls</span></span>
-        <h2><span class="es">2. Los primeros 10 segundos</span><span class="en">2. The first 10 seconds</span></h2>
-        <div class="script">“Buenas tardes. Quisiera enviarle pedidos nuevos en línea a su restaurante. ¿Me comunica con el dueño o el encargado, por favor?”<small class="en">"Good afternoon. I'd like to send new online orders to your restaurant. May I speak with the owner or manager, please?"</small></div>
-        <p class="evid"><span class="es">En todas las llamadas revisadas, con esta frase el personal pasó la llamada o dio una hora para volver a llamar.</span><span class="en">In every call reviewed, this line got staff to transfer the call or give a callback time.</span></p>
-        <p><span class="es">Hable de <strong>pedidos</strong>, no de tecnología ni de inteligencia artificial.</span><span class="en">Talk about <strong>orders</strong>, not technology or AI.</span></p>
-      </div>
+  <section class="card sec" aria-labelledby="s-sum">
+    <h2 id="s-sum"><span class="es">En 30 segundos</span><span class="en">In 30 seconds</span></h2>
+    <p class="say" id="b-say"></p>
+    <ul class="bul" id="b-bul"></ul>
+    <div class="notes" id="b-notes" hidden></div>
+  </section>
 
-      <div class="sec" id="g-noesta">
-        <span class="pill ok"><span class="es">El mayor problema</span><span class="en">The biggest problem</span></span>
-        <h2><span class="es">3. Si el dueño no está</span><span class="en">3. If the owner isn't there</span></h2>
-        <p><span class="es">El 80% de las oportunidades perdidas dicen "no se pudo contactar". Llegar al dueño es el problema, no el precio.</span><span class="en">80% of lost deals say "unreachable." Reaching the owner is the problem, not price.</span></p>
-        <ol>
-          <li><span class="es">Pregunte: <strong>“¿A qué hora lo encuentro?”</strong> y <strong>“¿Cómo se llama el dueño?”</strong></span><span class="en">Ask: <strong>"What time can I reach them?"</strong> and <strong>"What's the owner's name?"</strong></span></li>
-          <li><span class="es">Pida el WhatsApp del dueño o del restaurante.</span><span class="en">Ask for the owner's or the restaurant's WhatsApp.</span></li>
-          <li><span class="es">Vuelva a llamar <strong>a esa hora exacta</strong> y pregunte por el dueño por su nombre: “Busco a Pamela, la dueña.”</span><span class="en">Call back <strong>at that exact time</strong> and ask for the owner by name: "I'm looking for Pamela, the owner."</span></li>
-          <li><span class="es">Mande el mensaje del generador con la opción “No, no estaba”.</span><span class="en">Send the generator message using "No, not there."</span></li>
-        </ol>
-        <p class="evid"><span class="es">En La Colina se llamó 5 veces en un día sin hablar con la dueña. Mejor una llamada a la hora correcta que cinco al azar.</span><span class="en">La Colina got 5 calls in one day without reaching the owner. One call at the right time beats five at random.</span></p>
-      </div>
-
-      <div class="sec" id="g-dueno">
-        <span class="pill ok"><span class="es">Así se cerró la primera venta</span><span class="en">How the first sale closed</span></span>
-        <h2><span class="es">4. Con el dueño: más ventas, y nosotros hacemos el trabajo</span><span class="en">4. With the owner: more sales, and we do the work</span></h2>
-        <p><span class="es">Un dueño en San Antonio dijo que sí porque necesitaba ventas y no tenía tiempo. El ahorro en comisiones fue una pregunta, no la razón.</span><span class="en">An owner in San Antonio said yes because they needed sales and had no time. Commission savings were a question, not the reason.</span></p>
-        <div class="script">“Ya le preparamos su tienda en línea con su menú y sus precios. Usted no tiene que hacer nada. Sus clientes ordenan directo con usted, y usted no paga comisión por pedido.”<small class="en">"We've already set up your online store with your menu and prices. You don't have to do anything. Your customers order directly from you, and you don't pay a commission per order."</small></div>
-        <ul>
-          <li><span class="es">Ofrezca enseñarle la tienda en ese momento o mandarle el enlace.</span><span class="en">Offer to show the store right then or send the link.</span></li>
-          <li><span class="es">Si ya tiene página o menú, use lo que ya tiene: no le pida empezar de cero.</span><span class="en">If they already have a website or menu, build on it; don't ask them to start over.</span></li>
-          <li><span class="es">Ofrezca un regalo: las oficinas cerca de su restaurante que pueden pedir con MealPool (<a href="regalos.html#almuerzos">Regalos → Almuerzos cerca</a>).</span><span class="en">Offer a gift: the offices near their restaurant that could order with MealPool (<a href="regalos.html#almuerzos">Gifts → Lunch nearby</a>).</span></li>
-        </ul>
-      </div>
-
-      <div class="sec" id="g-precio">
-        <span class="pill warn"><span class="es">Por confirmar</span><span class="en">To confirm</span></span>
-        <h2><span class="es">5. La pregunta del precio: “¿Qué porcentaje cobran?”</span><span class="en">5. The price question: "What percentage do you charge?"</span></h2>
-        <p><span class="es">Fue la primera pregunta del dueño. La respuesta tiene que caber en una frase.</span><span class="en">It was the owner's first question. The answer has to fit in one sentence.</span></p>
-        <div class="script">“Usted no paga comisión por pedido.”<small class="en">"You don't pay a commission per order."</small></div>
-        <div class="warnbox"><strong><span class="es">Pendiente con Sebastian:</span><span class="en">Pending with Sebastian:</span></strong> <span class="es">los detalles de precio todavía se están confirmando. Hasta entonces, diga solo la frase de arriba y no prometa “sin costo”.</span><span class="en">pricing details are still being confirmed. Until then, say only the line above and don't promise "free."</span></div>
-      </div>
-
-      <div class="sec" id="g-obj">
-        <h2><span class="es">6. Objeciones</span><span class="en">6. Objections</span></h2>
-        <div class="obj">
-          <div class="obj-item"><div class="they">“Ya tenemos página web.”</div><div class="you"><span class="es">“Qué bueno. No hay que empezar de cero: usamos su menú y sus precios y le agregamos pedidos en línea.”</span><span class="en">"Great. No need to start over: we use your menu and prices and add online ordering."</span></div></div>
-          <div class="obj-item"><div class="they">“Ya estamos en DoorDash / Uber Eats.”</div><div class="you"><span class="es">“Puede seguir en las apps. Esto es un canal más: cuando sus clientes ordenan directo con usted, usted no paga comisión por pedido.”</span><span class="en">"You can stay on the apps. This is one more channel: when customers order directly from you, you don't pay a commission per order."</span></div></div>
-          <div class="obj-item"><div class="they">“No tengo tiempo / me falta personal.”</div><div class="you"><span class="es">“Por eso lo hacemos nosotros. Su tienda ya está armada; usted solo la revisa.”</span><span class="en">"That's why we do it. Your store is already built; you just review it."</span></div></div>
-          <div class="obj-item"><div class="they">“No nos interesa.” <span class="es" style="font-weight:400">(lo dice el personal)</span><span class="en" style="font-weight:400">(said by staff)</span></div><div class="you"><span class="es">“Entiendo. ¿A qué hora puedo hablar con el dueño?” No lo registre como “no interesado”: no habló con el dueño.</span><span class="en">"I understand. When can I speak with the owner?" Don't log it as "not interested": you didn't reach the owner.</span></div></div>
-          <div class="obj-item"><div class="they">“¿Cómo se escribe?”</div><div class="you"><span class="es">“Le mando el enlace por WhatsApp ahorita, así no tiene que escribir nada.”</span><span class="en">"I'll WhatsApp you the link right now so you don't have to type anything."</span></div></div>
-          <div class="obj-item"><div class="they">“Estoy por vender el restaurante.”</div><div class="you"><span class="es">Agradezca, registre “mal momento” y anote una fecha para volver a contactar.</span><span class="en">Thank them, log "bad timing" and note a date to reconnect.</span></div></div>
+  <section class="card sec" id="sec-offices" aria-labelledby="s-off">
+    <div class="sec-head"><h2 id="s-off"><span class="es">Oficinas cerca y MealPool</span><span class="en">Nearby offices and MealPool</span></h2><span class="hint" id="off-src"></span></div>
+    <p class="status err" id="off-err" hidden></p>
+    <div class="split" id="off-body">
+      <div class="map" id="map"></div>
+      <div class="sec">
+        <div class="big-num"><strong id="off-n"></strong><span id="off-n-lbl"></span></div>
+        <div class="chips" id="off-chips"></div>
+        <div class="callout" id="off-est"></div>
+        <div>
+          <h3 style="margin-bottom:8px"><span class="es">Cómo posicionar MealPool aquí</span><span class="en">How to position MealPool here</span></h3>
+          <ul class="tips" id="off-tips"></ul>
         </div>
       </div>
-
-      <div class="sec" id="g-despues">
-        <h2><span class="es">7. Después de la llamada</span><span class="en">7. After the call</span></h2>
-        <ul>
-          <li><span class="es">Mande el mensaje de WhatsApp y la imagen <strong>en la primera hora</strong>. El nombre “SalesVu” no se entiende bien por teléfono; el enlace sí.</span><span class="en">Send the WhatsApp message and image <strong>within the hour</strong>. "SalesVu" is hard to catch on the phone; a link isn't.</span></li>
-          <li><span class="es">Si el dueño dice que sí, avise a Sebastian el mismo día.</span><span class="en">If the owner says yes, tell Sebastian the same day.</span></li>
-          <li><span class="es">Si le dijeron “no” pero el dueño no estaba, vuelva a llamar a la hora indicada. Con el primer cliente, la segunda llamada del mismo día fue un sí.</span><span class="en">If you heard "no" but the owner wasn't there, call back at the time given. With the first customer, the second call that day was a yes.</span></li>
-        </ul>
+    </div>
+    <details class="sub" id="off-flyers">
+      <summary><span class="es">Volantes y correos para cada oficina</span><span class="en">Flyers and emails for each office</span></summary>
+      <div class="split">
+        <div class="sec">
+          <span class="hint"><span class="es">Marque las oficinas que quiere invitar. Las 5 más cercanas ya están marcadas.</span><span class="en">Tick the offices to invite. The 5 closest are ticked.</span></span>
+          <div class="plist" id="off-list"></div>
+          <div class="grid2">
+            <div class="field"><label for="l-cutoff"><span class="es">Pedir antes de</span><span class="en">Order by</span></label><input type="text" id="l-cutoff" value="10:30 am"></div>
+            <div class="field"><label for="l-time"><span class="es">Almuerzo listo a las</span><span class="en">Lunch ready at</span></label><input type="text" id="l-time" value="12:00 pm"></div>
+          </div>
+          <div class="seg" role="radiogroup" aria-label="Entrega"><label><input type="radio" name="l-mode" value="deliver" checked><span><span class="es">Entrega</span><span class="en">Delivery</span></span></label><label><input type="radio" name="l-mode" value="pickup"><span><span class="es">Recoger</span><span class="en">Pickup</span></span></label></div>
+          <div class="seg" role="radiogroup" aria-label="Idioma del volante"><label><input type="radio" name="l-lang" value="en" checked><span>English</span></label><label><input type="radio" name="l-lang" value="es"><span>Español</span></label><label><input type="radio" name="l-lang" value="both"><span><span class="es">Bilingüe</span><span class="en">Bilingual</span></span></label></div>
+        </div>
+        <div class="sec">
+          <div class="field"><label for="flyer-for"><span class="es">Material para</span><span class="en">Materials for</span></label><select id="flyer-for"></select></div>
+          <div class="page" style="max-width:300px"><img id="img-flyer" alt="Volante para la oficina"><div class="btns"><button type="button" class="btn small" data-copy="img-flyer"><span class="es">Copiar</span><span class="en">Copy</span></button><a class="btn small" id="dl-flyer"><span class="es">Descargar</span><span class="en">Download</span></a></div></div>
+          <div class="field"><label for="lunch-email"><span class="es">Correo para la oficina (lo manda el dueño)</span><span class="en">Email to the office (the owner sends it)</span></label><textarea id="lunch-email" rows="10"></textarea></div>
+          <button type="button" class="btn small" data-copytext="lunch-email" style="justify-self:start"><span class="es">Copiar correo</span><span class="en">Copy email</span></button>
+        </div>
       </div>
+    </details>
+  </section>
 
-      <div class="sec" id="g-registro">
-        <span class="pill"><span class="es">Del CRM</span><span class="en">From the CRM</span></span>
-        <h2><span class="es">8. Cómo registrar la llamada</span><span class="en">8. Logging the call</span></h2>
-        <p><span class="es">Si marca “no interesado”, el sistema descarta al restaurante y le pone una razón que no pasó. Así se marcó como perdida una venta, aunque el dueño dijo que sí. Solo 1 de 4 razones coincidía con la llamada.</span><span class="en">Logging "not interested" auto-disqualifies the restaurant and assigns a reason that didn't happen. That's how a sale was marked lost even though the owner said yes. Only 1 of 4 reasons matched the call.</span></p>
-        <div class="tbl"><table>
-          <thead><tr><th><span class="es">Lo que pasó</span><span class="en">What happened</span></th><th><span class="es">Regístrelo así</span><span class="en">Log it as</span></th></tr></thead>
-          <tbody>
-            <tr><td><span class="es">El dueño no estaba; le dieron una hora</span><span class="en">Owner not there; staff gave a time</span></td><td><strong><span class="es">Dueño no localizado · volver a llamar [hora]</span><span class="en">Owner not reached · call back [time]</span></strong></td></tr>
-            <tr><td><span class="es">El personal dijo “no nos interesa”</span><span class="en">Staff said "not interested"</span></td><td><strong><span class="es">Dueño no localizado</span><span class="en">Owner not reached</span></strong></td></tr>
-            <tr><td><span class="es">El dueño dijo que no</span><span class="en">Owner said no</span></td><td><strong><span class="es">El dueño dijo que no</span><span class="en">Owner said no</span></strong> <span class="es">+ la razón con sus palabras</span><span class="en">+ the reason in their words</span></td></tr>
-            <tr><td><span class="es">El dueño dijo que sí</span><span class="en">Owner said yes</span></td><td><strong><span class="es">El dueño dijo que sí</span><span class="en">Owner said yes</span></strong> <span class="es">+ avisar a Sebastian hoy</span><span class="en">+ tell Sebastian today</span></td></tr>
-            <tr><td><span class="es">Número equivocado o no existe</span><span class="en">Wrong or dead number</span></td><td><strong><span class="es">Número inválido</span><span class="en">Invalid number</span></strong></td></tr>
-          </tbody>
-        </table></div>
-        <p class="evid"><span class="es">Si el CRM no tiene estas opciones todavía, escríbalo en las notas. Le pediremos a Sebastian que las agregue.</span><span class="en">If the CRM doesn't have these options yet, write it in the notes. We'll ask Sebastian to add them.</span></p>
+  <section class="card sec" id="sec-presence" aria-labelledby="s-pre">
+    <div class="sec-head"><h2 id="s-pre"><span class="es">Presencia en línea</span><span class="en">Online presence</span></h2><span class="hint" id="pre-src"></span></div>
+    <div class="split">
+      <div class="sec">
+        <span class="hint"><span class="es">Toque una respuesta para corregirla.</span><span class="en">Tap an answer to correct it.</span></span>
+        <div class="checks" id="pre-rows"></div>
+        <div class="chips" id="pre-links"></div>
       </div>
-
-      <div class="sec" id="g-nodecir">
-        <span class="pill warn"><span class="es">Cuide lo que promete</span><span class="en">Watch what you promise</span></span>
-        <h2><span class="es">9. Lo que no debe decir (todavía)</span><span class="en">9. What not to say (yet)</span></h2>
-        <ul class="dont">
-          <li><span class="es">“Le mandamos pedidos de nuestros clientes corporativos”, sin un ejemplo real.</span><span class="en">"We'll send you orders from our corporate clients," without a real example.</span></li>
-          <li><span class="es">“Va a aparecer en Google o ChatGPT”: no está comprobado.</span><span class="en">"You'll show up on Google or ChatGPT": not verified.</span></li>
-          <li><span class="es">“No tiene que cambiar su sistema”: por confirmar con Pascal.</span><span class="en">"You don't have to switch your system": to confirm with Pascal.</span></li>
-          <li><span class="es">Descuentos por volumen o proveedores: no prometa funciones que aún se están desarrollando. MealPool (pedidos en grupo) sí está disponible.</span><span class="en">Volume discounts or suppliers: don't promise features still in development. MealPool (group orders) is live.</span></li>
-          <li><span class="es">Un precio o “es gratis”, hasta que se confirme la oferta.</span><span class="en">A price or "it's free," until the offer is confirmed.</span></li>
-        </ul>
-      </div>
-
-      <div class="sec" id="g-demo">
-        <h2><span class="es">10. Lista para la demo</span><span class="en">10. Demo checklist</span></h2>
-        <ul class="checklist">
-          <li><span class="es">Abra la tienda demo del restaurante antes de empezar.</span><span class="en">Open the restaurant's demo store before you start.</span></li>
-          <li><span class="es">Enséñele su propio menú y sus precios en la tienda.</span><span class="en">Show them their own menu and prices in the store.</span></li>
-          <li><span class="es">Enséñele cómo ordena un cliente, paso a paso, desde el celular.</span><span class="en">Show how a customer orders, step by step, on a phone.</span></li>
-          <li><span class="es">Conteste “¿qué porcentaje cobran?” con una sola frase.</span><span class="en">Answer "what percentage do you charge?" in one sentence.</span></li>
-          <li><span class="es">Enséñele las oficinas cercanas que pueden pedir almuerzo con MealPool.</span><span class="en">Show the nearby offices that could order lunch with MealPool.</span></li>
-          <li><span class="es">Acuerde el siguiente paso y la fecha.</span><span class="en">Agree on the next step and a date.</span></li>
-          <li><span class="es">Mande el enlace por WhatsApp al terminar.</span><span class="en">WhatsApp the link when you finish.</span></li>
-        </ul>
-      </div>
-
-      <div class="sec" id="g-glosario">
-        <h2><span class="es">11. Glosario para explicarle al dueño</span><span class="en">11. Glossary for explaining to owners</span></h2>
-        <dl class="gloss">
-          <dt>Tienda en línea</dt><dd><span class="es">Su menú en internet, donde sus clientes hacen pedidos desde el celular.</span><span class="en">Online store: their menu online, where customers order from a phone.</span></dd>
-          <dt>Enlace</dt><dd><span class="es">La dirección de su tienda. La puede compartir por WhatsApp, Facebook o en su local.</span><span class="en">Link: the store's address, shareable on WhatsApp, Facebook or in the restaurant.</span></dd>
-          <dt>Comisión por pedido</dt><dd><span class="es">El porcentaje que las apps de delivery le quitan en cada pedido (15% a 30%).</span><span class="en">Per-order commission: the share delivery apps take from each order (15–30%).</span></dd>
-          <dt>Cuota de servicio</dt><dd><span class="es">Lo que paga el cliente al ordenar. Por confirmar.</span><span class="en">Service fee: what the diner pays when ordering. To confirm.</span></dd>
-          <dt>Instalación</dt><dd><span class="es">Preparar su tienda con su menú y sus precios. Lo hacemos nosotros. Costo por confirmar.</span><span class="en">Setup: building their store with their menu and prices. We do it. Cost to confirm.</span></dd>
-          <dt>Código QR</dt><dd><span class="es">Un cuadrito que el cliente escanea con la cámara del celular para abrir la tienda.</span><span class="en">QR code: a square customers scan with their phone camera to open the store.</span></dd>
-        </dl>
+      <div class="sec">
+        <h3><span class="es">Cómo ayuda SalesVu</span><span class="en">How SalesVu helps</span></h3>
+        <ul class="help" id="pre-help"></ul>
       </div>
     </div>
+  </section>
+
+  <section class="card sec" id="sec-comp" aria-labelledby="s-comp">
+    <div class="sec-head"><h2 id="s-comp"><span class="es">Competencia cerca</span><span class="en">Nearby competitors</span></h2><span class="tag-private"><span class="es">Solo para usted: no va en el paquete del dueño</span><span class="en">For you only: not in the owner pack</span></span></div>
+    <p class="status err" id="comp-err" hidden></p>
+    <ul class="tips" id="comp-tips"></ul>
+    <div class="tbl"><table><thead><tr><th><span class="es">Restaurante</span><span class="en">Restaurant</span></th><th>mi</th><th>Google</th><th><span class="es">Página web</span><span class="en">Website</span></th></tr></thead><tbody id="comp-rows"></tbody></table></div>
+  </section>
+
+  <section class="card sec" id="sec-pack" aria-labelledby="s-pack">
+    <div class="sec-head"><h2 id="s-pack"><span class="es">Paquete para el dueño</span><span class="en">Owner pack</span></h2><span class="hint"><span class="es">Las mismas páginas en PDF y como imágenes para WhatsApp.</span><span class="en">The same pages as a PDF and as WhatsApp images.</span></span></div>
+    <div class="wa-row">
+      <div class="sec">
+        <div class="field"><label for="wa"><span class="es">Mensaje de WhatsApp</span><span class="en">WhatsApp message</span></label><textarea id="wa" class="wa"></textarea></div>
+        <details><summary class="hint"><span class="es">Ver en el otro idioma</span><span class="en">Other-language version</span></summary><pre id="wa-alt"></pre></details>
+      </div>
+      <div class="pages" id="pages"></div>
+    </div>
+    <details class="sub" id="kit-loose">
+      <summary><span class="es">Imágenes sueltas del kit (para publicar)</span><span class="en">Individual kit images (for posting)</span></summary>
+      <div class="pages" id="samples"></div>
+    </details>
+  </section>
+
+  <div class="bar" role="toolbar" aria-label="Acciones">
+    <button type="button" class="btn primary" id="bar-wa"><span class="es">Copiar WhatsApp</span><span class="en">Copy WhatsApp</span></button>
+    <button type="button" class="btn" id="bar-pdf"><span class="es">Descargar PDF</span><span class="en">Download PDF</span></button>
+    <button type="button" class="btn" id="bar-new"><span class="es">Nueva llamada</span><span class="en">New call</span></button>
+    <span class="status" id="bar-st" role="status"></span>
   </div>
 </section>
 </main>
-<footer><span class="es">Preparado por el equipo McCombs+ para SalesVu. Fuentes: CRM de SalesVu y 14 llamadas revisadas el 14 de octubre de 2026 (muestra pequeña, una sola conversación completa con un dueño).</span><span class="en">Prepared by the McCombs+ team for SalesVu. Sources: SalesVu CRM and 14 calls reviewed Oct 14, 2026 (small sample, one full owner conversation).</span></footer>
+
+<footer><span class="es">Hecho por Vanessa Gershbein (McCombs+) para SalesVu. Datos: Google Maps (con clave) u OpenStreetMap (© colaboradores de OpenStreetMap). Íconos: Noto Emoji (OFL).</span><span class="en">Built by Vanessa Gershbein (McCombs+) for SalesVu. Data: Google Maps (with a key) or OpenStreetMap (© OpenStreetMap contributors). Icons: Noto Emoji (OFL).</span></footer>
+
+<dialog id="settings" aria-labelledby="settings-h">
+  <form method="dialog" class="dlg">
+    <h2 id="settings-h"><span class="es">Ajustes</span><span class="en">Settings</span></h2>
+    <div class="field">
+      <label for="gkey"><span class="es">Clave de Google Maps (opcional)</span><span class="en">Google Maps key (optional)</span></label>
+      <input type="password" id="gkey" autocomplete="off" spellcheck="false">
+      <span class="hint"><span class="es">Se guarda solo en este navegador. Sin clave se usa OpenStreetMap: gratis, pero encuentra menos.</span><span class="en">Saved only in this browser. Without a key, OpenStreetMap is used: free, but it finds less.</span></span>
+    </div>
+    <div class="go-row">
+      <button type="submit" value="save" class="btn primary"><span class="es">Guardar</span><span class="en">Save</span></button>
+      <button type="submit" value="clear" class="btn"><span class="es">Borrar clave</span><span class="en">Remove key</span></button>
+      <button type="submit" value="cancel" class="btn"><span class="es">Cerrar</span><span class="en">Close</span></button>
+      <span class="hint" id="datasrc"></span>
+    </div>
+  </form>
+</dialog>
 
 <script>
 (function(){
 const $=id=>document.getElementById(id);
-const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-
-/* ---------- Language ---------- */
-function setLang(l){document.documentElement.setAttribute('data-lang',l);$('lang-es').setAttribute('aria-pressed',l==='es');$('lang-en').setAttribute('aria-pressed',l==='en');store.set('svkit-lang',l);renderWhy();}
-$('lang-es').onclick=()=>setLang('es');$('lang-en').onclick=()=>setLang('en');
-
-/* ---------- Tabs ---------- */
-function route(){const g=location.hash.startsWith('#g')&&location.hash!=='#generador';
-  $('view-gen').hidden=g;$('view-guide').hidden=!g;
-  $('tab-gen').toggleAttribute('aria-current',!g);$('tab-guide').toggleAttribute('aria-current',g);
-  if(g)$('tab-guide').setAttribute('aria-current','page');else $('tab-gen').setAttribute('aria-current','page');
-  if(g&&location.hash.startsWith('#g-')){const t=document.querySelector(location.hash);if(t)t.scrollIntoView();}}
-window.addEventListener('hashchange',route);
-
-/* ---------- Pain points (from the calls) ---------- */
-const PAINS=[
- {id:'ventas',es:'Necesita más ventas',en:'Needs more sales',tag:'ok',
-  evEs:'Un dueño en San Antonio dijo: «Necesitamos ayuda, necesitamos ventas». Por eso dijo que sí.',
-  evEn:'An owner in San Antonio said: "We need help, we need sales." That\'s why they said yes.',
-  quoteEs:'«Necesitamos ayuda, necesitamos ventas.»',quoteEn:'"We need help, we need sales."',
-  hookEs:R=>`Queremos ayudarle a vender más: sus clientes pueden ordenar en línea directo con ${R}, y usted no paga comisión por pedido.`,
-  hookEn:R=>`We want to help you sell more: your customers can order online directly from ${R}, and you don't pay a commission per order.`,
-  shortEs:'queremos ayudarle a recibir más pedidos en línea, directo de sus clientes y sin comisión por pedido',
-  shortEn:'we want to help you get more online orders, directly from your customers and with no per-order commission',
-  head:'Más pedidos en línea, directo de sus clientes',
-  bullets:['Sus clientes ordenan en línea directo con usted','Comparta su enlace por WhatsApp, Facebook y en su local','Usted no paga comisión por pedido']},
- {id:'comida',es:'Quiere más clientes en la comida (pedidos en grupo)',en:'Wants more lunch customers (group orders)',tag:'ok',
-  evEs:'MealPool ya está disponible: pedidos de almuerzo en grupo, por adelantado, de oficinas y negocios cercanos. Es el mensaje que mejor funciona: pedidos que se repiten, de gente que trabaja cerca.',
-  evEn:'MealPool is live: group lunch pre-orders from nearby offices and businesses. It\'s the pitch that lands best: repeat orders from people who work nearby.',
-  quoteEs:'«Sus próximos clientes de la comida están a la vuelta de la esquina.»',quoteEn:'"Your next lunch customers could be right around the corner."',
-  hookEs:R=>`Con MealPool le ayudamos a llenar la hora de la comida en ${R} con pedidos en grupo de oficinas y negocios cercanos. Los pedidos llegan por adelantado y usted decide cuántos acepta.`,
-  hookEn:R=>`With MealPool we help fill lunchtime at ${R} with group orders from nearby offices and businesses. Orders come in ahead of time and you decide how many to accept.`,
-  shortEs:'con MealPool puede recibir pedidos de almuerzo en grupo, por adelantado, de oficinas y negocios cercanos',
-  shortEn:'with MealPool you can get group lunch pre-orders from nearby offices and businesses',
-  head:'Sus próximos clientes de la comida están a la vuelta de la esquina',
-  bullets:['Pedidos en grupo de oficinas cercanas, con MealPool','Llegan por adelantado y usted decide cuántos acepta','Usted no paga comisión por pedido']},
- {id:'personal',es:'Le falta personal o tiempo',en:'Short on staff or time',tag:'ok',
-  evEs:'El dueño estaba atendiendo él mismo porque le faltaba personal. Le gustó que el representante le armara todo.',
-  evEn:'The owner was working the floor because they were short-staffed. They liked that the rep would build everything.',
-  quoteEs:'«Ando un poco corto de personal y estoy ayudando.»',quoteEn:'"I\'m a little short on staff and I\'m helping out."',
-  hookEs:R=>`Sé que anda con poco personal. Por eso nosotros armamos la tienda en línea de ${R} con su menú y sus precios. Usted no tiene que hacer nada.`,
-  hookEn:R=>`I know you're short-staffed. That's why we build ${R}'s online store with your menu and prices. You don't have to do anything.`,
-  shortEs:'le armamos su tienda en línea con su menú y sus precios, sin que usted tenga que hacer nada',
-  shortEn:'we build your online store with your menu and prices, without you having to do anything',
-  head:'Nosotros armamos su tienda. Usted atiende su restaurante.',
-  bullets:['Armamos su tienda con su menú y sus precios','Menos tiempo en el teléfono tomando pedidos','Le atendemos en español']},
- {id:'comisiones',es:'Paga comisiones a las apps',en:'Pays delivery-app commissions',tag:'ok',
-  evEs:'La primera pregunta del dueño fue «¿qué porcentaje cobran?». Su proveedor le cobra cerca de 10%. Las apps cobran de 15% a 30%.',
-  evEn:'The owner\'s first question was "what percentage do you charge?" Their current provider charges about 10%. Delivery apps charge 15–30%.',
-  quoteEs:'«¿Qué porcentaje cobran?»',quoteEn:'"What percentage do you charge?"',
-  hookEs:R=>`Las apps de delivery cobran entre 15% y 30% por pedido. Con su propia tienda en línea, sus clientes ordenan directo con ${R} y usted no paga comisión por pedido.`,
-  hookEn:R=>`Delivery apps charge 15% to 30% per order. With your own online store, customers order directly from ${R} and you don't pay a commission per order.`,
-  shortEs:'con su propia tienda en línea, usted no paga comisión por pedido como en las apps de delivery',
-  shortEn:'with your own online store, you don\'t pay a per-order commission like on the delivery apps',
-  head:'Quédese con lo que gana en cada pedido',
-  bullets:['Usted no paga comisión por pedido','Sus clientes ordenan directo con usted','Puede seguir en las apps si quiere']},
- {id:'pagina',es:'Ya tiene página web o menú',en:'Already has a website or menu',tag:'ok',
-  evEs:'El dueño ya tenía página y menú, y no quería empezar de cero.',
-  evEn:'The owner already had a website and menu and didn\'t want to start over.',
-  quoteEs:'«Ya tenemos página.»',quoteEn:'"We already have a website."',
-  hookEs:R=>`Ya tiene su página y su menú, así que no hay que empezar de cero. Usamos lo que ya tiene y le agregamos pedidos en línea a ${R}.`,
-  hookEn:R=>`You already have your website and menu, so there's no need to start over. We use what you have and add online ordering for ${R}.`,
-  shortEs:'podemos agregar pedidos en línea usando el menú que ya tiene, sin empezar de cero',
-  shortEn:'we can add online ordering using the menu you already have, without starting over',
-  head:'Usamos el menú que ya tiene',
-  bullets:['Usamos su menú y sus precios actuales','Sus clientes ordenan desde un solo enlace','Usted no paga comisión por pedido']}
-
-];
-const pwrap=$('pains');
-PAINS.forEach((p,i)=>{const l=document.createElement('label');l.className='pain';
-  l.innerHTML=`<input type="radio" name="pain" id="pain-${p.id}" value="${p.id}" ${i===0?'checked':''}><span><strong><span class="es">${p.es}</span><span class="en">${p.en}</span>${p.tag==='warn'?' <span class="pill warn" style="margin-left:4px"><span class="es">Por confirmar</span><span class="en">To confirm</span></span>':''}</strong><small><span class="es">${p.evEs}</span><span class="en">${p.evEn}</span></small></span>`;
-  pwrap.appendChild(l);});
-
-
-/* ---------- Logo ---------- */
-let logoImg=null;
-$('r-logo').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
-  rd.onload=()=>{const im=new Image();im.onload=()=>{logoImg=im;render();};im.src=rd.result;};rd.readAsDataURL(f);});
-function initials(n){return (n||'').replace(/[^\p{L}\s]/gu,' ').split(/\s+/).filter(w=>w&&!/^(la|el|los|las|de|del|y)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'R';}
-function updLogoPrev(){const p=$('logo-prev');p.innerHTML='';if(logoImg){const i=document.createElement('img');i.src=logoImg.src;i.alt='';p.appendChild(i);}else p.textContent=initials(v('r-name'));}
-
-/* ---------- Helpers ---------- */
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+/* SalesVu can put its own browser key here (restricted in Google Cloud to this site's address and the Places API)
+   so reps never paste one. Leave it empty in the public repo; never put a personal or Demo Key here. */
+const SALESVU_GOOGLE_KEY='';
+const gkey=()=>store.get('svkit-gkey')||SALESVU_GOOGLE_KEY;
+const EN=()=>document.documentElement.getAttribute('data-lang')==='en';
 const v=id=>$(id).value.trim();
-const pain=()=>PAINS.find(p=>p.id===(document.querySelector('input[name=pain]:checked')||{}).value)||PAINS[0];
+const isURL=t=>/^https?:\/\//i.test(t);
+function city(){if(isURL(v('r-addr')))return '';const parts=v('r-addr').split(',').map(s=>s.trim()).filter(Boolean);return parts.length>1?parts.slice(1).join(', '):parts[0]||'';}
+const L=o=>EN()?o.en:o.es;
+const on=id=>$(id).checked;
 
-function renderWhy(){const p=pain(),en=document.documentElement.getAttribute('data-lang')==='en';
-  $('why').innerHTML=`<strong style="font-size:13px">${en?'Why this angle works':'Por qué funciona este enfoque'}</strong><p class="quote">${en?p.quoteEn:p.quoteEs}</p><p>${en?p.evEn:p.evEs}</p>${p.tag==='warn'?`<p class="pill warn" style="justify-self:start">${en?'Feature in development: confirm before sending':'Función en desarrollo: confirme antes de enviar'}</p>`:''}`;}
+const CHECKS=[
+ {id:'order',w:30,p:100,who:'sv',
+  q:{es:'¿Sus clientes pueden pedir en línea directo, sin apps?',en:'Can customers order online directly, without apps?'},
+  short:{es:'que sus clientes le pidan en línea directo, sin pasar por las apps',en:'your customers ordering online straight from you, not through the apps'},
+  good:{es:'Recibe pedidos en línea directos',en:'You take direct online orders'},
+  fix:{es:'Más pedidos directos: sus clientes piden en línea con usted, sin pasar por las apps. Nosotros le armamos su enlace de pedidos.',en:'More direct orders: your customers order online straight from you, not through the apps. We set up your ordering link.'}},
+ {id:'apps',w:15,p:90,who:'sv',bad:'yes',
+  q:{es:'¿Paga comisión a DoorDash, Uber Eats o Grubhub?',en:'Pays commission to DoorDash, Uber Eats or Grubhub?'},
+  short:{es:'quedarse con el 15–30% que hoy le cobran las apps',en:'keeping the 15–30% the apps take today'},
+  good:{es:'No paga comisiones a apps de entrega',en:'You don\'t pay delivery-app commissions'},
+  fix:{es:'Más ganancia en cada pedido: las apps cobran entre 15% y 30%. Con su propio enlace, sus clientes de siempre piden sin esa comisión.',en:'More profit on every order: the apps charge 15–30%. With your own link, your regulars order without that commission.'}},
+ {id:'web',w:20,p:80,who:'sv',
+  q:{es:'¿Tiene página web con su menú?',en:'Website with its menu?'},
+  short:{es:'que los clientes nuevos encuentren su menú en internet',en:'new customers finding your menu online'},
+  good:{es:'Tiene su menú en internet',en:'Your menu is online'},
+  fix:{es:'Más clientes nuevos: que encuentren su menú y sus precios en internet. Nosotros le preparamos la página.',en:'More new customers: people find your menu and prices online. We build the page for you.'}},
+ {id:'gmaps',w:20,p:75,who:'owner',
+  q:{es:'¿Aparece en Google Maps con su horario?',en:'On Google Maps with its hours?'},
+  short:{es:'tener su horario y teléfono correctos en Google',en:'having the right hours and phone number on Google'},
+  good:{es:'Aparece en Google Maps con su horario',en:'You show up on Google Maps with your hours'},
+  fix:{es:'No pierda a los clientes que lo buscan: ponga su horario, teléfono y dirección correctos en Google.',en:'Don\'t lose customers who are looking for you: put your correct hours, phone and address on Google.'}},
+ {id:'fb',w:15,p:70,who:'kit',
+  q:{es:'¿Publicó en Facebook en el último mes?',en:'Posted on Facebook in the last month?'},
+  short:{es:'publicar en Facebook con imágenes ya listas',en:'posting on Facebook with ready-made images'},
+  good:{es:'Está activo en Facebook',en:'You\'re active on Facebook'},
+  fix:{es:'Más clientes que regresan: publique 2 veces por semana. Le damos las imágenes listas con su logo.',en:'More repeat customers: post twice a week. We give you ready-made images with your logo.'}}
+];
+const TAGS={sv:{es:'Nosotros lo hacemos',en:'We do it for you',cls:''},kit:{es:'Incluido gratis en este kit',en:'Included free',cls:'ok'},owner:{es:'Consejo gratis',en:'Free tip',cls:'warn'}};
 
-/* WhatsApp follow-up: 4 short lines a busy owner reads in 10 seconds. The CRM keeps the call log and callback time. */
-function buildWA(){const p=pain(),R=v('r-name')||'su restaurante',O=v('r-owner'),rep=v('r-rep')||'[su nombre]',link=v('r-link');
-  const es=[`Hola${O?', '+O:''}, soy ${rep} de SalesVu.`,p.hookEs(R),`Así se ve su tienda en línea: ${link||'[enlace de la tienda demo]'}`,'¿Le cuento en 5 minutos cómo funciona?'].join('\n\n');
-  const en=[`Hi${O?' '+O:''}, it's ${rep} from SalesVu.`,p.hookEn(R),`Here's your online store: ${link||'[demo store link]'}`,'Can I walk you through it in 5 minutes?'].join('\n\n');
-  $('wa').value=es;$('wa-en').textContent=en;$('miss-link').hidden=!!link;}
+let place=null,placeKey=''; // the chosen restaurant and the name|address it was found for; Part 3 reuses its location
+const G_BASIC=['id','displayName','formattedAddress','location','googleMapsUri','websiteUri','nationalPhoneNumber','regularOpeningHours'];
+const G_FULL=G_BASIC.concat(['rating','userRatingCount','photos']);
+function fromGoogle(p){return {src:'Google',name:(p.displayName&&p.displayName.text)||'',addr:p.formattedAddress||'',
+  lat:p.location&&p.location.latitude,lon:p.location&&p.location.longitude,maps:p.googleMapsUri||'',web:p.websiteUri||'',phone:p.nationalPhoneNumber||'',
+  hours:!!(p.regularOpeningHours&&(p.regularOpeningHours.weekdayDescriptions||p.regularOpeningHours.periods)),
+  rating:typeof p.rating==='number'?p.rating:null,ratings:p.userRatingCount||null,photos:Array.isArray(p.photos)?p.photos.length:null};}
+/* near = {lat,lon} from a pasted Google Maps link: the search then prefers places within ~300 m of that spot. */
+async function googleSearch(q,near){const key=gkey();let lastErr='';
+  for(const f of [G_FULL,G_BASIC]){ // the free Demo Key may refuse ratings/photos, so retry with the basic fields
+    const body={textQuery:q,pageSize:5,regionCode:'US',languageCode:'es'};
+    if(near)body.locationBias={circle:{center:{latitude:near.lat,longitude:near.lon},radius:300}};
+    const r=await fetch('https://places.googleapis.com/v1/places:searchText',{method:'POST',
+      headers:{'Content-Type':'application/json','X-Goog-Api-Key':key,'X-Goog-FieldMask':f.map(x=>'places.'+x).join(',')},body:JSON.stringify(body)});
+    if(r.ok){const j=await r.json();return (j.places||[]).map(fromGoogle);}
+    lastErr=r.status+' '+(await r.text()).slice(0,160);}
+  throw new Error('Google '+lastErr);}
+async function googleDetails(pid){const key=gkey();let lastErr='';
+  for(const f of [G_FULL,G_BASIC]){
+    const r=await fetch('https://places.googleapis.com/v1/places/'+encodeURIComponent(pid)+'?languageCode=es',{headers:{'X-Goog-Api-Key':key,'X-Goog-FieldMask':f.join(',')}});
+    if(r.ok)return [fromGoogle(await r.json())];
+    lastErr=r.status+' '+(await r.text()).slice(0,160);}
+  throw new Error('Google '+lastErr);}
 
-/* ---------- Canvas drawing ---------- */
+/* Read what a pasted link already tells us. Google Maps links carry the place name, its coordinates
+   (!3d…!4d… is the pin; @lat,lng is the map view) and sometimes a place ID. Short links (maps.app.goo.gl)
+   can't be opened from here, so the rep is asked for the full link. Anything else is treated as the restaurant's own site. */
+function readLink(raw){let url;try{url=new URL(raw);}catch(e){return null;}const h=url.hostname.replace(/^www\./,'');
+  if(/(^|\.)goo\.gl$/.test(h))return {kind:'short'};
+  const isMaps=(/^google\.[a-z.]+$/.test(h)&&url.pathname.startsWith('/maps'))||/^maps\.google\./.test(h);
+  if(!isMaps)return {kind:'site',url:raw};
+  const out={kind:'maps'};const m=url.pathname.match(/\/place\/([^/]+)/);
+  if(m)out.name=decodeURIComponent(m[1].replace(/\+/g,' '));
+  const pin=raw.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/),view=raw.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if(pin)out.near={lat:+pin[1],lon:+pin[2]};else if(view)out.near={lat:+view[1],lon:+view[2]};
+  const pid=url.searchParams.get('query_place_id')||(raw.match(/place_id:([A-Za-z0-9_-]+)/)||[])[1];if(pid)out.pid=pid;
+  const q=url.searchParams.get('q')||url.searchParams.get('query');if(q&&!out.name)out.name=q;
+  return out;}
+async function osmQuery(q,near){let u='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=us&extratags=1&q='+encodeURIComponent(q);
+  if(near){const d=0.004;u+=`&bounded=1&viewbox=${near.lon-d},${near.lat+d},${near.lon+d},${near.lat-d}`;}
+  const r=await fetch(u,{headers:{'Accept-Language':'es,en'}});if(!r.ok)throw new Error('OpenStreetMap '+r.status);return r.json();}
+const pause=ms=>new Promise(r=>setTimeout(r,ms));
+/* OpenStreetMap's search is strict, so try simpler searches in turn (max 1 per second, per its usage policy).
+   If only the street address matches, keep the location for the lunch map but don't auto-fill any answers. */
+async function osmSearch(name,addr,near){const tries=(near?[[name,false,near]]:[]).concat([[name+' '+addr,false],[name+' '+city(),false],[addr,true]]).filter(([q])=>q.trim());
+  for(let i=0;i<tries.length;i++){if(i)await pause(1100);const [q,addrOnly,box]=tries[i];const j=await osmQuery(q,box);
+    if(j.length)return j.map(p=>{const t=p.extratags||{};return {src:'OpenStreetMap',addrOnly,name:addrOnly?name:(p.name||p.display_name.split(',')[0]),addr:p.display_name,lat:+p.lat,lon:+p.lon,
+      maps:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.lat+','+p.lon)}`,web:addrOnly?'':(t.website||t['contact:website']||''),phone:addrOnly?'':(t.phone||t['contact:phone']||''),
+      hours:!addrOnly&&!!t.opening_hours,rating:null,ratings:null,photos:null};});}
+  return [];}
+function siteKind(u){u=(u||'').toLowerCase();if(!u)return 'none';
+  if(/facebook\.com|fb\.com/.test(u))return 'facebook';if(/instagram\.com/.test(u))return 'instagram';
+  if(/doordash|ubereats|grubhub|postmates/.test(u))return 'apps';
+  if(/toasttab|square\.site|squareup|clover|chownow|menufy|owner\.com|slicelife|beyondmenu|order/.test(u))return 'ordering';return 'website';}
+
+
+const MEALPOOL={id:'mealpool',who:'sv',short:{es:'recibir pedidos de almuerzo en grupo de las oficinas cercanas, con MealPool',en:'group lunch orders from nearby offices, with MealPool'},
+  fix:{es:'Más ventas a la hora de la comida: las oficinas y negocios cerca de usted pueden pedir almuerzo en grupo, por adelantado, con MealPool. Le muestro cuáles.',en:'More lunchtime sales: offices and businesses near you can pre-order group lunch with MealPool. I\'ll show you which ones.'}};
+const pitch=r=>r.top.concat([MEALPOOL]);
+/* Tag store links so SalesVu can count visits that came from a gift (e.g. ?ref=regalo-chequeo). */
+function tracked(link,ref){try{const u=new URL(link);u.searchParams.set('ref',ref);return u.toString();}catch(e){return link;}}
+
+const olang=()=>((document.querySelector('input[name=olang]:checked')||{}).value)||'es';
 const F='Inter, system-ui, sans-serif';
-function wrap(ctx,text,maxW){const words=text.split(' '),lines=[];let line='';
+function wrap(ctx,text,maxW){const words=String(text).split(' '),lines=[];let line='';
   words.forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w;}else line=t;});if(line)lines.push(line);return lines;}
 function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
-function drawLogo(ctx,cx,cy,r,bg,fg){ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#FFFFFF';ctx.fill();ctx.clip();
+function drawLogo(ctx,cx,cy,r){ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#FFFFFF';ctx.fill();ctx.clip();
   if(logoImg){const s=Math.max(2*r/logoImg.width,2*r/logoImg.height);const w=logoImg.width*s,h=logoImg.height*s;ctx.drawImage(logoImg,cx-w/2,cy-h/2,w,h);}
-  else{ctx.fillStyle=bg;ctx.fillRect(cx-r,cy-r,2*r,2*r);ctx.fillStyle=fg;ctx.font=`800 ${Math.round(r*0.8)}px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(initials(v('r-name')),cx,cy+2);}
+  else genericLogo(ctx,cx,cy,r);
   ctx.restore();}
+/* ---------- Mexican-food doodles ----------
+   Google's Noto Emoji: one-color, professionally drawn icons under the Open Font License (free to use),
+   so they can be drawn in SalesVu blue. If the font can't load, the system's color emoji show instead. */
+const DOODLES=['🌮','🌶','🥑','🌯','🌽','🌮','🌵','🍋','🌶','🫔','🫘','🍅'],DFONT='"Noto Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif';
+function doodlePattern(x,X,Y,W,H,color,cell,alpha){x.save();x.beginPath();x.rect(X,Y,W,H);x.clip();x.globalAlpha=alpha;x.fillStyle=color;
+  x.font=`500 ${Math.round(cell*0.5)}px ${DFONT}`;x.textAlign='center';x.textBaseline='middle';let k=0;
+  for(let r=0,y=Y-cell/2;y<Y+H+cell;y+=cell*0.8,r++){for(let xx=X-cell/2+(r%2?cell/2:0);xx<X+W+cell;xx+=cell){
+    x.save();x.translate(xx,y);x.rotate(((k*47)%40-20)*Math.PI/180);x.fillText(DOODLES[(k*5+r*3)%DOODLES.length],0,0);x.restore();k++;}}
+  x.restore();}
+/* No logo uploaded (the usual case): SalesVu-blue food doodles around a white center with the name in bold navy
+   and a short green rule, matching the MealPool collateral. */
+const MP={navy:'#132F52',blue:'#2D7CFF',green:'#16BD77',ring:'#E3E8EF',tint:'#EEF4FF'},EMOJI='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+function genericLogo(ctx,cx,cy,r){ctx.fillStyle=MP.tint;ctx.fillRect(cx-r,cy-r,2*r,2*r);
+  doodlePattern(ctx,cx-r,cy-r,2*r,2*r,MP.blue,Math.max(34,r*0.56),.6);
+  const ir=r*0.7;ctx.beginPath();ctx.arc(cx,cy,ir,0,Math.PI*2);ctx.fillStyle='#FFFFFF';ctx.fill();
+  const name=(v('r-name')||'Restaurante').trim(),maxW=ir*1.55;let lines=[name],size;
+  for(size=ir*0.42;size>=ir*0.14;size-=ir*0.02){ctx.font=`800 ${size}px ${F}`;lines=wrap(ctx,name,maxW);
+    if(lines.length<=3&&lines.every(l=>ctx.measureText(l).width<=maxW)&&lines.length*size*1.08<=ir*1.15)break;}
+  lines=lines.slice(0,3);const lh=size*1.08,ruleH=Math.max(2,ir*0.06),total=lines.length*lh+ir*0.1+ruleH;
+  let y=cy-total/2;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`800 ${size}px ${F}`;ctx.fillStyle=MP.navy;
+  lines.forEach(l=>{ctx.fillText(l,cx,y+lh/2);y+=lh;});y+=ir*0.1;
+  ctx.fillStyle=MP.green;rr(ctx,cx-ir*0.25,y,ir*0.5,ruleH,ruleH/2);ctx.fill();}
 function qrCanvas(text,size,fg){try{if(!window.QRious)return null;const c=document.createElement('canvas');new QRious({element:c,value:text,size:size,level:'M',background:'#FFFFFF',foreground:fg,padding:0});return c;}catch(e){return null;}}
 
-function drawOwner(){const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
-  const navy='#0A1A2E',blue='#0066FF',ink='#0F1B33',mut='#5B6B82',green='#15803D';
-  const p=pain(),R=v('r-name')||'Su restaurante',city=v('r-city'),rep=v('r-rep')||'SalesVu',link=v('r-link');
+
+/* ================= Part 3: Lunch customers nearby (MealPool) ================= */
+/* Each category: label, map color, and the Google Places types it searches (Table A). Industry is OpenStreetMap-only. */
+const CATS={
+ office:{es:'Oficinas',en:'Offices',color:'#0066FF',g:['corporate_office','accounting','lawyer','insurance_agency','real_estate_agency','bank']},
+ health:{es:'Salud',en:'Health',color:'#DC2626',g:['hospital','doctor','dentist']},
+ school:{es:'Escuelas',en:'Schools',color:'#7C3AED',g:['school','secondary_school','university']},
+ gov:{es:'Gobierno',en:'Government',color:'#0F766E',g:['city_hall','courthouse','local_government_office','police','fire_station','post_office']},
+ cars:{es:'Agencias y talleres',en:'Car dealers & shops',color:'#D97706',g:['car_dealer','car_repair']},
+ industry:{es:'Industria y bodegas',en:'Industry & warehouses',color:'#64748B',g:null}
+};
+const MI=1609.34;
+const lunch={center:null,places:[],sel:new Set(),radius:1,map:null,layer:null};
+const radiusMi=()=>+((document.querySelector('input[name=radius]:checked')||{}).value||1);
+const lmode=()=>((document.querySelector('input[name=l-mode]:checked')||{}).value)||'deliver';
+const llang=()=>((document.querySelector('input[name=l-lang]:checked')||{}).value)||'en';
+function distMi(a,b,c,d){const R=3958.8,t=x=>x*Math.PI/180,dLat=t(c-a),dLon=t(d-b);
+  const h=Math.sin(dLat/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+const fmtMi=m=>m<0.1?'0.1':m.toFixed(1);
+const walkMin=m=>Math.max(1,Math.round(m*20));
+const radLabel=(lang,mi)=>lang==='es'?(mi===0.5?'media milla':mi===1?'1 milla':mi+' millas'):(mi===0.5?'half a mile':mi===1?'1 mile':mi+' miles');
+const selected=()=>lunch.places.filter(p=>lunch.sel.has(p.id));
+/* A simple, clearly hypothetical estimate the owner can picture: 3 offices × 10 lunches, once a week. */
+const EST={offices:3,people:10};
+const estimate=lang=>lunch.places.length<EST.offices?'':(lang==='es'
+  ?`Si solo ${EST.offices} de estas oficinas piden almuerzo para ${EST.people} personas una vez por semana, son ${EST.offices*EST.people} pedidos más cada semana.`
+  :`If just ${EST.offices} of these offices order lunch for ${EST.people} people once a week, that's ${EST.offices*EST.people} more orders every week.`);
+
+/* Where is the restaurant? Reuse the check-up's look-up when it matches; otherwise look up the address. */
+async function findCenter(){
+  if(place&&place.lat!=null&&placeKey===v('r-name')+'|'+v('r-addr'))return {lat:place.lat,lon:place.lon};
+  const addr=v('r-addr');if(!addr||isURL(addr))throw new Error(EN()?'Type the address, or paste the restaurant\'s Google Maps link.':'Escriba la dirección, o pegue el enlace de Google Maps del restaurante.');
+  if(gkey()){try{const l=await googleSearch(addr);if(l.length)return {lat:l[0].lat,lon:l[0].lon};}catch(e){console.warn(e);}}
+  const j=await osmQuery(addr);if(j.length)return {lat:+j[0].lat,lon:+j[0].lon};
+  throw new Error(EN()?'Address not found. Check it, or paste the restaurant\'s Google Maps link instead.':'No se encontró la dirección. Revísela, o pegue el enlace de Google Maps del restaurante.');}
+
+/* Google Places Nearby Search: one call per category, 20 closest each. A failed category is skipped. */
+async function googleNearby(c,mi){const key=gkey(),out=[];let ok=0;
+  const mask='places.displayName,places.location,places.formattedAddress,places.googleMapsUri';
+  for(const [cat,cfg] of Object.entries(CATS)){if(!cfg.g)continue;
+    try{const r=await fetch('https://places.googleapis.com/v1/places:searchNearby',{method:'POST',
+        headers:{'Content-Type':'application/json','X-Goog-Api-Key':key,'X-Goog-FieldMask':mask},
+        body:JSON.stringify({includedTypes:cfg.g,maxResultCount:20,rankPreference:'DISTANCE',languageCode:'en',
+          locationRestriction:{circle:{center:{latitude:c.lat,longitude:c.lon},radius:Math.min(50000,mi*MI)}}})});
+      if(!r.ok){console.warn('Google nearby',cat,r.status,await r.text());continue;}ok++;
+      ((await r.json()).places||[]).forEach(p=>out.push({name:(p.displayName&&p.displayName.text)||'',cat,lat:p.location.latitude,lon:p.location.longitude,addr:p.formattedAddress||'',maps:p.googleMapsUri||''}));
+    }catch(e){console.warn(e);}}
+  if(!ok)throw new Error('Google');return out;}
+
+/* OpenStreetMap Overpass: free backup. Named places only. */
+function osmCat(t){const a=t.amenity||'';
+  if(/^(hospital|clinic|doctors|dentist)$/.test(a)||t.healthcare)return 'health';
+  if(/^(school|college|university)$/.test(a))return 'school';
+  if(/^(townhall|courthouse|police|fire_station|post_office)$/.test(a)||t.office==='government')return 'gov';
+  if(t.shop==='car'||t.shop==='car_repair')return 'cars';
+  if(t.man_made==='works'||/^(industrial|warehouse)$/.test(t.building||'')||t.landuse==='industrial')return 'industry';
+  return 'office';}
+async function osmNearby(c,mi){const A=`(around:${Math.round(mi*MI)},${c.lat},${c.lon})`;
+  const q=`[out:json][timeout:25];(nwr${A}["office"]["name"];nwr${A}["building"~"^(office|commercial)$"]["name"];
+nwr${A}["amenity"~"^(hospital|clinic|doctors|dentist|school|college|university|townhall|courthouse|police|fire_station|post_office|bank)$"]["name"];
+nwr${A}["healthcare"]["name"];nwr${A}["shop"~"^(car|car_repair)$"]["name"];nwr${A}["man_made"="works"]["name"];
+nwr${A}["building"~"^(industrial|warehouse)$"]["name"];nwr${A}["landuse"="industrial"]["name"];);out center tags 250;`;
+  for(const ep of ['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter']){
+    try{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000); // a busy server shouldn't hang the rep: move on after 20 s
+      const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q),signal:ac.signal});clearTimeout(tm);if(!r.ok)continue;
+      return ((await r.json()).elements||[]).map(e=>{const t=e.tags||{},lat=e.lat!=null?e.lat:e.center&&e.center.lat,lon=e.lon!=null?e.lon:e.center&&e.center.lon;
+        return {name:t.name,cat:osmCat(t),lat,lon,addr:[t['addr:housenumber'],t['addr:street']].filter(Boolean).join(' '),
+          maps:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(t.name+' '+lat+','+lon)}`};}).filter(p=>p.lat!=null);
+    }catch(e){console.warn(e);}}
+  throw new Error(EN()?'The free map service is busy right now. Try again in a minute, or add a Google key in Settings.':'El servicio de mapas gratis está ocupado. Intente de nuevo en un minuto, o agregue una clave de Google en Ajustes.');}
+
+function cleanPlaces(list,c,mi){const seen=new Set(),self=(v('r-name')||'').toLowerCase().trim();
+  return list.map(p=>Object.assign(p,{dist:distMi(c.lat,c.lon,p.lat,p.lon)}))
+    .filter(p=>{const k=(p.name||'').toLowerCase().trim();if(!k||k===self||p.dist>mi*1.05)return false;
+      const kk=k+'|'+p.cat;if(seen.has(kk))return false;seen.add(kk);return true;})
+    .sort((a,b)=>a.dist-b.dist).map((p,i)=>Object.assign(p,{id:'p'+i}));}
+
+
+function buildEmail(o,lang){const R=v('r-name')||'[restaurant]',O=v('r-owner'),addr=v('r-addr'),d=fmtMi(o.dist),near=o.dist<=1,
+    cut=v('l-cutoff')||'10:30 am',lt=v('l-time')||'12:00 pm',del=lmode()==='deliver',link=v('r-link')?tracked(v('r-link'),'regalo-almuerzo'):'[menu link]';
+  const en=`Subject: Team lunch from ${R}, ${d} miles from ${o.name}
+
+Hi ${o.name} team,
+
+I'm ${O||'the owner'} at ${R}, ${d} miles from your office${near?` (about ${walkMin(o.dist)} minutes on foot)`:''}.
+
+We've started group lunch orders for nearby teams: everyone orders by ${cut}, and lunch is ${del?'delivered to your office':'ready for pickup'} at ${lt}. One order for the whole team, made fresh.
+
+Menu and ordering: ${link}
+
+Would your team like to try a group lunch this week? Just reply to this email.
+
+Thanks,
+${O||'[owner name]'}
+${R}
+${addr}
+
+If you'd rather not hear from us, reply "no thanks" and we won't email again.`;
+  const es=`Asunto: Almuerzo en equipo de ${R}, a ${d} millas de ${o.name}
+
+Hola, equipo de ${o.name}:
+
+Soy ${O||'el dueño'} de ${R}, a ${d} millas de su oficina${near?` (unos ${walkMin(o.dist)} minutos a pie)`:''}.
+
+Empezamos a recibir pedidos de almuerzo en grupo para oficinas cercanas: todos piden antes de las ${cut} y la comida ${del?'llega a su oficina':'está lista para recoger'} a las ${lt}. Un solo pedido para todo el equipo, preparado al momento.
+
+Menú y pedidos: ${link}
+
+¿Les gustaría probar un almuerzo en equipo esta semana? Solo respondan a este correo.
+
+Gracias,
+${O||'[nombre del dueño]'}
+${R}
+${addr}
+
+Si prefieren no recibir estos correos, respondan "no, gracias" y no volveremos a escribir.`;
+  return lang==='es'?es:lang==='both'?en+'\n\n— — —\n\n'+es:en;}
+
+
+/* Owner image: a radar of the workplaces around the restaurant, in the owner's language. */
+function drawRadar(){const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  const es=olang()==='es',T=(a,b)=>es?a:b,R=v('r-name')||T('Su restaurante','Your restaurant'),mi=lunch.radius,N=lunch.places.length,c=lunch.center;
   x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);
-  x.fillStyle=navy;x.fillRect(0,0,W,300);
-  x.textBaseline='alphabetic';x.textAlign='left';
-  x.font=`800 46px ${F}`;x.fillStyle='#FFFFFF';x.fillText('Sales',80,110);const sw=x.measureText('Sales').width;x.fillStyle='#4B93FF';x.fillText('Vu',80+sw,110);
-  x.font=`600 26px ${F}`;x.fillStyle='#BFD7FF';x.fillText('Propuesta para',80,200);
-  x.font=`700 44px ${F}`;x.fillStyle='#FFFFFF';const nl=wrap(x,R,720);x.fillText(nl[0]+(nl.length>1?'…':''),80,252);
-  drawLogo(x,W-170,300,110,'#E8F0FF',blue);
-  x.lineWidth=8;x.strokeStyle='#FFFFFF';x.beginPath();x.arc(W-170,300,110,0,Math.PI*2);x.stroke();
-  if(city){x.font=`500 26px ${F}`;x.fillStyle=mut;x.fillText(city,80,360);}
-  // headline
-  x.font=`800 62px ${F}`;x.fillStyle=ink;let y=470;wrap(x,p.head,900).forEach(l=>{x.fillText(l,80,y);y+=74;});
-  y+=30;
-  p.bullets.forEach(b=>{x.beginPath();x.arc(104,y-14,24,0,Math.PI*2);x.fillStyle='rgba(21,128,61,.12)';x.fill();
-    x.strokeStyle=green;x.lineWidth=6;x.lineCap='round';x.lineJoin='round';x.beginPath();x.moveTo(93,y-14);x.lineTo(101,y-5);x.lineTo(116,y-24);x.stroke();
-    x.font=`500 34px ${F}`;x.fillStyle=ink;const bl=wrap(x,b,820);bl.forEach((l,i)=>x.fillText(l,148,y+i*44));y+=bl.length*44+40;});
-  // link box
-  const by=Math.max(y+10,1000);rr(x,80,by,W-160,150,24);x.fillStyle='#EEF4FF';x.fill();
-  x.font=`600 26px ${F}`;x.fillStyle=blue;x.fillText('Vea su tienda en línea',116,by+58);
-  x.font=`600 30px ${F}`;x.fillStyle=ink;const lt=link?link.replace(/^https?:\/\//,''):'Le mandamos el enlace por WhatsApp';x.fillText(wrap(x,lt,W-240)[0],116,by+108);
-  x.font=`500 26px ${F}`;x.fillStyle=mut;x.fillText(`${rep} · SalesVu · Le atendemos en español`,80,H-70);
-  return c.toDataURL('image/png');}
+  x.textAlign='left';x.textBaseline='alphabetic';
+  const pill='MEALPOOL BY SALESVU';x.font=`800 22px ${F}`;const pw=x.measureText(pill).width+36;rr(x,80,56,pw,44,22);x.fillStyle='#EEEAFB';x.fill();x.fillStyle='#6D4FD8';x.fillText(pill,98,86);
+  x.font=`600 30px ${F}`;x.fillStyle=MP.blue;x.fillText(T('Pedidos de almuerzo cerca de','Lunch orders near'),80,160);
+  x.font=`800 50px ${F}`;x.fillStyle=MP.navy;const nl=wrap(x,R,920);x.fillText(nl[0]+(nl.length>1?'…':''),80,220);
+  x.font=`800 128px ${F}`;x.fillStyle=MP.navy;x.fillText(String(N),80,370);const nw=x.measureText(String(N)).width;
+  x.font=`700 34px ${F}`;x.fillStyle=MP.navy;x.fillText(T('lugares de trabajo','workplaces'),80+nw+28,318);
+  x.font=`500 30px ${F}`;x.fillStyle='#5B6B82';x.fillText(T(`a menos de ${radLabel('es',mi)}`,`within ${radLabel('en',mi)}`),80+nw+28,362);
+  const cx=540,cy=690,rad=270;
+  [1,.5].forEach(k=>{x.beginPath();x.arc(cx,cy,rad*k,0,Math.PI*2);x.fillStyle='#F5F8FF';x.fill();
+    x.setLineDash([10,10]);x.strokeStyle='rgba(19,47,82,.22)';x.lineWidth=2;x.stroke();x.setLineDash([]);
+    x.font=`600 20px ${F}`;x.fillStyle='#5B6B82';x.textAlign='center';x.fillText(`${mi*k} mi`,cx,cy-rad*k-10);x.textAlign='left';});
+  const cos=Math.cos(c.lat*Math.PI/180),inner=72; // keep dots outside the logo in the middle
+  const pos=p=>{let dx=(p.lon-c.lon)*cos*69.17/mi*rad,dy=-(p.lat-c.lat)*69.17/mi*rad;let d=Math.hypot(dx,dy)||1;
+    const nd=inner+(d/rad)*(rad-6-inner);dx*=nd/d;dy*=nd/d;return [cx+dx,cy+dy];};
+  lunch.places.filter(p=>!lunch.sel.has(p.id)).forEach(p=>{const [px,py]=pos(p);x.beginPath();x.arc(px,py,8,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.globalAlpha=.85;x.fill();x.globalAlpha=1;});
+  const top=selected().slice(0,6);
+  const pts=top.map(p=>pos(p)); // nudge numbered dots apart so nearby offices don't hide each other
+  for(let it=0;it<40;it++)for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1],d=Math.hypot(dx,dy)||0.01;
+    if(d<40){const m=(40-d)/2,ux=d>0.01?dx/d:Math.cos(i+j),uy=d>0.01?dy/d:Math.sin(i+j);pts[i][0]-=ux*m;pts[i][1]-=uy*m;pts[j][0]+=ux*m;pts[j][1]+=uy*m;}}
+  pts.forEach(q=>{const dx=q[0]-cx,dy=q[1]-cy,d=Math.hypot(dx,dy)||1;if(d<inner){q[0]=cx+dx/d*inner;q[1]=cy+dy/d*inner;}});
+  top.forEach((p,i)=>{const [px,py]=pts[i];x.beginPath();x.arc(px,py,17,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.fill();x.lineWidth=4;x.strokeStyle='#FFFFFF';x.stroke();
+    x.fillStyle='#FFFFFF';x.font=`800 20px ${F}`;x.textAlign='center';x.fillText(String(i+1),px,py+7);x.textAlign='left';});
+  x.beginPath();x.arc(cx,cy,60,0,Math.PI*2);x.fillStyle=MP.ring;x.fill();drawLogo(x,cx,cy,56);
+  // numbered list of the chosen workplaces, two columns
+  let ly=1010;top.forEach((p,i)=>{const col=i%2,row=Math.floor(i/2),lx=80+col*470,yy=ly+row*44;
+    x.beginPath();x.arc(lx+14,yy-8,14,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.fill();x.fillStyle='#FFFFFF';x.font=`800 16px ${F}`;x.textAlign='center';x.fillText(String(i+1),lx+14,yy-2);x.textAlign='left';
+    x.font=`600 24px ${F}`;x.fillStyle=MP.navy;let t=p.name;while(x.measureText(t+' · '+fmtMi(p.dist)+' mi').width>410&&t.length>4)t=t.slice(0,-2);if(t!==p.name)t=t.trim()+'…';
+    x.fillText(t,lx+38,yy);const tw=x.measureText(t).width;x.font=`500 22px ${F}`;x.fillStyle='#5B6B82';x.fillText(' · '+fmtMi(p.dist)+' mi',lx+38+tw,yy);});
+  const counts={};lunch.places.forEach(p=>{counts[p.cat]=(counts[p.cat]||0)+1;});
+  let lx=80;ly=1010+Math.ceil(top.length/2)*44+26;x.font=`600 22px ${F}`;
+  Object.keys(CATS).filter(k=>counts[k]).forEach(k=>{const t=`${T(CATS[k].es,CATS[k].en)} ${counts[k]}`,w=x.measureText(t).width+40;if(lx+w>W-80){lx=80;ly+=36;}
+    x.beginPath();x.arc(lx+8,ly-7,8,0,Math.PI*2);x.fillStyle=CATS[k].color;x.fill();x.fillStyle='#4B5B73';x.fillText(t,lx+24,ly);lx+=w+10;});
+  // the order estimate, in a green call-out like the MealPool deck
+  const est=N>=EST.offices?T(`${EST.offices} oficinas × ${EST.people} almuerzos = ${EST.offices*EST.people} pedidos más por semana`,`${EST.offices} offices × ${EST.people} lunches = ${EST.offices*EST.people} more orders a week`)
+                         :T('Sus próximos clientes de la comida están a la vuelta de la esquina.','Your next lunch customers are right around the corner.');
+  rr(x,80,H-170,W-160,84,18);x.fillStyle='#EAF7F0';x.fill();x.font=`800 34px ${F}`;x.fillStyle='#0E5C3A';x.textAlign='center';x.fillText(est,W/2,H-116,W-200);
+  x.font=`500 22px ${F}`;x.fillStyle='#5B6B82';x.fillText(T('Ejemplo: si 3 oficinas piden para 10 personas una vez por semana.','Example: if 3 offices order for 10 people once a week.'),W/2,H-44,W-160);
+  return cv;}
 
 
-function render(){updLogoPrev();buildWA();renderWhy();$('img-owner').src=drawOwner();}
+/* ---------- Marketing kit samples (Gift 2), MealPool collateral style: white, bold navy, blue accent, green rule ---------- */
+function samplePill(x,W){x.font=`700 22px ${F}`;const t='EJEMPLO · SAMPLE',w=x.measureText(t).width+32;rr(x,W-w-36,36,w,40,20);x.fillStyle='#EEEAFB';x.fill();x.fillStyle='#6D4FD8';x.textAlign='left';x.fillText(t,W-w-20,63);}
+function qrOrBox(x,link,X,Y,size){const q=link?qrCanvas(tracked(link,'regalo-kit'),size,MP.navy):null;
+  if(q){x.drawImage(q,X,Y,size,size);return;}x.fillStyle='#F1F4F8';rr(x,X,Y,size,size,16);x.fill();x.fillStyle='#8A97AB';x.font=`600 24px ${F}`;x.textAlign='center';x.fillText('QR',X+size/2,Y+size/2+8);}
+function drawSample(kind){const R=v('r-name')||'Su restaurante',link=v('r-link'),cut=v('l-cutoff')||'10:30 am';
+  const W=1080,H=kind==='status'?1920:1080,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);x.textBaseline='alphabetic';
+  if(kind!=='sticker')doodlePattern(x,0,kind==='status'?H-420:H-130,W,kind==='status'?420:130,MP.blue,kind==='status'?140:100,.18);
+  if(kind==='sticker'){ // window or register sticker: big QR to order online
+    x.lineWidth=18;x.strokeStyle=MP.navy;rr(x,30,30,W-60,H-60,48);x.stroke();
+    x.textAlign='center';x.fillStyle=MP.navy;x.font=`800 92px ${F}`;x.fillText('Pida en línea',W/2,200);
+    x.fillStyle=MP.blue;x.font=`800 52px ${F}`;x.fillText('Order online',W/2,268);
+    qrOrBox(x,link,W/2-210,320,420);
+    x.fillStyle=MP.green;rr(x,W/2-60,775,120,10,5);x.fill();
+    x.fillStyle=MP.navy;x.font=`800 50px ${F}`;x.textAlign='center';x.fillText(wrap(x,R,900)[0],W/2,860);
+    x.fillStyle='#5B6B82';x.font=`500 28px ${F}`;x.fillText('Escanee con la cámara · Scan with your camera',W/2,920);
+    samplePill(x,W);return cv;}
+  if(kind==='fb'){ // Facebook post
+    drawLogo(x,170,180,96);x.lineWidth=4;x.strokeStyle=MP.ring;x.beginPath();x.arc(170,180,96,0,Math.PI*2);x.stroke();
+    x.textAlign='left';x.fillStyle=MP.navy;x.font=`700 34px ${F}`;x.fillText(wrap(x,R,560)[0],300,170);
+    x.fillStyle='#5B6B82';x.font=`500 26px ${F}`;x.fillText(city()||'',300,212);
+    x.fillStyle=MP.navy;x.font=`800 96px ${F}`;x.fillText('¡Ya puede',80,430);x.fillText('pedir en línea!',80,535);
+    x.fillStyle=MP.blue;x.font=`800 58px ${F}`;x.fillText('Order online now.',80,620);
+    x.fillStyle=MP.green;rr(x,80,660,90,9,4);x.fill();
+    x.fillStyle='#4B5B73';x.font=`500 36px ${F}`;['Pida directo con nosotros:','sin filas y sin llamar.'].forEach((l,i)=>x.fillText(l,80,740+i*48));
+    x.fillStyle='#EAF7F0';rr(x,80,850,W-160,130,20);x.fill();x.fillStyle='#0E7A4E';x.font=`700 34px ${F}`;
+    x.fillText(link?wrap(x,link.replace(/^https?:\/\//,''),W-260)[0]:'Enlace en la descripción · Link in the caption',110,928);
+    samplePill(x,W);return cv;}
+  // WhatsApp Status: group lunch with MealPool
+  x.fillStyle='#EEEAFB';rr(x,80,120,420,56,28);x.fill();x.fillStyle='#6D4FD8';x.font=`800 26px ${F}`;x.textAlign='left';x.fillText('ALMUERZO EN GRUPO',108,158);
+  drawLogo(x,W/2,420,170);x.lineWidth=6;x.strokeStyle=MP.ring;x.beginPath();x.arc(W/2,420,170,0,Math.PI*2);x.stroke();
+  x.textAlign='left';x.fillStyle=MP.navy;x.font=`800 104px ${F}`;let y=760;wrap(x,'¿Almuerzo para la oficina?',W-160).forEach(l=>{x.fillText(l,80,y);y+=118;});
+  x.fillStyle=MP.blue;x.font=`800 64px ${F}`;x.fillText(`Pidan juntos antes de las ${cut}.`,80,y+10,W-160);y+=60;
+  x.fillStyle=MP.green;rr(x,80,y+20,90,9,4);x.fill();y+=90;
+  x.fillStyle='#4B5B73';x.font=`500 40px ${F}`;['Un solo pedido para todo el equipo.','Lunch for your whole team, ordered together.'].forEach(l=>{x.fillText(l,80,y,W-160);y+=56;});
+  qrOrBox(x,link,W/2-200,y+40,400);
+  x.fillStyle=MP.navy;x.font=`700 34px ${F}`;x.textAlign='center';x.fillText('MealPool by SalesVu',W/2,H-90);
+  samplePill(x,W);return cv;}
 
-/* ---------- Copy ---------- */
-function flash(id,msg){const s=$(id);s.textContent=msg;setTimeout(()=>{s.textContent='';},2500);}
-const EN=()=>document.documentElement.getAttribute('data-lang')==='en';
-$('copy-wa').onclick=()=>{const t=$('wa').value;const ok=()=>flash('st-wa',EN()?'Copied. Paste it in WhatsApp.':'Copiado. Péguelo en WhatsApp.');
-  const fb=()=>{$('wa').focus();$('wa').select();flash('st-wa',EN()?'Text selected. Press Ctrl+C / Cmd+C to copy.':'Texto seleccionado. Presione Ctrl+C / Cmd+C para copiar.');};
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb();};
-function copyImg(imgId,st){const src=$(imgId).src;const fail=()=>flash(st,EN()?'Your browser blocked copying. Long-press or right-click the image to save it.':'Su navegador no permitió copiar. Mantenga presionada la imagen o use clic derecho para guardarla.');
-  try{fetch(src).then(r=>r.blob()).then(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})])).then(()=>flash(st,EN()?'Image copied. Paste it in WhatsApp.':'Imagen copiada. Péguela en WhatsApp.'),fail);}catch(e){fail();}}
-$('copy-owner').onclick=()=>copyImg('img-owner','st-owner');
+/* ================= Small helpers ================= */
+function slug(s){return (s||'restaurante').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'restaurante';}
+function flash(id,msg){const s=$(id);s.className='status okc';s.textContent=msg;clearTimeout(s._t);s._t=setTimeout(()=>{s.textContent='';},2600);}
+function copyText(taId,stId){const t=$(taId).value;const ok=()=>flash(stId,EN()?'Copied. Paste it in WhatsApp.':'Copiado. Péguelo en WhatsApp.');
+  const fb=()=>{$(taId).focus();$(taId).select();flash(stId,EN()?'Text selected. Press Ctrl+C / Cmd+C.':'Texto seleccionado. Presione Ctrl+C / Cmd+C.');};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb();}
+function copyImage(img,stId){const fail=()=>flash(stId,EN()?'Copying was blocked. Use Download, or long-press the image.':'No se pudo copiar. Use Descargar, o mantenga presionada la imagen.');
+  try{fetch(img.src).then(r=>r.blob()).then(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})])).then(()=>flash(stId,EN()?'Image copied.':'Imagen copiada.'),fail);}catch(e){fail();}}
 
-$('reset').onclick=()=>{['r-name','r-owner','r-city','r-link'].forEach(i=>$(i).value='');logoImg=null;$('r-logo').value='';render();$('r-name').focus();};
+/* ================= Presence state ================= */
+const ans={},asrc={};
+function setAns(id,a,s){ans[id]=a;asrc[id]=s||null;}
+function clearAns(){CHECKS.forEach(c=>setAns(c.id,'unk',null));}
+function evaluate(){let got=0,max=0;const good=[],bad=[],unk=[];
+  CHECKS.forEach(c=>{const a=ans[c.id]||'unk';if(a==='unk'){unk.push(c);return;}max+=c.w;
+    const ok=c.bad?a==='no':a==='yes';if(ok){got+=c.w;good.push(c);}else bad.push(c);});
+  bad.sort((a,b)=>b.p-a.p);good.sort((a,b)=>b.p-a.p);
+  return {score:max?Math.round(got/max*100):null,good,bad,unk,top:bad.slice(0,3)};}
+const LABEL={order:{es:'Pedidos en línea directos',en:'Direct online orders'},apps:{es:'Paga comisión a apps de entrega',en:'Pays delivery-app commission'},
+  web:{es:'Página web con menú',en:'Website with menu'},gmaps:{es:'Google Maps con horario',en:'Google Maps with hours'},fb:{es:'Facebook activo',en:'Active on Facebook'}};
+let facts={};
+function applyPlace(p){place=p;const S=p.src;facts={};
+  if(!p.addrOnly){
+    if(S==='Google')setAns('gmaps',p.hours?'yes':'no',S);
+    const k=siteKind(p.web);
+    if(k==='website'||k==='ordering')setAns('web','yes',S);
+    if(k==='ordering')setAns('order','yes',S);
+    if(k==='apps'){setAns('apps','yes',S);setAns('web','no',S);}
+    if(k==='none'||k==='facebook'||k==='instagram')setAns('web','no',S);
+    facts={rating:p.rating,ratings:p.ratings,web:p.web,phone:p.phone,maps:p.maps,hours:p.hours};}
+  if((!v('r-addr')||isURL(v('r-addr')))&&p.addr)$('r-addr').value=p.addr;
+  placeKey=v('r-name')+'|'+v('r-addr');}
+let matches=[];
+async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
+  const raw=v('r-addr'),link=isURL(raw)?readLink(raw):null;
+  if(isURL(raw)&&!link)throw new Error(EN()?'That link doesn\'t look right. Copy it again from the browser bar.':'Ese enlace no parece correcto. Cópielo otra vez de la barra del navegador.');
+  if(link&&link.kind==='short')throw new Error(EN()?'Short links (maps.app.goo.gl) can\'t be read. Open the link and copy the full address from the browser bar.':'Los enlaces cortos (maps.app.goo.gl) no se pueden leer. Abra el enlace y copie la dirección completa de la barra del navegador.');
+  if(link&&link.kind==='site')throw new Error(EN()?'That looks like a website, not a Google Maps link. Type the street address.':'Eso parece una página web, no un enlace de Google Maps. Escriba la dirección.');
+  const maps=link&&link.kind==='maps'?link:null,near=maps&&maps.near,addrText=maps?'':raw;
+  if(maps&&maps.name&&!v('r-name'))$('r-name').value=maps.name;
+  if(!v('r-name'))throw new Error(EN()?'Type the restaurant name.':'Escriba el nombre del restaurante.');
+  if(!raw)throw new Error(EN()?'Type the address or paste the Google Maps link.':'Escriba la dirección o pegue el enlace de Google Maps.');
+  let list=null,src='';
+  if(gkey()){try{list=maps&&maps.pid?await googleDetails(maps.pid):await googleSearch((v('r-name')+' '+addrText).trim(),near);src='Google';}catch(e){console.warn(e);}}
+  if(!list||!list.length){list=await osmSearch(v('r-name'),addrText,near);src='OpenStreetMap';}
+  if(!list.length&&near)list=[{src:'Google Maps',addrOnly:true,name:v('r-name'),addr:'',lat:near.lat,lon:near.lon}];
+  if(!list.length)return {found:false,src};
+  matches=list.filter(p=>!p.addrOnly);applyPlace(list[0]);
+  return {found:!list[0].addrOnly,src};}
 
-/* ---------- Wire up ---------- */
-let t;document.getElementById('f').addEventListener('input',()=>{clearTimeout(t);t=setTimeout(render,120);});
-document.getElementById('f').addEventListener('change',e=>{if(e.target.name==='pain')render();});
-document.getElementById('f').addEventListener('submit',e=>e.preventDefault());
-$('wa').addEventListener('input',e=>e.stopPropagation());
+/* ================= Area: offices (Google by category) + Mexican competitors ================= */
+let comps=[],areaSrc='',areaErr='';
+async function googleCompetitors(c,mi){const r=await fetch('https://places.googleapis.com/v1/places:searchNearby',{method:'POST',
+    headers:{'Content-Type':'application/json','X-Goog-Api-Key':gkey(),'X-Goog-FieldMask':'places.displayName,places.location,places.rating,places.userRatingCount,places.websiteUri,places.googleMapsUri'},
+    body:JSON.stringify({includedTypes:['mexican_restaurant'],maxResultCount:20,rankPreference:'DISTANCE',languageCode:'en',locationRestriction:{circle:{center:{latitude:c.lat,longitude:c.lon},radius:Math.min(50000,mi*MI)}}})});
+  if(!r.ok)throw new Error('Google '+r.status);
+  return ((await r.json()).places||[]).map(p=>({name:(p.displayName&&p.displayName.text)||'',lat:p.location.latitude,lon:p.location.longitude,rating:typeof p.rating==='number'?p.rating:null,ratings:p.userRatingCount||null,web:p.websiteUri||'',maps:p.googleMapsUri||''}));}
+/* OpenStreetMap: one Overpass request for both offices and Mexican restaurants (named places only). */
+async function osmArea(c,mi,wantOffices,wantComps){const A=`(around:${Math.round(mi*MI)},${c.lat},${c.lon})`;
+  const off=`nwr${A}["office"]["name"];nwr${A}["building"~"^(office|commercial)$"]["name"];
+nwr${A}["amenity"~"^(hospital|clinic|doctors|dentist|school|college|university|townhall|courthouse|police|fire_station|post_office|bank)$"]["name"];
+nwr${A}["healthcare"]["name"];nwr${A}["shop"~"^(car|car_repair)$"]["name"];nwr${A}["man_made"="works"]["name"];
+nwr${A}["building"~"^(industrial|warehouse)$"]["name"];nwr${A}["landuse"="industrial"]["name"];`;
+  const mex=`nwr${A}["amenity"~"^(restaurant|fast_food)$"]["cuisine"~"mexican|tex-mex|taco|burrito",i]["name"];`;
+  const q=`[out:json][timeout:25];(${wantOffices?off:''}${wantComps?mex:''});out center tags 300;`;
+  for(const ep of ['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter']){
+    try{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000); // a busy server shouldn't hang the rep
+      const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q),signal:ac.signal});clearTimeout(tm);if(!r.ok)continue;
+      const offices=[],mexs=[];
+      ((await r.json()).elements||[]).forEach(e=>{const t=e.tags||{},lat=e.lat!=null?e.lat:e.center&&e.center.lat,lon=e.lon!=null?e.lon:e.center&&e.center.lon;if(lat==null)return;
+        const maps=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(t.name+' '+lat+','+lon)}`;
+        if(/restaurant|fast_food/.test(t.amenity||'')&&/mexican|tex-mex|taco|burrito/i.test(t.cuisine||''))mexs.push({name:t.name,lat,lon,rating:null,ratings:null,web:t.website||t['contact:website']||'',maps});
+        else offices.push({name:t.name,cat:osmCat(t),lat,lon,addr:[t['addr:housenumber'],t['addr:street']].filter(Boolean).join(' '),maps});});
+      return {offices,mexs};
+    }catch(e){console.warn(e);}}
+  throw new Error(EN()?'The free map service is busy right now. Try again in a minute, or add a Google key in Settings.':'El servicio de mapas gratis está ocupado. Intente de nuevo en un minuto, o agregue una clave de Google en Ajustes.');}
+function cleanComps(list,c,mi){const self=(v('r-name')||'').toLowerCase().trim(),seen=new Set();
+  return list.map(p=>Object.assign(p,{dist:distMi(c.lat,c.lon,p.lat,p.lon)}))
+    .filter(p=>{const k=(p.name||'').toLowerCase().trim();if(!k||k===self||p.dist<0.02||p.dist>mi*1.05||seen.has(k))return false;seen.add(k);return true;})
+    .sort((a,b)=>a.dist-b.dist);}
+async function loadArea(wantOffices,wantComps){areaErr='';comps=[];lunch.places=[];lunch.sel=new Set();
+  const c=await findCenter(),mi=radiusMi();lunch.center=c;lunch.radius=mi;
+  let offices=null,mexs=null;
+  if(gkey()){
+    if(wantOffices){try{offices=await googleNearby(c,mi);}catch(e){console.warn(e);}}
+    if(wantComps){try{mexs=await googleCompetitors(c,mi);}catch(e){console.warn(e);}}
+    areaSrc='Google Maps';}
+  if((wantOffices&&!offices)||(wantComps&&!mexs)){const o=await osmArea(c,mi,wantOffices&&!offices,wantComps&&!mexs);
+    if(!offices)offices=o.offices;if(!mexs)mexs=o.mexs;areaSrc=gkey()?'Google Maps + OpenStreetMap':'OpenStreetMap';}
+  if(offices){lunch.places=cleanPlaces(offices,c,mi);lunch.sel=new Set(lunch.places.slice(0,5).map(p=>p.id));}
+  if(mexs)comps=cleanComps(mexs,c,mi);}
 
-setLang(store.get('svkit-lang')==='en'?'en':'es');
-route();
-render();
-(document.fonts&&document.fonts.load?Promise.all([document.fonts.load(`800 40px Inter`),document.fonts.load(`600 40px Inter`),document.fonts.load(`500 40px Inter`)]):Promise.resolve()).then(render,render);
+/* ================= The brief ================= */
+const TIPS={
+ office:{es:['Oficinas','Almuerzos de equipo los viernes y para juntas. Ofrezca un menú fijo para grupos.'],en:['Offices','Friday team lunches and meetings. Offer a set group menu.']},
+ health:{es:['Salud','Turnos largos y poco tiempo para salir. Pedidos por adelantado con hora fija.'],en:['Health','Long shifts, little time to leave. Pre-orders at a fixed time.']},
+ school:{es:['Escuelas','Maestros y personal. Pedidos para juntas y días especiales.'],en:['Schools','Teachers and staff. Orders for meetings and special days.']},
+ gov:{es:['Gobierno','Horario de comida fijo. Ideal para pedidos que se repiten cada semana.'],en:['Government','Fixed lunch hour. Good for weekly repeat orders.']},
+ cars:{es:['Agencias y talleres','Equipos que no pueden dejar el lugar. Almuerzo para el turno.'],en:['Dealers & shops','Teams that can\'t leave. Lunch for the shift.']},
+ industry:{es:['Industria y bodegas','Turnos y cuadrillas. Un pedido grande para todo el turno.'],en:['Industry & warehouses','Shifts and crews. One big order for the whole shift.']}};
+const near=()=>selected()[0]||lunch.places[0];
+const whereTxt=(p,es)=>p.dist<=0.25?(es?'a unas cuadras':'a few blocks away'):(es?`a ${fmtMi(p.dist)} millas`:`${fmtMi(p.dist)} miles away`);
+function catCounts(list){const c={};list.forEach(p=>{c[p.cat]=(c[p.cat]||0)+1;});return Object.entries(c).sort((a,b)=>b[1]-a[1]);}
+
+function renderSummary(){const es=olang()==='es',O=v('r-owner'),R=v('r-name'),r=evaluate();let say='';
+  if(on('m-offices')&&lunch.places.length){const n=near();
+    say=es?`«${O?O+', ':''}hay ${lunch.places.length} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} de ${R}${n?`; ${n.name} está ${whereTxt(n,true)}`:''}. Con MealPool, esas oficinas le pueden pedir almuerzo en grupo, por adelantado.»`
+          :`"${O?O+', ':''}there are ${lunch.places.length} workplaces within ${radLabel('en',lunch.radius)} of ${R}${n?`; ${n.name} is ${whereTxt(n,false)}`:''}. With MealPool, those offices can pre-order lunch as a group."`;}
+  else if(on('m-presence')){const f=pitch(r)[0];say=es?`«${O?O+', ':''}revisé cómo aparece ${R} en internet. Lo más rápido para recibir más pedidos: ${f.short.es}.»`:`"${O?O+', ':''}I looked at how ${R} shows up online. The quickest way to get more orders: ${f.short.en}."`;}
+  $('b-say').textContent=say;
+  const b=[];
+  if(on('m-offices')&&lunch.places.length)b.push(EN()?`${lunch.places.length} workplaces nearby: ${catCounts(lunch.places).slice(0,3).map(([k,n])=>`${n} ${CATS[k].en.toLowerCase()}`).join(', ')}.`:`${lunch.places.length} lugares de trabajo cerca: ${catCounts(lunch.places).slice(0,3).map(([k,n])=>`${n} ${CATS[k].es.toLowerCase()}`).join(', ')}.`);
+  if(on('m-presence')){const lc=t=>/^(Google|Facebook)/.test(t)?t:t.charAt(0).toLowerCase()+t.slice(1),gaps=r.bad.map(c=>lc(L(LABEL[c.id])));
+    b.push(r.unk.length===CHECKS.length?(EN()?'Not found online: confirm the 5 online answers below before sending.':'No lo encontramos en internet: confirme las 5 respuestas de abajo antes de enviar.')
+      :gaps.length?(EN()?`Online gaps: ${gaps.join(', ')}.`:`Le falta en internet: ${gaps.join(', ')}.`)
+      :r.unk.length?(EN()?'No gaps so far: confirm the answers marked "Not sure".':'Sin huecos por ahora: confirme las respuestas en «No sé».')
+      :(EN()?'Strong online presence: lead with MealPool.':'Buena presencia en internet: hable de MealPool.'));}
+  if(on('m-comp')&&comps.length)b.push(EN()?`${comps.length} Mexican restaurants within ${radLabel('en',lunch.radius)}.`:`${comps.length} restaurantes mexicanos a menos de ${radLabel('es',lunch.radius)}.`);
+  if(facts.rating!=null)b.push(EN()?`Google: ${facts.rating.toFixed(1)}★ (${facts.ratings||0} reviews).`:`Google: ${facts.rating.toFixed(1)}★ (${facts.ratings||0} reseñas).`);
+  $('b-bul').innerHTML='';b.forEach(t=>{const li=document.createElement('li');li.textContent=t;$('b-bul').appendChild(li);});
+  const n=v('r-notes');$('b-notes').hidden=!n;$('b-notes').textContent=n;}
+
+function renderHead(){$('b-name').textContent=v('r-name');$('b-where').textContent=v('r-addr');
+  const f=[];if(facts.rating!=null)f.push(`★ ${facts.rating.toFixed(1)}${facts.ratings?` · ${facts.ratings}`:''}`);
+  if(facts.phone)f.push(facts.phone);if(place&&!place.addrOnly)f.push(facts.web?(EN()?'Has a website':'Tiene página web'):(EN()?'No website':'Sin página web'));
+  $('b-facts').innerHTML='';f.forEach(t=>{const s=document.createElement('span');s.className='fact';s.textContent=t;$('b-facts').appendChild(s);});
+  if(facts.maps){const a=document.createElement('a');a.className='fact';a.href=facts.maps;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Google Maps ↗';$('b-facts').appendChild(a);}
+  const m=$('b-match');m.hidden=matches.length<2;m.innerHTML='';
+  matches.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(i===0?(EN()?'Match: ':'Resultado: '):'')+p.name+' · '+p.addr.split(',').slice(0,2).join(',');m.appendChild(o);});}
+$('b-match').onchange=()=>{const p=matches[+$('b-match').value];if(!p)return;clearAns();applyPlace(p);renderAll();};
+
+function renderOffices(){const sec=$('sec-offices');sec.hidden=!on('m-offices');if(sec.hidden)return;
+  const ok=lunch.places.length>0;$('off-err').hidden=!areaErr&&ok;$('off-err').textContent=areaErr||(EN()?'No workplaces found. Try 2 miles in More options.':'No se encontraron lugares de trabajo. Pruebe 2 millas en Más opciones.');
+  $('off-body').hidden=!ok;$('off-flyers').hidden=!ok;$('off-src').textContent=ok?areaSrc:'';if(!ok)return;
+  $('off-n').textContent=lunch.places.length;$('off-n-lbl').textContent=EN()?`workplaces within ${radLabel('en',lunch.radius)}`:`lugares de trabajo a menos de ${radLabel('es',lunch.radius)}`;
+  $('off-chips').innerHTML=catCounts(lunch.places).map(([k,n])=>`<span class="chip"><span class="dot" style="background:${CATS[k].color}"></span>${L(CATS[k])} · ${n}</span>`).join('');
+  $('off-est').textContent=estimate(EN()?'en':'es')||(EN()?'Few workplaces found: try a wider distance.':'Pocos lugares encontrados: pruebe una distancia mayor.');
+  $('off-tips').innerHTML='';catCounts(lunch.places).slice(0,3).forEach(([k])=>{const t=TIPS[k][EN()?'en':'es'];const li=document.createElement('li');li.innerHTML='<strong></strong><span class="muted"></span>';li.children[0].textContent=t[0];li.children[1].textContent=t[1];$('off-tips').appendChild(li);});
+  renderOfficeList();renderFlyer();drawMap();}
+function renderOfficeList(){const list=$('off-list');list.innerHTML='';
+  lunch.places.forEach(p=>{const row=document.createElement('label');row.className='prow';
+    row.innerHTML='<input type="checkbox"><span class="dot"></span><span><strong></strong><small></small></span><a target="_blank" rel="noopener noreferrer">Maps ↗</a>';
+    const cb=row.querySelector('input');cb.checked=lunch.sel.has(p.id);cb.onchange=()=>{if(cb.checked)lunch.sel.add(p.id);else lunch.sel.delete(p.id);renderFlyer();drawMap();buildPack();renderSummary();};
+    row.querySelector('.dot').style.background=CATS[p.cat].color;row.querySelector('strong').textContent=p.name;
+    row.querySelector('small').textContent=`${L(CATS[p.cat])} · ${fmtMi(p.dist)} mi`;row.querySelector('a').href=p.maps;list.appendChild(row);});}
+function renderFlyer(){const sel=selected(),fs=$('flyer-for'),keep=fs.value;fs.innerHTML='';
+  sel.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=`${p.name} · ${fmtMi(p.dist)} mi`;fs.appendChild(o);});
+  if(sel.some(p=>p.id===keep))fs.value=keep;const o=sel.find(p=>p.id===fs.value);
+  $('img-flyer').closest('.page').hidden=!o;
+  if(o){const d=drawFlyer(o,llang()).toDataURL('image/png');$('img-flyer').src=d;$('dl-flyer').href=d;$('dl-flyer').download=`volante-${slug(o.name)}.png`;$('lunch-email').value=buildEmail(o,llang());}else $('lunch-email').value='';}
+$('flyer-for').onchange=renderFlyer;
+document.querySelectorAll('input[name=l-mode],input[name=l-lang]').forEach(e=>e.addEventListener('change',()=>{renderFlyer();buildPack();}));
+['l-cutoff','l-time'].forEach(id=>$(id).addEventListener('input',()=>{renderFlyer();buildPack();}));
+
+function drawMap(){const LF=window.L,el=$('map');if(!LF||!lunch.center)return;
+  if(!lunch.map){lunch.map=LF.map(el,{scrollWheelZoom:false});
+    LF.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(lunch.map);lunch.layer=LF.layerGroup().addTo(lunch.map);}
+  lunch.layer.clearLayers();const c=lunch.center,bounds=LF.latLng(c.lat,c.lon).toBounds(lunch.radius*MI*2);
+  lunch.map.fitBounds(bounds,{padding:[8,8]}); // the map needs a view before the circle can be added
+  LF.circle([c.lat,c.lon],{radius:lunch.radius*MI,color:'#0066FF',weight:1,fillOpacity:.04}).addTo(lunch.layer);
+  if(on('m-comp'))comps.forEach(p=>LF.circleMarker([p.lat,p.lon],{radius:6,color:'#FFFFFF',weight:2,fillColor:'#EA580C',fillOpacity:1}).bindTooltip(`${p.name} · ${fmtMi(p.dist)} mi`).addTo(lunch.layer));
+  lunch.places.forEach(p=>{const s=lunch.sel.has(p.id),col=CATS[p.cat].color;
+    LF.circleMarker([p.lat,p.lon],{radius:s?8:5,color:s?'#FFFFFF':col,weight:s?2:1,fillColor:col,fillOpacity:s?1:.6}).bindTooltip(`${p.name} · ${fmtMi(p.dist)} mi`).addTo(lunch.layer);});
+  LF.circleMarker([c.lat,c.lon],{radius:11,color:'#FFFFFF',weight:3,fillColor:'#132F52',fillOpacity:1}).bindTooltip(v('r-name')||'Restaurante',{permanent:true,direction:'top',offset:[0,-10]}).addTo(lunch.layer);
+  setTimeout(()=>{lunch.map.invalidateSize();lunch.map.fitBounds(bounds,{padding:[8,8]});},40);}
+
+function renderPresence(){const sec=$('sec-presence');sec.hidden=!on('m-presence');if(sec.hidden)return;
+  $('pre-src').textContent=place&&!place.addrOnly?(EN()?`Auto-filled from ${place.src}`:`Llenado con ${place.src}`):(EN()?'Not found online: answer by hand':'No se encontró en internet: conteste a mano');
+  const rows=$('pre-rows');rows.innerHTML='';
+  CHECKS.forEach(c=>{const a=ans[c.id]||'unk',row=document.createElement('div');row.className='crow';
+    row.innerHTML='<span><span class="q"></span></span><button type="button" class="state"></button>';
+    row.querySelector('.q').textContent=L(c.q);if(asrc[c.id]){const t=document.createElement('span');t.className='src';t.textContent=asrc[c.id];row.firstChild.appendChild(t);}
+    const b=row.querySelector('.state');b.className='state '+a;b.textContent=a==='yes'?(EN()?'Yes':'Sí'):a==='no'?'No':(EN()?'Not sure':'No sé');
+    b.setAttribute('aria-label',L(c.q)+': '+b.textContent);
+    b.onclick=()=>{setAns(c.id,a==='yes'?'no':a==='no'?'unk':'yes',null);renderPresence();renderSummary();buildPack();};rows.appendChild(row);});
+  const e=encodeURIComponent,name=v('r-name'),nc=(name+' '+city()).trim();
+  $('pre-links').innerHTML='';[['Google Maps',facts.maps||`https://www.google.com/maps/search/?api=1&query=${e(name+' '+v('r-addr'))}`],['Facebook',`https://www.facebook.com/search/pages/?q=${e(name)}`],['DoorDash / Uber Eats',`https://www.google.com/search?q=${e(nc+' doordash OR ubereats OR grubhub')}`]]
+    .forEach(([t,u])=>{const a=document.createElement('a');a.className='chip';a.href=u;a.target='_blank';a.rel='noopener noreferrer';a.textContent=(EN()?'Check ':'Revisar ')+t+' ↗';$('pre-links').appendChild(a);});
+  const help=$('pre-help');help.innerHTML='';
+  pitch(evaluate()).forEach(c=>{const li=document.createElement('li');li.innerHTML='<span></span><span class="pill"></span>';li.children[0].textContent=L(c.fix);
+    li.children[1].className='pill '+(c.who==='kit'?'kit':c.who==='owner'?'owner':'');li.children[1].textContent=L(TAGS[c.who]);help.appendChild(li);});}
+
+function renderComps(){const sec=$('sec-comp');sec.hidden=!on('m-comp');if(sec.hidden)return;
+  $('comp-err').hidden=!(areaErr&&!comps.length);$('comp-err').textContent=areaErr;
+  const tips=$('comp-tips');tips.innerHTML='';const tb=$('comp-rows');tb.innerHTML='';
+  const rated=comps.filter(p=>p.rating!=null),avg=rated.length?rated.reduce((s,p)=>s+p.rating,0)/rated.length:null,withWeb=comps.filter(p=>p.web).length,es=!EN();
+  const t=[];
+  if(comps.length){t.push(es?[`${comps.length} restaurantes mexicanos a menos de ${radLabel('es',lunch.radius)}`,`El más cercano: ${comps[0].name}, ${whereTxt(comps[0],true)}.`]:[`${comps.length} Mexican restaurants within ${radLabel('en',lunch.radius)}`,`Closest: ${comps[0].name}, ${whereTxt(comps[0],false)}.`]);
+    if(avg!=null)t.push(es?['Calificaciones',`Promedio de la zona: ${avg.toFixed(1)}★${facts.rating!=null?`. Este restaurante: ${facts.rating.toFixed(1)}★`:''}.`]:['Ratings',`Area average: ${avg.toFixed(1)}★${facts.rating!=null?`. This restaurant: ${facts.rating.toFixed(1)}★`:''}.`]);
+    if(rated.length||comps.some(p=>p.web))t.push(es?['Páginas web',`${withWeb} de ${comps.length} tienen página web.`]:['Websites',`${withWeb} of ${comps.length} have a website.`]);}
+  else t.push(es?['Sin competencia registrada cerca','No encontramos restaurantes mexicanos en la zona. Es una ventaja: dígalo así.']:['No competitors found nearby','No Mexican restaurants found in the area. That\'s an advantage: say so.']);
+  t.push(es?['Cómo diferenciarse','No compita en precio. Ofrezca lo que se nota: pedidos de almuerzo en grupo para las oficinas cercanas (MealPool) y su propio enlace de pedidos, sin comisión por pedido.']:['How to stand out','Don\'t compete on price. Offer what\'s visible: group lunch orders for nearby offices (MealPool) and their own ordering link, with no per-order commission.']);
+  t.forEach(([h,b])=>{const li=document.createElement('li');li.innerHTML='<strong></strong><span class="muted"></span>';li.children[0].textContent=h;li.children[1].textContent=b;tips.appendChild(li);});
+  comps.slice(0,15).forEach(p=>{const tr=document.createElement('tr');tr.innerHTML='<td><a target="_blank" rel="noopener noreferrer"></a></td><td></td><td></td><td></td>';
+    const a=tr.querySelector('a');a.href=p.maps;a.textContent=p.name;tr.children[1].textContent=fmtMi(p.dist);
+    tr.children[2].textContent=p.rating!=null?`${p.rating.toFixed(1)}★ (${p.ratings||0})`:'—';tr.children[3].textContent=p.web?(EN()?'Yes':'Sí'):'—';tb.appendChild(tr);});
+  tb.closest('.tbl').hidden=!comps.length;}
+
+/* ================= Owner pack pages (1080×1350, MealPool collateral style) ================= */
+function newPage(){const cv=document.createElement('canvas');cv.width=1080;cv.height=1350;const x=cv.getContext('2d');x.fillStyle='#FFFFFF';x.fillRect(0,0,1080,1350);x.textBaseline='alphabetic';return [cv,x];}
+function pagePill(x,t){x.font=`800 22px ${F}`;x.textAlign='left';const w=x.measureText(t).width+36;rr(x,80,56,w,44,22);x.fillStyle='#EEEAFB';x.fill();x.fillStyle='#6D4FD8';x.fillText(t,98,86);}
+function pageFooter(x,es){const rep=v('r-rep');x.textAlign='center';x.font=`500 24px ${F}`;x.fillStyle='#5B6B82';
+  x.fillText((es?'Preparado por ':'Prepared by ')+(rep?rep+' · ':'')+'SalesVu · MealPool',540,1300);}
+function drawCover(){const [cv,x]=newPage(),es=olang()==='es',T=(a,b)=>es?a:b,R=v('r-name')||T('Su restaurante','Your restaurant');
+  doodlePattern(x,0,1060,1080,290,MP.blue,120,.16);
+  pagePill(x,'MEALPOOL BY SALESVU');
+  drawLogo(x,540,330,150);x.lineWidth=6;x.strokeStyle=MP.ring;x.beginPath();x.arc(540,330,150,0,Math.PI*2);x.stroke();
+  x.textAlign='center';x.font=`600 36px ${F}`;x.fillStyle=MP.blue;x.fillText(T('Más pedidos para','More orders for'),540,570);
+  x.font=`800 74px ${F}`;x.fillStyle=MP.navy;let y=655;wrap(x,R,920).slice(0,2).forEach(l=>{x.fillText(l,540,y);y+=82;});
+  x.fillStyle=MP.green;rr(x,495,y-28,90,9,4);x.fill();y+=40;
+  const items=[];
+  if(on('m-offices')&&lunch.places.length)items.push(T(`${lunch.places.length} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} que pueden pedirle almuerzo`,`${lunch.places.length} workplaces within ${radLabel('en',lunch.radius)} that could order lunch from you`));
+  if(on('m-presence')){const ev=evaluate(),n=ev.top.length;items.push(ev.unk.length===CHECKS.length?T('Cómo recibir más pedidos directos','How to get more direct orders'):n?T(`${n} formas de recibir más pedidos directos`,`${n} ways to get more direct orders`):T('Su presencia en internet va bien','Your online presence is in good shape'));}
+  if(on('m-kit'))items.push(T('Su kit MealPool con su logo, listo para usar','Your MealPool kit with your logo, ready to use'));
+  x.textAlign='left';items.forEach(t=>{x.beginPath();x.arc(150,y-12,12,0,Math.PI*2);x.fillStyle=MP.blue;x.fill();
+    x.font=`600 34px ${F}`;x.fillStyle=MP.navy;const ls=wrap(x,t,800);ls.slice(0,2).forEach((l,i)=>x.fillText(l,185,y+i*44));y+=Math.min(ls.length,2)*44+34;});
+  pageFooter(x,es);return cv;}
+function drawPresencePage(){const [cv,x]=newPage(),es=olang()==='es',T=(a,b)=>es?a:b,O=o=>es?o.es:o.en,r=evaluate(),R=v('r-name')||T('Su restaurante','Your restaurant');
+  pagePill(x,T('MÁS PEDIDOS DIRECTOS','MORE DIRECT ORDERS'));
+  x.textAlign='left';x.font=`800 58px ${F}`;x.fillStyle=MP.navy;x.fillText(T('Su presencia en internet','Your online presence'),80,190,760);
+  x.font=`600 30px ${F}`;x.fillStyle=MP.blue;x.fillText(wrap(x,R,720)[0],80,240);x.fillStyle=MP.green;rr(x,80,266,90,9,4);x.fill();
+  drawLogo(x,940,180,90);x.lineWidth=4;x.strokeStyle=MP.ring;x.beginPath();x.arc(940,180,90,0,Math.PI*2);x.stroke();
+  let y=350;
+  CHECKS.forEach(c=>{const a=ans[c.id]||'unk',good=a==='unk'?null:(c.bad?a==='no':a==='yes');
+    rr(x,80,y,920,64,14);x.fillStyle='#F5F8FF';x.fill();
+    x.beginPath();x.arc(126,y+32,18,0,Math.PI*2);x.fillStyle=good==null?'#CBD5E1':good?'#16BD77':'#EA580C';x.fill();
+    x.strokeStyle='#FFFFFF';x.lineWidth=5;x.lineCap='round';x.lineJoin='round';x.beginPath();
+    if(good){x.moveTo(117,y+33);x.lineTo(124,y+40);x.lineTo(136,y+25);}else if(good===false){x.moveTo(119,y+25);x.lineTo(133,y+39);x.moveTo(133,y+25);x.lineTo(119,y+39);}else{x.moveTo(120,y+32);x.lineTo(132,y+32);}x.stroke();
+    x.font=`600 30px ${F}`;x.fillStyle=MP.navy;x.fillText(O(LABEL[c.id]),164,y+43,560);
+    x.textAlign='right';x.font=`700 26px ${F}`;x.fillStyle=good==null?'#8A97AB':good?'#0E7A4E':'#C2410C';
+    x.fillText(good==null?T('Por revisar','To check'):good?T('Bien','Good'):T('Le ayudamos','We can help'),975,y+42);x.textAlign='left';y+=74;});
+  y+=44;x.font=`800 40px ${F}`;x.fillStyle=MP.navy;x.fillText(T('Cómo le ayudamos a recibir más pedidos','How we help you get more orders'),80,y,920);y+=30;
+  pitch(r).slice(0,3).forEach((c,i)=>{x.font=`500 27px ${F}`;const ls=wrap(x,O(c.fix),820);const h=28+ls.length*35+16;if(y+h>1250)return;
+    x.beginPath();x.arc(104,y+30,16,0,Math.PI*2);x.fillStyle=MP.blue;x.fill();x.fillStyle='#FFFFFF';x.font=`800 20px ${F}`;x.textAlign='center';x.fillText(String(i+1),104,y+37);x.textAlign='left';
+    x.font=`500 27px ${F}`;x.fillStyle=MP.navy;ls.forEach((l,j)=>x.fillText(l,140,y+40+j*35));y+=h;});
+  pageFooter(x,es);return cv;}
+function drawKitPage(){const [cv,x]=newPage(),es=olang()==='es',T=(a,b)=>es?a:b,link=v('r-link'),rep=v('r-rep');
+  pagePill(x,T('SU KIT MEALPOOL','YOUR MEALPOOL KIT'));
+  x.textAlign='left';x.font=`800 56px ${F}`;x.fillStyle=MP.navy;let y=190;wrap(x,T('Material listo para atraer pedidos','Ready-made materials that bring in orders'),920).forEach(l=>{x.fillText(l,80,y);y+=64;});
+  x.font=`500 28px ${F}`;x.fillStyle='#5B6B82';x.fillText(T('Con su logo, para su puerta, Facebook y WhatsApp.','With your logo, for your door, Facebook and WhatsApp.'),80,y);y+=40;
+  const s1=drawSample('sticker'),s2=drawSample('fb'),s3=drawSample('status'),top=y+10;
+  [[s1,80,290,290],[s2,395,290,290],[s3,710,290,516]].forEach(([c,X,w,h])=>{x.drawImage(c,X,top,w,h);x.lineWidth=2;x.strokeStyle=MP.ring;rr(x,X,top,w,h,14);x.stroke();});
+  x.font=`600 22px ${F}`;x.fillStyle='#5B6B82';x.fillText(T('Puerta o caja','Door or register'),80,top+325);x.fillText('Facebook',395,top+325);
+  y=top+400;x.font=`800 36px ${F}`;x.fillStyle=MP.navy;x.fillText(T('Lo que SalesVu hace por usted','What SalesVu does for you'),80,y);y+=20;
+  [T('Armamos su tienda en línea con su menú y sus precios.','We build your online store with your menu and prices.'),
+   T('Sus clientes piden directo, sin comisión por pedido.','Your customers order directly, with no per-order commission.'),
+   T('MealPool: pedidos de almuerzo en grupo de las oficinas cercanas.','MealPool: group lunch orders from nearby offices.')].forEach(t=>{
+    x.font=`500 26px ${F}`;const ls=wrap(x,t,580);x.beginPath();x.arc(92,y+32,7,0,Math.PI*2);x.fillStyle=MP.green;x.fill();x.fillStyle=MP.navy;ls.forEach((l,i)=>x.fillText(l,112,y+40+i*34));y+=ls.length*34+18;});
+  rr(x,80,1150,920,90,18);x.fillStyle='#EAF7F0';x.fill();x.font=`700 30px ${F}`;x.fillStyle='#0E5C3A';x.textAlign='center';
+  x.fillText(link?T('Su tienda: ','Your store: ')+link.replace(/^https?:\/\//,'').slice(0,46):T(`Su contacto: ${rep||'SalesVu'}`,`Your contact: ${rep||'SalesVu'}`),540,1205,880);
+  pageFooter(x,es);return cv;}
+
+/* Office flyer (MealPool style), English, Spanish or both. */
+function drawFlyer(o,lang){const [cv,x]=newPage(),R=v('r-name')||'Restaurant',d=fmtMi(o.dist),cut=v('l-cutoff')||'10:30 am',lt=v('l-time')||'12:00 pm',del=lmode()==='deliver';
+  const E=lang!=='es',S=lang!=='en',office=o.name.length>30?o.name.slice(0,29)+'…':o.name;
+  x.fillStyle=MP.tint;x.fillRect(0,0,1080,330);doodlePattern(x,0,0,1080,330,MP.blue,120,.22);
+  drawLogo(x,540,170,110);x.lineWidth=6;x.strokeStyle='#FFFFFF';x.beginPath();x.arc(540,170,110,0,Math.PI*2);x.stroke();
+  x.textAlign='center';let y=420;x.font=`600 30px ${F}`;x.fillStyle=MP.blue;x.fillText(E?`${R} · ${d} mi from ${office}`:`${R} · a ${d} mi de ${office}`,540,y,960);
+  y+=86;x.fillStyle=MP.navy;x.font=`800 64px ${F}`;wrap(x,E?`Team lunch for ${office}`:`Almuerzo en equipo para ${office}`,940).slice(0,2).forEach(l=>{x.fillText(l,540,y);y+=74;});
+  if(E&&S){x.font=`600 30px ${F}`;x.fillStyle='#5B6B82';x.fillText(`Almuerzo en equipo para ${office}`,540,y-14,940);y+=30;}
+  x.fillStyle=MP.green;rr(x,495,y-20,90,9,4);x.fill();y+=50;
+  const steps=[[`Order together by ${cut}`,`Pidan juntos antes de las ${cut}`],[`${R} makes it fresh`,`${R} lo prepara al momento`],
+    [del?`Delivered to your office at ${lt}`:`Ready for pickup at ${lt}`,del?`Llega a su oficina a las ${lt}`:`Listo para recoger a las ${lt}`]];
+  x.textAlign='left';steps.forEach((s,i)=>{x.beginPath();x.arc(150,y-12,26,0,Math.PI*2);x.fillStyle=MP.blue;x.fill();x.fillStyle='#FFFFFF';x.font=`800 26px ${F}`;x.textAlign='center';x.fillText(String(i+1),150,y-3);x.textAlign='left';
+    x.fillStyle=MP.navy;x.font=`600 34px ${F}`;x.fillText(E?s[0]:s[1],198,y,800);if(E&&S){x.font=`500 26px ${F}`;x.fillStyle='#5B6B82';x.fillText(s[1],198,y+36,800);y+=94;}else y+=74;});
+  const link=v('r-link'),qs=Math.min(240,1350-130-(y+20));x.textAlign='center';
+  const q=link?qrCanvas(tracked(link,'regalo-almuerzo'),qs,MP.navy):null;
+  if(q)x.drawImage(q,540-qs/2,y+10,qs,qs);else{x.fillStyle='#F1F4F8';rr(x,540-qs/2,y+10,qs,qs,16);x.fill();x.fillStyle='#8A97AB';x.font=`600 24px ${F}`;x.fillText('QR',540,y+10+qs/2+8);}
+  x.font=`600 28px ${F}`;x.fillStyle=MP.blue;x.fillText(E&&S?'Scan for the menu & to order · Escanee para pedir':E?'Scan for the menu and to order':'Escanee para ver el menú y pedir',540,y+qs+54,980);
+  x.font=`600 22px ${F}`;x.fillStyle='#5B6B82';x.fillText('MealPool by SalesVu',540,1310);return cv;}
+
+/* ================= Pack: pages, WhatsApp message, PDF ================= */
+let packPages=[];
+function buildPack(){const sec=$('sec-pack');const any=on('m-offices')||on('m-presence')||on('m-kit');sec.hidden=!any;if(!any){packPages=[];return;}
+  const es=olang()==='es',pages=[[drawCover(),es?'Portada':'Cover']];
+  if(on('m-offices')&&lunch.places.length){pages.push([drawRadar(),es?'Oficinas cerca':'Nearby offices']);}
+  if(on('m-presence'))pages.push([drawPresencePage(),es?'Presencia en línea':'Online presence']);
+  if(on('m-kit'))pages.push([drawKitPage(),es?'Kit MealPool':'MealPool kit']);
+  packPages=pages.map(([c,t])=>({c,t,url:c.toDataURL('image/png')}));
+  const box=$('pages');box.innerHTML='';
+  packPages.forEach((p,i)=>{const d=document.createElement('div');d.className='page';
+    d.innerHTML=`<img alt=""><span></span><div class="btns"><button type="button" class="btn small">${EN()?'Copy':'Copiar'}</button><a class="btn small">${EN()?'Download':'Descargar'}</a></div>`;
+    const im=d.querySelector('img');im.src=p.url;im.alt=p.t;d.querySelector('span').textContent=`${i+1}. ${p.t}`;
+    d.querySelector('button').onclick=()=>copyImage(im,'bar-st');const a=d.querySelector('a');a.href=p.url;a.download=`${i+1}-${slug(p.t)}-${slug(v('r-name'))}.png`;box.appendChild(d);});
+  const sm=$('samples');sm.innerHTML='';$('kit-loose').hidden=!on('m-kit');
+  if(on('m-kit'))[['sticker',es?'Calcomanía':'Sticker'],['fb','Facebook'],['status',es?'Estado de WhatsApp':'WhatsApp Status']].forEach(([k,t])=>{const url=drawSample(k).toDataURL('image/png');
+    const d=document.createElement('div');d.className='page';d.innerHTML=`<img alt="" style="aspect-ratio:auto"><span></span><div class="btns"><button type="button" class="btn small">${EN()?'Copy':'Copiar'}</button><a class="btn small">${EN()?'Download':'Descargar'}</a></div>`;
+    const im=d.querySelector('img');im.src=url;im.alt=t;d.querySelector('span').textContent=t;d.querySelector('button').onclick=()=>copyImage(im,'bar-st');const a=d.querySelector('a');a.href=url;a.download=`${k}-${slug(v('r-name'))}.png`;sm.appendChild(d);});
+  $('wa').value=buildMsg(olang());$('wa-alt').textContent=buildMsg(olang()==='es'?'en':'es');}
+function buildMsg(lang){const es=lang==='es',O=v('r-owner'),rep=v('r-rep'),R=v('r-name')||(es?'su restaurante':'your restaurant'),link=v('r-link'),n=packPages.length;
+  const m=[es?`Hola${O?', '+O:''}, soy ${rep||'[su nombre]'} de SalesVu.`:`Hi${O?' '+O:''}, it's ${rep||'[your name]'} from SalesVu.`];
+  const f=[];
+  if(on('m-offices')&&lunch.places.length)f.push(es?`hay ${lunch.places.length} lugares de trabajo cerca de ${R} que le pueden pedir almuerzo en grupo con MealPool`:`there are ${lunch.places.length} workplaces near ${R} that could order group lunch from you with MealPool`);
+  if(on('m-presence')){const k=evaluate().top.length;if(k)f.push(es?`encontré ${k} formas de recibir más pedidos directos`:`I found ${k} ways to get more direct orders`);}
+  m.push(f.length?(es?`Le preparé un resumen: ${f.join(', y ')}.`:`I put together a summary: ${f.join(', and ')}.`):(es?`Le preparé un resumen para ${R}.`:`I put together a summary for ${R}.`));
+  m.push(es?`Se lo mando en ${n} imágenes${on('m-kit')?', con material listo con su logo':''}.`:`It's in these ${n} images${on('m-kit')?', with ready-made materials with your logo':''}.`);
+  if(link)m.push((es?'Su tienda en línea: ':'Your online store: ')+tracked(link,'regalo-whatsapp'));
+  m.push(es?'¿Le cuento en 5 minutos cómo funciona?':'Can I walk you through it in 5 minutes?');
+  return m.join('\n\n');}
+
+function downloadPDF(){const st=$('bar-st');if(!window.jspdf||!packPages.length){st.className='status err';st.textContent=EN()?'The PDF tool didn\'t load. Download the images instead.':'No cargó la herramienta de PDF. Descargue las imágenes.';return;}
+  const doc=new window.jspdf.jsPDF({unit:'pt',format:[576,720],compress:true});
+  packPages.forEach((p,i)=>{if(i)doc.addPage([576,720]);const j=document.createElement('canvas');j.width=1080;j.height=1350;const g=j.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,1080,1350);
+    g.drawImage(p.c,0,0,1080,1350);doc.addImage(j.toDataURL('image/jpeg',0.9),'JPEG',0,0,576,720);});
+  doc.save(`SalesVu-${slug(v('r-name'))}.pdf`);flash('bar-st',EN()?'PDF downloaded.':'PDF descargado.');}
+
+/* ================= Flow ================= */
+function show(view){$('view-new').hidden=view!=='new';$('view-brief').hidden=view!=='brief';window.scrollTo(0,0);
+  if(view==='brief'&&lunch.map)setTimeout(()=>lunch.map.invalidateSize(),60);}
+function renderAll(){renderHead();renderSummary();renderOffices();renderPresence();renderComps();buildPack();}
+async function generate(e){if(e)e.preventDefault();const st=$('go-st'),btn=$('go');
+  if(!on('m-offices')&&!on('m-presence')&&!on('m-comp')&&!on('m-kit')){st.className='status err';st.textContent=EN()?'Tick at least one thing to prepare.':'Marque al menos una opción.';return;}
+  btn.disabled=true;st.className='status';
+  try{st.textContent=EN()?'Looking up the restaurant…':'Buscando el restaurante…';await lookupRestaurant();
+    if(on('m-offices')||on('m-comp')){st.textContent=EN()?'Looking at the area…':'Revisando la zona…';
+      try{await loadArea(on('m-offices'),on('m-comp'));}catch(err){areaErr=err.message;console.warn(err);}}
+    await (document.fonts&&document.fonts.ready||Promise.resolve());
+    renderAll();st.textContent='';show('brief');location.hash='brief';
+  }catch(err){st.className='status err';st.textContent=err.message;console.warn(err);}
+  finally{btn.disabled=false;}}
+$('f').addEventListener('submit',generate);
+$('b-edit').onclick=()=>{show('new');location.hash='nueva';};
+$('bar-new').onclick=()=>{['r-name','r-addr','r-notes','r-owner','r-link'].forEach(i=>$(i).value='');logoImg=null;$('r-logo').value='';updLogoPrev();show('new');location.hash='nueva';$('r-name').focus();};
+$('bar-wa').onclick=()=>copyText('wa','bar-st');
+$('bar-pdf').onclick=downloadPDF;
+$('home').onclick=e=>{e.preventDefault();show('new');location.hash='nueva';};
+window.addEventListener('hashchange',()=>{if(location.hash==='#nueva')show('new');else if(location.hash==='#brief'&&$('b-name').textContent)show('brief');});
+document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>copyImage($(b.dataset.copy),'bar-st'));
+document.querySelectorAll('[data-copytext]').forEach(b=>b.onclick=()=>copyText(b.dataset.copytext,'bar-st'));
+document.querySelectorAll('input[name=olang]').forEach(e=>e.addEventListener('change',()=>{if($('b-name').textContent){renderSummary();buildPack();}}));
+$('r-addr').addEventListener('paste',()=>setTimeout(()=>{if(isURL(v('r-addr'))&&v('r-name'))generate();},50));
+
+/* Remember what each rep usually prepares, and their name. */
+['m-offices','m-presence','m-comp','m-kit'].forEach(id=>{const s=store.get('svkit-'+id);if(s!=null)$(id).checked=s==='1';$(id).addEventListener('change',()=>store.set('svkit-'+id,$(id).checked?'1':'0'));});
+if(store.get('svkit-rep'))$('r-rep').value=store.get('svkit-rep');
+$('r-rep').addEventListener('change',()=>store.set('svkit-rep',v('r-rep')));
+
+/* Language, settings, logo */
+function setLang(l){document.documentElement.setAttribute('data-lang',l);document.documentElement.lang=l;$('lang-es').setAttribute('aria-pressed',l==='es');$('lang-en').setAttribute('aria-pressed',l==='en');store.set('svkit-lang',l);
+  $('datasrc').textContent=gkey()?(l==='en'?'Using Google Maps':'Usando Google Maps'):(l==='en'?'Using OpenStreetMap':'Usando OpenStreetMap');if($('b-name').textContent)renderAll();}
+$('lang-es').onclick=()=>setLang('es');$('lang-en').onclick=()=>setLang('en');
+$('open-settings').onclick=()=>{$('gkey').value=store.get('svkit-gkey')||'';$('settings').showModal();};
+$('settings').addEventListener('close',()=>{const r=$('settings').returnValue;if(r==='save'){const k=$('gkey').value.trim();if(k)store.set('svkit-gkey',k);else store.del('svkit-gkey');}
+  if(r==='clear')store.del('svkit-gkey');$('gkey').value='';setLang(document.documentElement.getAttribute('data-lang')||'es');});
+let logoImg=null;
+$('r-logo').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{logoImg=im;updLogoPrev();if($('b-name').textContent)buildPack();};im.src=rd.result;};rd.readAsDataURL(f);});
+function updLogoPrev(){const c=document.createElement('canvas');c.width=c.height=120;drawLogo(c.getContext('2d'),60,60,60);$('logo-prev').innerHTML='';const i=document.createElement('img');i.src=c.toDataURL();i.alt='';$('logo-prev').appendChild(i);}
+$('r-name').addEventListener('input',()=>{clearTimeout(window._lt);window._lt=setTimeout(updLogoPrev,200);});
+
+/* Optional: SalesVu's CRM can open this page pre-filled and it generates on its own:
+   index.html?name=…&addr=…(or &maps=<Google Maps link>)&notes=…&owner=…&store=…&rep=… */
+const P=new URLSearchParams(location.search),FROM_URL=['name','addr','maps'].some(k=>P.get(k));
+if(FROM_URL){$('r-name').value=P.get('name')||'';$('r-addr').value=P.get('maps')||P.get('addr')||'';$('r-notes').value=P.get('notes')||'';$('r-owner').value=P.get('owner')||'';$('r-link').value=P.get('store')||'';if(P.get('rep'))$('r-rep').value=P.get('rep');}
+setLang(store.get('svkit-lang')==='en'?'en':'es');show('new');if(location.hash==='#brief')location.hash='nueva';
+(document.fonts&&document.fonts.load?Promise.all(['800','700','600','500'].map(w=>document.fonts.load(`${w} 40px Inter`)).concat([document.fonts.load('500 40px "Noto Emoji"',DOODLES.join(''))])):Promise.resolve()).then(updLogoPrev,updLogoPrev);
+if(FROM_URL&&v('r-name')&&v('r-addr'))generate();
 })();
 </script>
+</body>
+</html>

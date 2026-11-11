@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de llamada SalesVu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<style>
+/* Layout: navy brand band, then two tabs. Generator = form column + output column; Guide = single reading column. Tokens follow salesvu.com (Inter, #0066FF, navy). */
+:root{
+  --bg:#F5F7FB; --surface:#FFFFFF; --fg:#0F1B33; --muted:#5B6B82; --line:#E2E8F0;
+  --blue:#0066FF; --btn:#0066FF; --blue-ink:#0052CC; --blue-soft:rgba(0,102,255,.09); --band:#0A1A2E; --band-fg:#F1F5F9;
+  --ok:#15803D; --ok-soft:rgba(21,128,61,.10); --warn:#9A5B00; --warn-soft:rgba(234,150,0,.14);
+  --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r-lg:18px; --r-md:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0A1A2E; --surface:#0F2340; --fg:#EEF2F8; --muted:#97A6BC; --line:#1F3553;
+  --blue:#4B93FF; --btn:#1664E6; --blue-ink:#7AB0FF; --blue-soft:rgba(75,147,255,.15); --band:#06121F; --band-fg:#F1F5F9;
+  --ok:#4ADE80; --ok-soft:rgba(74,222,128,.12); --warn:#FBBF24; --warn-soft:rgba(251,191,36,.13); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1A2E; --surface:#0F2340; --fg:#EEF2F8; --muted:#97A6BC; --line:#1F3553;
+  --blue:#4B93FF; --btn:#1664E6; --blue-ink:#7AB0FF; --blue-soft:rgba(75,147,255,.15); --band:#06121F; --band-fg:#F1F5F9;
+  --ok:#4ADE80; --ok-soft:rgba(74,222,128,.12); --warn:#FBBF24; --warn-soft:rgba(251,191,36,.13); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+:root:not([data-lang="en"]) .en{display:none!important}
+:root[data-lang="en"] .es{display:none!important}
+
+.band{background:var(--band);color:var(--band-fg);padding:18px 16px 0}
+.wrap{max-width:1180px;margin:0 auto}
+.band-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.wordmark{font-weight:800;font-size:24px;letter-spacing:-.02em}
+.wordmark b{color:#4B93FF;font-weight:800}
+.kit-pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:rgba(75,147,255,.18);color:#BFD7FF;letter-spacing:.02em}
+.lang{display:inline-flex;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:3px}
+.lang button{all:unset;cursor:pointer;font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;color:#C9D4E3}
+.lang button[aria-pressed="true"]{background:#fff;color:#0A1A2E}
+.lang button:focus-visible{outline:2px solid #4B93FF;outline-offset:2px}
+.band h1{font-size:clamp(22px,3.2vw,30px);line-height:1.2;letter-spacing:-.02em;margin:22px 0 6px;text-wrap:balance;font-weight:700}
+.band p.lede{margin:0;color:#B8C4D6;max-width:68ch;font-size:15px}
+.tabs{display:flex;gap:4px;margin-top:22px;overflow-x:auto}
+.tabs a{color:#B8C4D6;text-decoration:none;font-weight:600;font-size:14px;padding:12px 16px;border-radius:12px 12px 0 0;white-space:nowrap}
+.tabs a[aria-current="page"]{background:var(--bg);color:var(--fg)}
+.tabs a:focus-visible{outline:2px solid #4B93FF}
+
+main{padding:24px 16px 64px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--blue-soft);color:var(--blue-ink);letter-spacing:.01em}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.eyebrow{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+
+/* Generator */
+.gen{display:grid;grid-template-columns:minmax(0,390px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:880px){.gen{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.form{display:grid;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:880px){.form{position:static}}
+.field{display:grid;gap:6px;min-width:0}
+.field label,.field .lbl{font-size:13px;font-weight:600}
+.field .hint{font-size:12px;color:var(--muted)}
+input[type=text],input[type=url]{font:inherit;font-size:15px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+input:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-color:transparent}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:420px){.row2{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px}
+.seg label{display:block;text-align:center;font-size:13px;font-weight:600;padding:8px 6px;border-radius:9px;cursor:pointer;color:var(--muted)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+span{color:var(--fg)}
+.seg label:has(input:checked){background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);color:var(--fg)}
+.seg label:has(input:focus-visible){outline:2px solid var(--blue)}
+.pains{display:grid;gap:8px}
+.pain{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:var(--bg)}
+.pain input{margin-top:3px;accent-color:var(--blue)}
+.pain strong{font-size:14px;display:block}
+.pain small{display:block;color:var(--muted);font-size:12px;line-height:1.45;margin-top:2px}
+.pain:has(input:checked){border-color:var(--blue);background:var(--blue-soft)}
+.pain:has(input:focus-visible){outline:2px solid var(--blue)}
+.logo-row{display:flex;align-items:center;gap:12px}
+.logo-prev{width:52px;height:52px;border-radius:50%;border:1px dashed var(--line);display:grid;place-items:center;overflow:hidden;font-weight:700;color:var(--muted);background:var(--bg);flex:none}
+.logo-prev img{width:100%;height:100%;object-fit:cover}
+.btn{font:inherit;font-size:14px;font-weight:600;border-radius:10px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:var(--btn);border-color:var(--btn);color:#fff}
+.btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn.small{font-size:13px;padding:6px 10px}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--blue)}
+.sw:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+.outs{display:grid;gap:20px;min-width:0}
+.why{display:grid;gap:8px;padding:16px 18px;border-radius:var(--r-lg);background:var(--blue-soft);border:1px solid transparent}
+.why p{margin:0;font-size:14px}
+.why .quote{font-size:15px;font-weight:600}
+.warnbox{padding:12px 14px;border-radius:12px;background:var(--warn-soft);color:var(--fg);font-size:13px}
+.warnbox strong{color:var(--warn)}
+.out{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;display:grid;gap:14px;min-width:0}
+.out-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.out-head h2,.out-head h3{margin:0;font-size:17px;letter-spacing:-.01em}
+.out-head p{margin:2px 0 0;color:var(--muted);font-size:13px;max-width:56ch}
+.num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--btn);color:#fff;font-size:12px;font-weight:700;margin-right:8px;vertical-align:2px}
+textarea{font:inherit;font-size:15px;line-height:1.55;width:100%;min-height:260px;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg);resize:vertical}
+details{font-size:13px;color:var(--muted)}
+details summary{cursor:pointer;font-weight:600}
+details pre{white-space:pre-wrap;font-family:var(--font);font-size:13px;background:var(--bg);border-radius:10px;padding:12px;margin:8px 0 0;color:var(--fg)}
+.imgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:20px}
+.shot{display:grid;gap:10px;justify-items:start}
+.shot img{width:100%;max-width:380px;border-radius:12px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(10,26,46,.10)}
+.status{font-size:12px;color:var(--ok);min-height:1em}
+.missing{font-size:12px;color:var(--warn);font-weight:600}
+
+/* Guide */
+.guide{display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px;align-items:start}
+@media (max-width:880px){.guide{grid-template-columns:minmax(0,1fr)}.toc{display:none}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:2px;font-size:14px}
+.toc a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:8px}
+.toc a:hover{background:var(--surface);color:var(--fg)}
+.sec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;margin-bottom:18px;scroll-margin-top:16px}
+.sec h2{font-size:20px;letter-spacing:-.015em;margin:6px 0 10px;text-wrap:balance}
+.sec p,.sec li{max-width:68ch}
+.sec ul,.sec ol{padding-left:20px;margin:8px 0}
+.sec li{margin:4px 0}
+.script{background:var(--blue-soft);padding:16px 18px;border-radius:12px;font-size:17px;font-weight:600;line-height:1.45;margin:12px 0}
+.script small{display:block;font-weight:400;font-size:13px;color:var(--muted);margin-top:6px}
+.evid{font-size:13px;color:var(--muted);margin-top:6px}
+.tbl{overflow-x:auto;margin-top:10px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.obj{display:grid;gap:12px;margin-top:10px}
+.obj-item{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg)}
+.obj-item .they{font-weight:700}
+.obj-item .you{margin-top:6px}
+.dont li::marker{color:var(--warn)}
+.checklist{list-style:none;padding:0}
+.checklist li{display:flex;gap:10px}
+.checklist li::before{content:"";flex:none;width:16px;height:16px;border:2px solid var(--blue);border-radius:4px;margin-top:3px}
+dl.gloss{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr);gap:10px 18px;margin:10px 0 0}
+dl.gloss dt{font-weight:700}
+dl.gloss dd{margin:0;color:var(--fg)}
+@media (max-width:520px){dl.gloss{grid-template-columns:1fr}dl.gloss dd{margin-bottom:8px}}
+footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font-size:12px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<header class="band">
+  <div class="wrap">
+    <div class="band-top">
+      <div class="brand"><span class="wordmark">Sales<b>Vu</b></span><span class="kit-pill"><span class="es">Guía de llamada</span><span class="en">Call guide</span></span></div>
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button type="button" id="lang-es" aria-pressed="true">Español</button>
+        <button type="button" id="lang-en" aria-pressed="false">English</button>
+      </div>
+    </div>
+    <h1><span class="es">Guía de llamada</span><span class="en">Call guide</span></h1>
+    <p class="lede"><span class="es">Para los representantes que llaman a restaurantes mexicanos en EE. UU. Basado en las llamadas y el CRM de SalesVu revisados el 14 de octubre de 2026.</span><span class="en">For the reps calling Mexican restaurants in the US. Built from SalesVu's call transcripts and CRM, reviewed Oct 14, 2026.</span></p>
+    <nav class="tabs" aria-label="Secciones"><a href="index.html"><span class="es">← Preparar una llamada</span><span class="en">← Prepare a call</span></a><a href="#" aria-current="page"><span class="es">Guía de llamada</span><span class="en">Call guide</span></a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+<!-- ================= GENERATOR ================= -->
+
+
+<!-- ================= GUIDE ================= -->
+<section id="view-guide">
+  <div class="guide">
+    <nav class="toc" aria-label="Contenido">
+      <a href="#g-antes"><span class="es">1. Antes de llamar</span><span class="en">1. Before the call</span></a>
+      <a href="#g-abrir"><span class="es">2. Los primeros 10 segundos</span><span class="en">2. The first 10 seconds</span></a>
+      <a href="#g-noesta"><span class="es">3. Si el dueño no está</span><span class="en">3. If the owner isn't there</span></a>
+      <a href="#g-dueno"><span class="es">4. Con el dueño</span><span class="en">4. With the owner</span></a>
+      <a href="#g-precio"><span class="es">5. La pregunta del precio</span><span class="en">5. The price question</span></a>
+      <a href="#g-obj"><span class="es">6. Objeciones</span><span class="en">6. Objections</span></a>
+      <a href="#g-despues"><span class="es">7. Después de la llamada</span><span class="en">7. After the call</span></a>
+      <a href="#g-registro"><span class="es">8. Cómo registrar la llamada</span><span class="en">8. Logging the call</span></a>
+      <a href="#g-nodecir"><span class="es">9. Lo que no debe decir</span><span class="en">9. What not to say</span></a>
+      <a href="#g-demo"><span class="es">10. Lista para la demo</span><span class="en">10. Demo checklist</span></a>
+      <a href="#g-glosario"><span class="es">11. Glosario</span><span class="en">11. Glossary</span></a>
+    </nav>
+    <div>
+      <div class="sec" id="g-antes">
+        <span class="pill"><span class="es">Del CRM</span><span class="en">From the CRM</span></span>
+        <h2><span class="es">1. Antes de llamar</span><span class="en">1. Before the call</span></h2>
+        <ul>
+          <li><span class="es"><strong>Llame primero a restaurantes de un solo local</strong>, donde el dueño está en el negocio. Las cadenas (Velvet Taco, King Taco, Taco Cabana) casi nunca compran.</span><span class="en"><strong>Call single-location restaurants first</strong>, where the owner is on site. Chains (Velvet Taco, King Taco, Taco Cabana) rarely buy.</span></li>
+          <li><span class="es">Revise si el número ya aparece en otro registro. Uno de cada cinco números está repetido.</span><span class="en">Check whether the number appears on another record. About 1 in 5 numbers is a duplicate.</span></li>
+          <li><span class="es">Abra la tienda demo del restaurante en el CRM para tenerla lista.</span><span class="en">Open the restaurant's demo store in the CRM so it's ready.</span></li>
+          <li><span class="es">Revise los mensajes de voz pendientes primero: son las personas más interesadas. Hay 11 sin contestar, algunos de hace un mes.</span><span class="en">Check pending voicemails first: those are the most interested people. 11 are unanswered, some a month old.</span></li>
+        </ul>
+      </div>
+
+      <div class="sec" id="g-abrir">
+        <span class="pill ok"><span class="es">Funciona en las llamadas</span><span class="en">Works on calls</span></span>
+        <h2><span class="es">2. Los primeros 10 segundos</span><span class="en">2. The first 10 seconds</span></h2>
+        <div class="script">“Buenas tardes. Quisiera enviarle pedidos nuevos en línea a su restaurante. ¿Me comunica con el dueño o el encargado, por favor?”<small class="en">"Good afternoon. I'd like to send new online orders to your restaurant. May I speak with the owner or manager, please?"</small></div>
+        <p class="evid"><span class="es">En todas las llamadas revisadas, con esta frase el personal pasó la llamada o dio una hora para volver a llamar.</span><span class="en">In every call reviewed, this line got staff to transfer the call or give a callback time.</span></p>
+        <p><span class="es">Hable de <strong>pedidos</strong>, no de tecnología ni de inteligencia artificial.</span><span class="en">Talk about <strong>orders</strong>, not technology or AI.</span></p>
+      </div>
+
+      <div class="sec" id="g-noesta">
+        <span class="pill ok"><span class="es">El mayor problema</span><span class="en">The biggest problem</span></span>
+        <h2><span class="es">3. Si el dueño no está</span><span class="en">3. If the owner isn't there</span></h2>
+        <p><span class="es">El 80% de las oportunidades perdidas dicen "no se pudo contactar". Llegar al dueño es el problema, no el precio.</span><span class="en">80% of lost deals say "unreachable." Reaching the owner is the problem, not price.</span></p>
+        <ol>
+          <li><span class="es">Pregunte: <strong>“¿A qué hora lo encuentro?”</strong> y <strong>“¿Cómo se llama el dueño?”</strong></span><span class="en">Ask: <strong>"What time can I reach them?"</strong> and <strong>"What's the owner's name?"</strong></span></li>
+          <li><span class="es">Pida el WhatsApp del dueño o del restaurante.</span><span class="en">Ask for the owner's or the restaurant's WhatsApp.</span></li>
+          <li><span class="es">Vuelva a llamar <strong>a esa hora exacta</strong> y pregunte por el dueño por su nombre: “Busco a Pamela, la dueña.”</span><span class="en">Call back <strong>at that exact time</strong> and ask for the owner by name: "I'm looking for Pamela, the owner."</span></li>
+          <li><span class="es">Mande el mensaje del generador con la opción “No, no estaba”.</span><span class="en">Send the generator message using "No, not there."</span></li>
+        </ol>
+        <p class="evid"><span class="es">En La Colina se llamó 5 veces en un día sin hablar con la dueña. Mejor una llamada a la hora correcta que cinco al azar.</span><span class="en">La Colina got 5 calls in one day without reaching the owner. One call at the right time beats five at random.</span></p>
+      </div>
+
+      <div class="sec" id="g-dueno">
+        <span class="pill ok"><span class="es">Así se cerró la primera venta</span><span class="en">How the first sale closed</span></span>
+        <h2><span class="es">4. Con el dueño: más ventas, y nosotros hacemos el trabajo</span><span class="en">4. With the owner: more sales, and we do the work</span></h2>
+        <p><span class="es">Un dueño en San Antonio dijo que sí porque necesitaba ventas y no tenía tiempo. El ahorro en comisiones fue una pregunta, no la razón.</span><span class="en">An owner in San Antonio said yes because they needed sales and had no time. Commission savings were a question, not the reason.</span></p>
+        <div class="script">“Ya le preparamos su tienda en línea con su menú y sus precios. Usted no tiene que hacer nada. Sus clientes ordenan directo con usted, y usted no paga comisión por pedido.”<small class="en">"We've already set up your online store with your menu and prices. You don't have to do anything. Your customers order directly from you, and you don't pay a commission per order."</small></div>
+        <ul>
+          <li><span class="es">Ofrezca enseñarle la tienda en ese momento o mandarle el enlace.</span><span class="en">Offer to show the store right then or send the link.</span></li>
+          <li><span class="es">Si ya tiene página o menú, use lo que ya tiene: no le pida empezar de cero.</span><span class="en">If they already have a website or menu, build on it; don't ask them to start over.</span></li>
+          <li><span class="es">Ofrezca un regalo: las oficinas cerca de su restaurante que pueden pedir con MealPool (<a href="index.html">Regalos → Almuerzos cerca</a>).</span><span class="en">Offer a gift: the offices near their restaurant that could order with MealPool (<a href="index.html">Gifts → Lunch nearby</a>).</span></li>
+        </ul>
+      </div>
+
+      <div class="sec" id="g-precio">
+        <span class="pill warn"><span class="es">Por confirmar</span><span class="en">To confirm</span></span>
+        <h2><span class="es">5. La pregunta del precio: “¿Qué porcentaje cobran?”</span><span class="en">5. The price question: "What percentage do you charge?"</span></h2>
+        <p><span class="es">Fue la primera pregunta del dueño. La respuesta tiene que caber en una frase.</span><span class="en">It was the owner's first question. The answer has to fit in one sentence.</span></p>
+        <div class="script">“Usted no paga comisión por pedido.”<small class="en">"You don't pay a commission per order."</small></div>
+        <div class="warnbox"><strong><span class="es">Pendiente con Sebastian:</span><span class="en">Pending with Sebastian:</span></strong> <span class="es">los detalles de precio todavía se están confirmando. Hasta entonces, diga solo la frase de arriba y no prometa “sin costo”.</span><span class="en">pricing details are still being confirmed. Until then, say only the line above and don't promise "free."</span></div>
+      </div>
+
+      <div class="sec" id="g-obj">
+        <h2><span class="es">6. Objeciones</span><span class="en">6. Objections</span></h2>
+        <div class="obj">
+          <div class="obj-item"><div class="they">“Ya tenemos página web.”</div><div class="you"><span class="es">“Qué bueno. No hay que empezar de cero: usamos su menú y sus precios y le agregamos pedidos en línea.”</span><span class="en">"Great. No need to start over: we use your menu and prices and add online ordering."</span></div></div>
+          <div class="obj-item"><div class="they">“Ya estamos en DoorDash / Uber Eats.”</div><div class="you"><span class="es">“Puede seguir en las apps. Esto es un canal más: cuando sus clientes ordenan directo con usted, usted no paga comisión por pedido.”</span><span class="en">"You can stay on the apps. This is one more channel: when customers order directly from you, you don't pay a commission per order."</span></div></div>
+          <div class="obj-item"><div class="they">“No tengo tiempo / me falta personal.”</div><div class="you"><span class="es">“Por eso lo hacemos nosotros. Su tienda ya está armada; usted solo la revisa.”</span><span class="en">"That's why we do it. Your store is already built; you just review it."</span></div></div>
+          <div class="obj-item"><div class="they">“No nos interesa.” <span class="es" style="font-weight:400">(lo dice el personal)</span><span class="en" style="font-weight:400">(said by staff)</span></div><div class="you"><span class="es">“Entiendo. ¿A qué hora puedo hablar con el dueño?” No lo registre como “no interesado”: no habló con el dueño.</span><span class="en">"I understand. When can I speak with the owner?" Don't log it as "not interested": you didn't reach the owner.</span></div></div>
+          <div class="obj-item"><div class="they">“¿Cómo se escribe?”</div><div class="you"><span class="es">“Le mando el enlace por WhatsApp ahorita, así no tiene que escribir nada.”</span><span class="en">"I'll WhatsApp you the link right now so you don't have to type anything."</span></div></div>
+          <div class="obj-item"><div class="they">“Estoy por vender el restaurante.”</div><div class="you"><span class="es">Agradezca, registre “mal momento” y anote una fecha para volver a contactar.</span><span class="en">Thank them, log "bad timing" and note a date to reconnect.</span></div></div>
+        </div>
+      </div>
+
+      <div class="sec" id="g-despues">
+        <h2><span class="es">7. Después de la llamada</span><span class="en">7. After the call</span></h2>
+        <ul>
+          <li><span class="es">Mande el mensaje de WhatsApp y la imagen <strong>en la primera hora</strong>. El nombre “SalesVu” no se entiende bien por teléfono; el enlace sí.</span><span class="en">Send the WhatsApp message and image <strong>within the hour</strong>. "SalesVu" is hard to catch on the phone; a link isn't.</span></li>
+          <li><span class="es">Si el dueño dice que sí, avise a Sebastian el mismo día.</span><span class="en">If the owner says yes, tell Sebastian the same day.</span></li>
+          <li><span class="es">Si le dijeron “no” pero el dueño no estaba, vuelva a llamar a la hora indicada. Con el primer cliente, la segunda llamada del mismo día fue un sí.</span><span class="en">If you heard "no" but the owner wasn't there, call back at the time given. With the first customer, the second call that day was a yes.</span></li>
+        </ul>
+      </div>
+
+      <div class="sec" id="g-registro">
+        <span class="pill"><span class="es">Del CRM</span><span class="en">From the CRM</span></span>
+        <h2><span class="es">8. Cómo registrar la llamada</span><span class="en">8. Logging the call</span></h2>
+        <p><span class="es">Si marca “no interesado”, el sistema descarta al restaurante y le pone una razón que no pasó. Así se marcó como perdida una venta, aunque el dueño dijo que sí. Solo 1 de 4 razones coincidía con la llamada.</span><span class="en">Logging "not interested" auto-disqualifies the restaurant and assigns a reason that didn't happen. That's how a sale was marked lost even though the owner said yes. Only 1 of 4 reasons matched the call.</span></p>
+        <div class="tbl"><table>
+          <thead><tr><th><span class="es">Lo que pasó</span><span class="en">What happened</span></th><th><span class="es">Regístrelo así</span><span class="en">Log it as</span></th></tr></thead>
+          <tbody>
+            <tr><td><span class="es">El dueño no estaba; le dieron una hora</span><span class="en">Owner not there; staff gave a time</span></td><td><strong><span class="es">Dueño no localizado · volver a llamar [hora]</span><span class="en">Owner not reached · call back [time]</span></strong></td></tr>
+            <tr><td><span class="es">El personal dijo “no nos interesa”</span><span class="en">Staff said "not interested"</span></td><td><strong><span class="es">Dueño no localizado</span><span class="en">Owner not reached</span></strong></td></tr>
+            <tr><td><span class="es">El dueño dijo que no</span><span class="en">Owner said no</span></td><td><strong><span class="es">El dueño dijo que no</span><span class="en">Owner said no</span></strong> <span class="es">+ la razón con sus palabras</span><span class="en">+ the reason in their words</span></td></tr>
+            <tr><td><span class="es">El dueño dijo que sí</span><span class="en">Owner said yes</span></td><td><strong><span class="es">El dueño dijo que sí</span><span class="en">Owner said yes</span></strong> <span class="es">+ avisar a Sebastian hoy</span><span class="en">+ tell Sebastian today</span></td></tr>
+            <tr><td><span class="es">Número equivocado o no existe</span><span class="en">Wrong or dead number</span></td><td><strong><span class="es">Número inválido</span><span class="en">Invalid number</span></strong></td></tr>
+          </tbody>
+        </table></div>
+        <p class="evid"><span class="es">Si el CRM no tiene estas opciones todavía, escríbalo en las notas. Le pediremos a Sebastian que las agregue.</span><span class="en">If the CRM doesn't have these options yet, write it in the notes. We'll ask Sebastian to add them.</span></p>
+      </div>
+
+      <div class="sec" id="g-nodecir">
+        <span class="pill warn"><span class="es">Cuide lo que promete</span><span class="en">Watch what you promise</span></span>
+        <h2><span class="es">9. Lo que no debe decir (todavía)</span><span class="en">9. What not to say (yet)</span></h2>
+        <ul class="dont">
+          <li><span class="es">“Le mandamos pedidos de nuestros clientes corporativos”, sin un ejemplo real.</span><span class="en">"We'll send you orders from our corporate clients," without a real example.</span></li>
+          <li><span class="es">“Va a aparecer en Google o ChatGPT”: no está comprobado.</span><span class="en">"You'll show up on Google or ChatGPT": not verified.</span></li>
+          <li><span class="es">“No tiene que cambiar su sistema”: por confirmar con Pascal.</span><span class="en">"You don't have to switch your system": to confirm with Pascal.</span></li>
+          <li><span class="es">Descuentos por volumen o proveedores: no prometa funciones que aún se están desarrollando. MealPool (pedidos en grupo) sí está disponible.</span><span class="en">Volume discounts or suppliers: don't promise features still in development. MealPool (group orders) is live.</span></li>
+          <li><span class="es">Un precio o “es gratis”, hasta que se confirme la oferta.</span><span class="en">A price or "it's free," until the offer is confirmed.</span></li>
+        </ul>
+      </div>
+
+      <div class="sec" id="g-demo">
+        <h2><span class="es">10. Lista para la demo</span><span class="en">10. Demo checklist</span></h2>
+        <ul class="checklist">
+          <li><span class="es">Abra la tienda demo del restaurante antes de empezar.</span><span class="en">Open the restaurant's demo store before you start.</span></li>
+          <li><span class="es">Enséñele su propio menú y sus precios en la tienda.</span><span class="en">Show them their own menu and prices in the store.</span></li>
+          <li><span class="es">Enséñele cómo ordena un cliente, paso a paso, desde el celular.</span><span class="en">Show how a customer orders, step by step, on a phone.</span></li>
+          <li><span class="es">Conteste “¿qué porcentaje cobran?” con una sola frase.</span><span class="en">Answer "what percentage do you charge?" in one sentence.</span></li>
+          <li><span class="es">Enséñele las oficinas cercanas que pueden pedir almuerzo con MealPool.</span><span class="en">Show the nearby offices that could order lunch with MealPool.</span></li>
+          <li><span class="es">Acuerde el siguiente paso y la fecha.</span><span class="en">Agree on the next step and a date.</span></li>
+          <li><span class="es">Mande el enlace por WhatsApp al terminar.</span><span class="en">WhatsApp the link when you finish.</span></li>
+        </ul>
+      </div>
+
+      <div class="sec" id="g-glosario">
+        <h2><span class="es">11. Glosario para explicarle al dueño</span><span class="en">11. Glossary for explaining to owners</span></h2>
+        <dl class="gloss">
+          <dt>Tienda en línea</dt><dd><span class="es">Su menú en internet, donde sus clientes hacen pedidos desde el celular.</span><span class="en">Online store: their menu online, where customers order from a phone.</span></dd>
+          <dt>Enlace</dt><dd><span class="es">La dirección de su tienda. La puede compartir por WhatsApp, Facebook o en su local.</span><span class="en">Link: the store's address, shareable on WhatsApp, Facebook or in the restaurant.</span></dd>
+          <dt>Comisión por pedido</dt><dd><span class="es">El porcentaje que las apps de delivery le quitan en cada pedido (15% a 30%).</span><span class="en">Per-order commission: the share delivery apps take from each order (15–30%).</span></dd>
+          <dt>Cuota de servicio</dt><dd><span class="es">Lo que paga el cliente al ordenar. Por confirmar.</span><span class="en">Service fee: what the diner pays when ordering. To confirm.</span></dd>
+          <dt>Instalación</dt><dd><span class="es">Preparar su tienda con su menú y sus precios. Lo hacemos nosotros. Costo por confirmar.</span><span class="en">Setup: building their store with their menu and prices. We do it. Cost to confirm.</span></dd>
+          <dt>Código QR</dt><dd><span class="es">Un cuadrito que el cliente escanea con la cámara del celular para abrir la tienda.</span><span class="en">QR code: a square customers scan with their phone camera to open the store.</span></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+<footer><span class="es">Preparado por el equipo McCombs+ para SalesVu. Fuentes: CRM de SalesVu y 14 llamadas revisadas el 14 de octubre de 2026 (muestra pequeña, una sola conversación completa con un dueño).</span><span class="en">Prepared by the McCombs+ team for SalesVu. Sources: SalesVu CRM and 14 calls reviewed Oct 14, 2026 (small sample, one full owner conversation).</span></footer>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+function setLang(l){document.documentElement.setAttribute('data-lang',l);$('lang-es').setAttribute('aria-pressed',l==='es');$('lang-en').setAttribute('aria-pressed',l==='en');try{localStorage.setItem('svkit-lang',l);}catch(e){}}
+$('lang-es').onclick=()=>setLang('es');$('lang-en').onclick=()=>setLang('en');
+let l='es';try{l=localStorage.getItem('svkit-lang')==='en'?'en':'es';}catch(e){}setLang(l);
+})();
+</script>
