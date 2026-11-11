@@ -451,7 +451,8 @@ async function googleDetails(pid){const key=gkey();let lastErr='';
    (!3d…!4d… is the pin; @lat,lng is the map view) and sometimes a place ID. Short links (maps.app.goo.gl)
    can't be opened from here, so the rep is asked for the full link. Anything else is treated as the restaurant's own site. */
 function readLink(raw){let url;try{url=new URL(raw);}catch(e){return null;}const h=url.hostname.replace(/^www\./,'');
-  if(/(^|\.)goo\.gl$/.test(h))return {kind:'short'};
+  if(/(^|\.)goo\.gl$/.test(h)||h==='share.google')return {kind:'short'};
+  if(/^google\.[a-z.]+$/.test(h)&&url.pathname==='/search'&&url.searchParams.get('q'))return {kind:'gsearch',name:url.searchParams.get('q')};
   const isMaps=(/^google\.[a-z.]+$/.test(h)&&url.pathname.startsWith('/maps'))||/^maps\.google\./.test(h);
   if(!isMaps)return {kind:'site',url:raw};
   const out={kind:'maps'};const m=url.pathname.match(/\/place\/([^/]+)/);
@@ -764,7 +765,8 @@ async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
   const raw=v('r-addr'),link=isURL(raw)?readLink(raw):null;
   if(!raw)throw new Error(EN()?'Paste the restaurant\'s link or type its address.':'Pegue el enlace del restaurante o escriba la dirección.');
   if(isURL(raw)&&!link)throw new Error(EN()?'That link doesn\'t look right. Copy it again from the browser bar.':'Ese enlace no parece correcto. Cópielo otra vez de la barra del navegador.');
-  if(link&&link.kind==='short')throw new Error(EN()?'Short links (maps.app.goo.gl) can\'t be read. Open it, then copy the full address from the browser bar.':'Los enlaces cortos (maps.app.goo.gl) no se pueden leer. Ábralo y copie la dirección completa de la barra del navegador.');
+  if(link&&link.kind==='short')throw new Error(EN()?'Share links (share.google, maps.app.goo.gl) can\'t be read from here. Open the link, then copy what appears in the browser bar and paste it here.':'Los enlaces para compartir (share.google, maps.app.goo.gl) no se pueden leer desde aquí. Abra el enlace, copie lo que aparece en la barra del navegador y péguelo aquí.');
+  if(link&&link.kind==='gsearch'&&!v('r-name'))$('r-name').value=link.name;
   const maps=link&&link.kind==='maps'?link:null,site=link&&link.kind==='site'?link.url:'',near=maps&&maps.near,addrText=link?'':raw;
   const guess=site?guessFromSite(site):null;
   if(maps&&maps.name&&!v('r-name'))$('r-name').value=maps.name;
