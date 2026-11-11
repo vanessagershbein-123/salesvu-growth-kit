@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <style>
-/* Layout: navy brand band, then two tabs. Generator = form column + output column; Guide = single reading column. Tokens follow salesvu.com (Inter, #0066FF, navy). */
+/* Layout: navy brand band, then a single reading column with a table of contents. Tokens follow salesvu.com (Inter, #0066FF, navy). */
 :root{
   --bg:#F5F7FB; --surface:#FFFFFF; --fg:#0F1B33; --muted:#5B6B82; --line:#E2E8F0;
   --blue:#0066FF; --btn:#0066FF; --blue-ink:#0052CC; --blue-soft:rgba(0,102,255,.09); --band:#0A1A2E; --band-fg:#F1F5F9;
@@ -114,7 +114,7 @@ details pre{white-space:pre-wrap;font-family:var(--font);font-size:13px;backgrou
 
 /* Guide */
 .guide{display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px;align-items:start}
-@media (max-width:880px){.guide{grid-template-columns:minmax(0,1fr)}.toc{display:none}}
+@media (max-width:880px){.guide{grid-template-columns:minmax(0,1fr)}.guide .toc{display:none}}
 .toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:2px;font-size:14px}
 .toc a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:8px}
 .toc a:hover{background:var(--surface);color:var(--fg)}
@@ -162,7 +162,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 </header>
 
 <main class="wrap">
-<!-- ================= GENERATOR ================= -->
+
 
 
 <!-- ================= GUIDE ================= -->
@@ -187,9 +187,9 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
         <h2><span class="es">1. Antes de llamar</span><span class="en">1. Before the call</span></h2>
         <ul>
           <li><span class="es"><strong>Llame primero a restaurantes de un solo local</strong>, donde el dueño está en el negocio. Las cadenas (Velvet Taco, King Taco, Taco Cabana) casi nunca compran.</span><span class="en"><strong>Call single-location restaurants first</strong>, where the owner is on site. Chains (Velvet Taco, King Taco, Taco Cabana) rarely buy.</span></li>
-          <li><span class="es">Revise si el número ya aparece en otro registro. Uno de cada cinco números está repetido.</span><span class="en">Check whether the number appears on another record. About 1 in 5 numbers is a duplicate.</span></li>
+          <li><span class="es">Revise si el número ya aparece en otro registro. Hay números repetidos.</span><span class="en">Check whether the number appears on another record. Some numbers are duplicates.</span></li>
           <li><span class="es">Abra la tienda demo del restaurante en el CRM para tenerla lista.</span><span class="en">Open the restaurant's demo store in the CRM so it's ready.</span></li>
-          <li><span class="es">Revise los mensajes de voz pendientes primero: son las personas más interesadas. Hay 11 sin contestar, algunos de hace un mes.</span><span class="en">Check pending voicemails first: those are the most interested people. 11 are unanswered, some a month old.</span></li>
+          <li><span class="es">Revise los mensajes de voz pendientes primero: son las personas más interesadas. No deje mensajes sin contestar.</span><span class="en">Check pending voicemails first: those are the most interested people. Don't leave any unanswered.</span></li>
         </ul>
       </div>
 
@@ -204,14 +204,14 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
       <div class="sec" id="g-noesta">
         <span class="pill ok"><span class="es">El mayor problema</span><span class="en">The biggest problem</span></span>
         <h2><span class="es">3. Si el dueño no está</span><span class="en">3. If the owner isn't there</span></h2>
-        <p><span class="es">El 80% de las oportunidades perdidas dicen "no se pudo contactar". Llegar al dueño es el problema, no el precio.</span><span class="en">80% of lost deals say "unreachable." Reaching the owner is the problem, not price.</span></p>
+        <p><span class="es">La mayoría de las oportunidades perdidas son por "no se pudo contactar". Llegar al dueño es el problema, no el precio.</span><span class="en">Most lost deals are "unreachable." Reaching the owner is the problem, not price.</span></p>
         <ol>
           <li><span class="es">Pregunte: <strong>“¿A qué hora lo encuentro?”</strong> y <strong>“¿Cómo se llama el dueño?”</strong></span><span class="en">Ask: <strong>"What time can I reach them?"</strong> and <strong>"What's the owner's name?"</strong></span></li>
           <li><span class="es">Pida el WhatsApp del dueño o del restaurante.</span><span class="en">Ask for the owner's or the restaurant's WhatsApp.</span></li>
           <li><span class="es">Vuelva a llamar <strong>a esa hora exacta</strong> y pregunte por el dueño por su nombre: “Busco a Pamela, la dueña.”</span><span class="en">Call back <strong>at that exact time</strong> and ask for the owner by name: "I'm looking for Pamela, the owner."</span></li>
-          <li><span class="es">Mande el mensaje del generador con la opción “No, no estaba”.</span><span class="en">Send the generator message using "No, not there."</span></li>
+          <li><span class="es">Prepare la llamada en la <a href="index.html">herramienta</a> y mande el WhatsApp con el resumen.</span><span class="en">Prepare the call in the <a href="index.html">tool</a> and send the WhatsApp summary.</span></li>
         </ol>
-        <p class="evid"><span class="es">En La Colina se llamó 5 veces en un día sin hablar con la dueña. Mejor una llamada a la hora correcta que cinco al azar.</span><span class="en">La Colina got 5 calls in one day without reaching the owner. One call at the right time beats five at random.</span></p>
+        <p class="evid"><span class="es">No llame cinco veces el mismo día. Mejor una llamada a la hora correcta que cinco al azar.</span><span class="en">Don't call five times in one day. One call at the right time beats five at random.</span></p>
       </div>
 
       <div class="sec" id="g-dueno">
@@ -258,7 +258,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
       <div class="sec" id="g-registro">
         <span class="pill"><span class="es">Del CRM</span><span class="en">From the CRM</span></span>
         <h2><span class="es">8. Cómo registrar la llamada</span><span class="en">8. Logging the call</span></h2>
-        <p><span class="es">Si marca “no interesado”, el sistema descarta al restaurante y le pone una razón que no pasó. Así se marcó como perdida una venta, aunque el dueño dijo que sí. Solo 1 de 4 razones coincidía con la llamada.</span><span class="en">Logging "not interested" auto-disqualifies the restaurant and assigns a reason that didn't happen. That's how a sale was marked lost even though the owner said yes. Only 1 of 4 reasons matched the call.</span></p>
+        <p><span class="es">Si marca “no interesado”, el sistema descarta al restaurante y le pone una razón que no pasó. Así se marcó como perdida una venta, aunque el dueño dijo que sí. Muchas veces la razón no coincide con la llamada.</span><span class="en">Logging "not interested" auto-disqualifies the restaurant and assigns a reason that didn't happen. That's how a sale was marked lost even though the owner said yes. Often the reason doesn't match the call.</span></p>
         <div class="tbl"><table>
           <thead><tr><th><span class="es">Lo que pasó</span><span class="en">What happened</span></th><th><span class="es">Regístrelo así</span><span class="en">Log it as</span></th></tr></thead>
           <tbody>

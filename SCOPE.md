@@ -1,3 +1,5 @@
+> **Note (Nov 10):** this is the original plan. The tool has since become one flow (form → call brief → owner pack). See the [README](README.md) for what it does now.
+
 # Scope: SalesVu Growth Kit, "Regalos" (Gifts) for Restaurants
 
 _Owner: Vanessa Gershbein (McCombs+) · Drafted Nov 10, 2026 · Demo: final presentation Thu Nov 19, 1 PM_

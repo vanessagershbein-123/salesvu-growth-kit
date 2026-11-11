@@ -176,6 +176,7 @@ details pre{white-space:pre-wrap;font-family:var(--font);font-size:13px;backgrou
 
 .bar{position:sticky;bottom:0;z-index:20;margin-top:28px;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -8px 24px rgba(10,26,46,.10);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .bar .status{flex:1 1 160px}
+@media (max-width:520px){.bar{gap:6px}.bar .btn{flex:1 1 0;min-width:0;font-size:13px;padding:9px 6px;white-space:normal;line-height:1.2;text-align:center}.bar .status{flex-basis:100%;min-height:0}.bar .status:empty{display:none}}
 
 dialog{border:1px solid var(--line);border-radius:var(--r-lg);padding:0;background:var(--surface);color:var(--fg);width:min(520px,calc(100vw - 32px))}
 dialog::backdrop{background:rgba(6,18,31,.55)}
@@ -219,7 +220,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
     </div>
     <div class="field">
       <label for="r-notes"><span class="es">Notas (opcional)</span><span class="en">Notes (optional)</span></label>
-      <textarea id="r-notes" rows="2" placeholder="Ej.: El dueño es Ramiro. Ya usa DoorDash. Cierra a las 3.">El dueño es Ramiro. Ya está en DoorDash.</textarea>
+      <textarea id="r-notes" rows="2" placeholder="Ej.: El dueño es Ramiro. Ya usa DoorDash. Cierra a las 3."></textarea>
     </div>
 
     <fieldset class="mods">
@@ -576,20 +577,6 @@ function osmCat(t){const a=t.amenity||'';
   if(t.shop==='car'||t.shop==='car_repair')return 'cars';
   if(t.man_made==='works'||/^(industrial|warehouse)$/.test(t.building||'')||t.landuse==='industrial')return 'industry';
   return 'office';}
-async function osmNearby(c,mi){const A=`(around:${Math.round(mi*MI)},${c.lat},${c.lon})`;
-  const q=`[out:json][timeout:25];(nwr${A}["office"]["name"];nwr${A}["building"~"^(office|commercial)$"]["name"];
-nwr${A}["amenity"~"^(hospital|clinic|doctors|dentist|school|college|university|townhall|courthouse|police|fire_station|post_office|bank)$"]["name"];
-nwr${A}["healthcare"]["name"];nwr${A}["shop"~"^(car|car_repair)$"]["name"];nwr${A}["man_made"="works"]["name"];
-nwr${A}["building"~"^(industrial|warehouse)$"]["name"];nwr${A}["landuse"="industrial"]["name"];);out center tags 250;`;
-  for(const ep of ['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter']){
-    try{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000); // a busy server shouldn't hang the rep: move on after 20 s
-      const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q),signal:ac.signal});clearTimeout(tm);if(!r.ok)continue;
-      return ((await r.json()).elements||[]).map(e=>{const t=e.tags||{},lat=e.lat!=null?e.lat:e.center&&e.center.lat,lon=e.lon!=null?e.lon:e.center&&e.center.lon;
-        return {name:t.name,cat:osmCat(t),lat,lon,addr:[t['addr:housenumber'],t['addr:street']].filter(Boolean).join(' '),
-          maps:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(t.name+' '+lat+','+lon)}`};}).filter(p=>p.lat!=null);
-    }catch(e){console.warn(e);}}
-  throw new Error(EN()?'The free map service is busy right now. Try again in a minute, or add a Google key in Settings.':'El servicio de mapas gratis está ocupado. Intente de nuevo en un minuto, o agregue una clave de Google en Ajustes.');}
-
 function cleanPlaces(list,c,mi){const seen=new Set(),self=(v('r-name')||'').toLowerCase().trim();
   return list.map(p=>Object.assign(p,{dist:distMi(c.lat,c.lon,p.lat,p.lon)}))
     .filter(p=>{const k=(p.name||'').toLowerCase().trim();if(!k||k===self||p.dist>mi*1.05)return false;
@@ -749,7 +736,7 @@ function applyPlace(p){place=p;const S=p.src;facts={};
     if(k==='website'||k==='ordering')setAns('web','yes',S);
     if(k==='ordering')setAns('order','yes',S);
     if(k==='apps'){setAns('apps','yes',S);setAns('web','no',S);}
-    if(k==='none'||k==='facebook'||k==='instagram')setAns('web','no',S);
+    if((k==='none'&&S==='Google')||k==='facebook'||k==='instagram')setAns('web','no',S);
     facts={rating:p.rating,ratings:p.ratings,web:p.web,phone:p.phone,maps:p.maps,hours:p.hours};}
   if(!v('r-name')&&p.name)$('r-name').value=p.name;
   if((!v('r-addr')||isURL(v('r-addr')))&&p.addr)$('r-addr').value=p.addr;
@@ -847,14 +834,15 @@ function catCounts(list){const c={};list.forEach(p=>{c[p.cat]=(c[p.cat]||0)+1;})
 
 function renderSummary(){const es=olang()==='es',O=v('r-owner'),R=v('r-name'),r=evaluate();let say='';
   if(on('m-offices')&&lunch.places.length){const n=near();
-    say=es?`«${O?O+', ':''}hay ${lunch.places.length} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} de ${R}${n?`; ${n.name} está ${whereTxt(n,true)}`:''}. Con MealPool, esas oficinas le pueden pedir almuerzo en grupo, por adelantado.»`
-          :`"${O?O+', ':''}there are ${lunch.places.length} workplaces within ${radLabel('en',lunch.radius)} of ${R}${n?`; ${n.name} is ${whereTxt(n,false)}`:''}. With MealPool, those offices can pre-order lunch as a group."`;}
-  else if(on('m-presence')){const f=pitch(r)[0];say=es?`«${O?O+', ':''}revisé cómo aparece ${R} en internet. Lo más rápido para recibir más pedidos: ${f.short.es}.»`:`"${O?O+', ':''}I looked at how ${R} shows up online. The quickest way to get more orders: ${f.short.en}."`;}
+    say=es?`«${O?O+', hay':'Hay'} ${lunch.places.length} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} de ${R}${n?`; ${n.name} está ${whereTxt(n,true)}`:''}. Con MealPool, esas oficinas le pueden pedir almuerzo en grupo, por adelantado.»`
+          :`"${O?O+', there':'There'} are ${lunch.places.length} workplaces within ${radLabel('en',lunch.radius)} of ${R}${n?`; ${n.name} is ${whereTxt(n,false)}`:''}. With MealPool, those offices can pre-order lunch as a group."`;}
+  else if(on('m-presence')){const f=pitch(r)[0];say=es?`«${O?O+', revisé':'Revisé'} cómo aparece ${R} en internet. Lo más rápido para recibir más pedidos: ${f.short.es}.»`:`"${O?O+', I':'I'} looked at how ${R} shows up online. The quickest way to get more orders: ${f.short.en}."`;}
   $('b-say').textContent=say;
   const b=[];
   if(on('m-offices')&&lunch.places.length)b.push(EN()?`${lunch.places.length} workplaces nearby: ${catCounts(lunch.places).slice(0,3).map(([k,n])=>`${n} ${CATS[k].en.toLowerCase()}`).join(', ')}.`:`${lunch.places.length} lugares de trabajo cerca: ${catCounts(lunch.places).slice(0,3).map(([k,n])=>`${n} ${CATS[k].es.toLowerCase()}`).join(', ')}.`);
   if(on('m-presence')){const lc=t=>/^(Google|Facebook)/.test(t)?t:t.charAt(0).toLowerCase()+t.slice(1),gaps=r.bad.map(c=>lc(L(LABEL[c.id])));
-    b.push(r.unk.length===CHECKS.length?(EN()?'Not found online: confirm the 5 online answers below before sending.':'No lo encontramos en internet: confirme las 5 respuestas de abajo antes de enviar.')
+    b.push(r.unk.length===CHECKS.length?(place&&!place.addrOnly?(EN()?'Found, but there are no online details: confirm the 5 answers below before sending.':'Lo encontramos, pero sin datos de su presencia en internet: confirme las 5 respuestas de abajo antes de enviar.')
+        :(EN()?'Not found online: confirm the 5 answers below before sending.':'No lo encontramos en internet: confirme las 5 respuestas de abajo antes de enviar.'))
       :gaps.length?(EN()?`Online gaps: ${gaps.join(', ')}.`:`Le falta en internet: ${gaps.join(', ')}.`)
       :r.unk.length?(EN()?'No gaps so far: confirm the answers marked "Not sure".':'Sin huecos por ahora: confirme las respuestas en «No sé».')
       :(EN()?'Strong online presence: lead with MealPool.':'Buena presencia en internet: hable de MealPool.'));}
@@ -865,7 +853,7 @@ function renderSummary(){const es=olang()==='es',O=v('r-owner'),R=v('r-name'),r=
 
 function renderHead(){$('b-name').textContent=v('r-name');$('b-where').textContent=v('r-addr');
   const f=[];if(facts.rating!=null)f.push(`★ ${facts.rating.toFixed(1)}${facts.ratings?` · ${facts.ratings}`:''}`);
-  if(facts.phone)f.push(facts.phone);if(place&&!place.addrOnly)f.push(facts.web?(EN()?'Has a website':'Tiene página web'):(EN()?'No website':'Sin página web'));
+  if(facts.phone)f.push(facts.phone);if(place&&!place.addrOnly&&(facts.web||place.src==='Google'))f.push(facts.web?(EN()?'Has a website':'Tiene página web'):(EN()?'No website':'Sin página web'));
   $('b-facts').innerHTML='';f.forEach(t=>{const s=document.createElement('span');s.className='fact';s.textContent=t;$('b-facts').appendChild(s);});
   if(facts.maps){const a=document.createElement('a');a.className='fact';a.href=facts.maps;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Google Maps ↗';$('b-facts').appendChild(a);}
   const m=$('b-match');m.hidden=matches.length<2;m.innerHTML='';
