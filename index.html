@@ -176,6 +176,7 @@ details pre{white-space:pre-wrap;font-family:var(--font);font-size:13px;backgrou
 
 .bar{position:sticky;bottom:0;z-index:20;margin-top:28px;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -8px 24px rgba(10,26,46,.10);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .bar .status{flex:1 1 160px}
+.fix{border-color:var(--bad);background:linear-gradient(var(--bad-soft),var(--bad-soft)),var(--surface)}
 @media (max-width:520px){.bar{gap:6px}.bar .btn{flex:1 1 0;min-width:0;font-size:13px;padding:9px 6px;white-space:normal;line-height:1.2;text-align:center}.bar .status{flex-basis:100%;min-height:0}.bar .status:empty{display:none}}
 
 dialog{border:1px solid var(--line);border-radius:var(--r-lg);padding:0;background:var(--surface);color:var(--fg);width:min(520px,calc(100vw - 32px))}
@@ -211,12 +212,12 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
     </div>
     <div class="field">
       <label for="r-addr"><span class="es">Enlace o dirección del restaurante</span><span class="en">Restaurant link or address</span></label>
-      <input type="text" id="r-addr" value="2400 Navigation Blvd, Houston, TX" placeholder="Google Maps, su página, DoorDash… o calle y ciudad">
+      <input type="text" id="r-addr" placeholder="Pegue un enlace, o escriba calle y ciudad">
       <span class="hint"><span class="es">Pegue el enlace de Google Maps (de la barra del navegador), su página web o su página de DoorDash o Uber Eats. O escriba la dirección.</span><span class="en">Paste the Google Maps link (from the browser bar), their website, or their DoorDash or Uber Eats page. Or type the address.</span></span>
     </div>
     <div class="field">
       <label for="r-name"><span class="es">Nombre del restaurante (opcional si pega un enlace)</span><span class="en">Restaurant name (optional if you paste a link)</span></label>
-      <input type="text" id="r-name" value="Taquería Los Compadres">
+      <input type="text" id="r-name" placeholder="Ej.: Taquería Los Compadres">
     </div>
     <div class="field">
       <label for="r-notes"><span class="es">Notas (opcional)</span><span class="en">Notes (optional)</span></label>
@@ -235,7 +236,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
       <summary><span class="es">Más opciones</span><span class="en">More options</span></summary>
       <div class="grid2">
         <div class="field"><label for="r-owner"><span class="es">Nombre del dueño</span><span class="en">Owner's name</span></label><input type="text" id="r-owner" placeholder="Don Ramiro"></div>
-        <div class="field"><label for="r-rep"><span class="es">Su nombre</span><span class="en">Your name</span></label><input type="text" id="r-rep" value="Andrea"></div>
+        <div class="field"><label for="r-rep"><span class="es">Su nombre</span><span class="en">Your name</span></label><input type="text" id="r-rep" placeholder="Ej.: Andrea"></div>
         <div class="field"><label for="r-link"><span class="es">Enlace para el dueño (opcional)</span><span class="en">Link for the owner (optional)</span></label><input type="text" id="r-link" inputmode="url" placeholder="https://…"><span class="hint"><span class="es">Va en el mensaje y en los códigos QR. Lo ideal: la tienda que SalesVu le preparó (del CRM). También sirve su página, Google Maps o un enlace para agendar.</span><span class="en">It goes in the message and the QR codes. Best: the store SalesVu built for them (from the CRM). Their website, Google Maps or a booking link also work.</span></span></div>
         <div class="field">
           <span class="lbl"><span class="es">Logo</span><span class="en">Logo</span></span>
@@ -268,6 +269,16 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
       <button type="button" class="btn" id="b-edit"><span class="es">Editar</span><span class="en">Edit</span></button>
     </div>
   </div>
+
+  <form class="card sec fix" id="b-fix" hidden autocomplete="off">
+    <h2><span class="es">Agregue los datos que faltan</span><span class="en">Add the missing details</span></h2>
+    <p class="status err" id="fix-msg"></p>
+    <div class="grid2">
+      <div class="field"><label for="fx-name"><span class="es">Nombre del restaurante</span><span class="en">Restaurant name</span></label><input type="text" id="fx-name"></div>
+      <div class="field"><label for="fx-addr"><span class="es">Dirección (calle y ciudad) o enlace de Google Maps</span><span class="en">Address (street and city) or Google Maps link</span></label><input type="text" id="fx-addr" placeholder="4715 E Cesar Chavez St, Austin, TX"></div>
+    </div>
+    <div class="go-row"><button type="submit" class="btn primary" id="fx-go"><span class="es">Volver a generar</span><span class="en">Generate again</span></button><span class="hint"><span class="es">Lo demás ya está listo abajo.</span><span class="en">Everything else is ready below.</span></span></div>
+  </form>
 
   <section class="card sec" aria-labelledby="s-sum">
     <h2 id="s-sum"><span class="es">En 30 segundos</span><span class="en">In 30 seconds</span></h2>
@@ -390,6 +401,8 @@ const gkey=()=>store.get('svkit-gkey')||SALESVU_GOOGLE_KEY;
 const EN=()=>document.documentElement.getAttribute('data-lang')==='en';
 const v=id=>$(id).value.trim();
 const isURL=t=>/^https?:\/\//i.test(t);
+/* Pasted text can carry extra characters (".https://…", "see https://… thanks"): keep just the link. */
+const pickLink=t=>{const m=(t||'').match(/https?:\/\/[^\s<>"']+/i);return m?m[0].replace(/[).,;!?]+$/,''):(t||'').trim();};
 const fixLink=t=>{t=(t||'').trim();return !t||isURL(t)?t:(/^[\w-]+(\.[\w-]+)+(\/|$)/.test(t)?'https://'+t:t);};
 function city(){if(isURL(v('r-addr')))return '';const parts=v('r-addr').split(',').map(s=>s.trim()).filter(Boolean);return parts.length>1?parts.slice(1).join(', '):parts[0]||'';}
 const L=o=>EN()?o.en:o.es;
@@ -749,6 +762,7 @@ function guessFromSite(u){let url;try{url=new URL(u);}catch(e){return {q:'',host
   if(/facebook\.com|instagram\.com/.test(host))return {q:words(parts[0]==='pages'?parts[1]||'':parts[0]||''),host};
   return {q:words(host.replace(/\.(com|net|org|biz|us|co|menu|restaurant|site|online|info)(\.[a-z]{2})?$/,'')),host,domain:host};}
 async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
+  if(/https?:\/\//i.test(v('r-addr')))$('r-addr').value=pickLink(v('r-addr'));
   const raw=v('r-addr'),link=isURL(raw)?readLink(raw):null;
   if(!raw)throw new Error(EN()?'Paste the restaurant\'s link or type its address.':'Pegue el enlace del restaurante o escriba la dirección.');
   if(isURL(raw)&&!link)throw new Error(EN()?'That link doesn\'t look right. Copy it again from the browser bar.':'Ese enlace no parece correcto. Cópielo otra vez de la barra del navegador.');
@@ -770,9 +784,9 @@ async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
   if((!list||!list.length)&&name){list=await osmSearch(name,addrText,near);src='OpenStreetMap';}
   if((!list||!list.length)&&near)list=[{src:'Google Maps',addrOnly:true,name,addr:'',lat:near.lat,lon:near.lon}];
   if(!list||!list.length){if(site){if(!v('r-name')&&guess.q)$('r-name').value=guess.q;
-      throw new Error(gkey()?(EN()?'Couldn\'t find that restaurant from the link. Check the name above and type the street address instead.':'No encontramos el restaurante con ese enlace. Revise el nombre de arriba y escriba la dirección.')
+      return {found:false,src,why:gkey()?(EN()?'Couldn\'t find that restaurant from the link. Check the name above and type the street address instead.':'No encontramos el restaurante con ese enlace. Revise el nombre de arriba y escriba la dirección.')
         :(EN()?`Without the Google key (Settings), a ${guess.app?'delivery-app':'website'} link can't be matched to a restaurant. Paste its Google Maps link, or type the street address.`
-              :`Sin la clave de Google (Ajustes), un enlace de ${guess.app?'app de entrega':'página web'} no se puede usar para encontrar el restaurante. Pegue su enlace de Google Maps, o escriba la dirección.`));}
+              :`Sin la clave de Google (Ajustes), un enlace de ${guess.app?'app de entrega':'página web'} no se puede usar para encontrar el restaurante. Pegue su enlace de Google Maps, o escriba la dirección.`)};}
     if(!v('r-name')&&name)$('r-name').value=name;return {found:false,src};}
   matches=list.filter(p=>!p.addrOnly);applyPlace(list[0]);
   if(site){const k=siteKind(site);if(k==='apps')setAns('apps','yes',EN()?'Link':'Enlace');if(k==='ordering')setAns('order','yes',EN()?'Link':'Enlace');if(k==='website'&&!place.addrOnly)setAns('web','yes',EN()?'Link':'Enlace');}
@@ -861,7 +875,7 @@ function renderHead(){$('b-name').textContent=v('r-name');$('b-where').textConte
 $('b-match').onchange=()=>{const p=matches[+$('b-match').value];if(!p)return;clearAns();applyPlace(p);renderAll();};
 
 function renderOffices(){const sec=$('sec-offices');sec.hidden=!on('m-offices');if(sec.hidden)return;
-  const ok=lunch.places.length>0;$('off-err').hidden=!areaErr&&ok;$('off-err').textContent=areaErr||(EN()?'No workplaces found. Try 2 miles in More options.':'No se encontraron lugares de trabajo. Pruebe 2 millas en Más opciones.');
+  const ok=lunch.places.length>0;$('off-err').hidden=!areaErr&&ok;$('off-err').textContent=(areaErr?areaErr+(EN()?' Add it in the box at the top.':' Agréguelo en el cuadro de arriba.'):'')||(EN()?'No workplaces found. Try 2 miles in More options.':'No se encontraron lugares de trabajo. Pruebe 2 millas en Más opciones.');
   $('off-body').hidden=!ok;$('off-flyers').hidden=!ok;$('off-src').textContent=ok?areaSrc:'';if(!ok)return;
   $('off-n').textContent=lunch.places.length;$('off-n-lbl').textContent=EN()?`workplaces within ${radLabel('en',lunch.radius)}`:`lugares de trabajo a menos de ${radLabel('es',lunch.radius)}`;
   $('off-chips').innerHTML=catCounts(lunch.places).map(([k,n])=>`<span class="chip"><span class="dot" style="background:${CATS[k].color}"></span>${L(CATS[k])} · ${n}</span>`).join('');
@@ -1042,14 +1056,22 @@ function renderAll(){renderHead();renderSummary();renderOffices();renderPresence
 async function generate(e){if(e)e.preventDefault();const st=$('go-st'),btn=$('go');
   if(!on('m-offices')&&!on('m-presence')&&!on('m-comp')&&!on('m-kit')){st.className='status err';st.textContent=EN()?'Tick at least one thing to prepare.':'Marque al menos una opción.';return;}
   btn.disabled=true;st.className='status';
-  try{st.textContent=EN()?'Looking up the restaurant…':'Buscando el restaurante…';await lookupRestaurant();
+  try{st.textContent=EN()?'Looking up the restaurant…':'Buscando el restaurante…';const lr=await lookupRestaurant();lastLookup=lr;
     if(on('m-offices')||on('m-comp')){st.textContent=EN()?'Looking at the area…':'Revisando la zona…';
       try{await loadArea(on('m-offices'),on('m-comp'));}catch(err){areaErr=err.message;console.warn(err);}}
     await (document.fonts&&document.fonts.ready||Promise.resolve());
-    renderAll();st.textContent='';show('brief');location.hash='brief';
+    renderAll();renderFix();st.textContent='';show('brief');location.hash='brief';
   }catch(err){st.className='status err';st.textContent=err.message;console.warn(err);}
   finally{btn.disabled=false;}}
 $('f').addEventListener('submit',generate);
+/* If the restaurant or its area wasn't found, ask only for what's missing, right in the brief. */
+let lastLookup=null;
+function renderFix(){const lr=lastLookup||{},needArea=(on('m-offices')||on('m-comp'))&&!!areaErr,notFound=lr.found===false;
+  const show=notFound||needArea;$('b-fix').hidden=!show;if(!show)return;
+  const msg=lr.why||(needArea?areaErr:'')||(EN()?'We couldn\'t find this restaurant online. Check the name and add the street address.':'No encontramos este restaurante en internet. Revise el nombre y agregue la dirección.');
+  $('fix-msg').textContent=msg;$('fx-name').value=v('r-name');$('fx-addr').value=isURL(v('r-addr'))?'':v('r-addr');}
+$('b-fix').addEventListener('submit',e=>{e.preventDefault();const n=$('fx-name').value.trim(),a=$('fx-addr').value.trim();
+  if(!a&&!n){$('fx-addr').focus();return;}if(n)$('r-name').value=n;if(a)$('r-addr').value=pickLink(a);show('new');generate();});
 $('b-edit').onclick=()=>{show('new');location.hash='nueva';};
 $('bar-new').onclick=()=>{['r-name','r-addr','r-notes','r-owner','r-link'].forEach(i=>$(i).value='');logoImg=null;$('r-logo').value='';updLogoPrev();show('new');location.hash='nueva';$('r-name').focus();};
 $('bar-wa').onclick=()=>copyText('wa','bar-st');
@@ -1059,7 +1081,7 @@ window.addEventListener('hashchange',()=>{if(location.hash==='#nueva')show('new'
 document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>copyImage($(b.dataset.copy),'bar-st'));
 document.querySelectorAll('[data-copytext]').forEach(b=>b.onclick=()=>copyText(b.dataset.copytext,'bar-st'));
 document.querySelectorAll('input[name=olang]').forEach(e=>e.addEventListener('change',()=>{if($('b-name').textContent){renderSummary();buildPack();}}));
-$('r-addr').addEventListener('paste',()=>setTimeout(()=>{if(isURL(v('r-addr')))generate();},50));
+$('r-addr').addEventListener('paste',()=>setTimeout(()=>{if(/https?:\/\//i.test(v('r-addr'))){$('r-addr').value=pickLink(v('r-addr'));$('r-name').value='';generate();}},50));
 
 /* Remember what each rep usually prepares, and their name. */
 ['m-offices','m-presence','m-comp','m-kit'].forEach(id=>{const s=store.get('svkit-'+id);if(s!=null)$(id).checked=s==='1';$(id).addEventListener('change',()=>store.set('svkit-'+id,$(id).checked?'1':'0'));});
