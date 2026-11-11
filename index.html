@@ -171,7 +171,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
   <div class="gen">
     <form class="panel form" id="f" autocomplete="off">
       <div>
-        <div class="eyebrow"><span class="es">Datos del restaurante</span><span class="en">Restaurant details</span></div>
+        <h2 style="margin:0;font-size:19px;letter-spacing:-.01em"><span class="es">El restaurante</span><span class="en">The restaurant</span></h2>
       </div>
       <div class="field">
         <label for="r-name"><span class="es">Nombre del restaurante</span><span class="en">Restaurant name</span></label>
@@ -225,7 +225,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
       <article class="out">
         <div class="out-head">
           <div>
-            <h2><span class="num">1</span><span class="es">Mensaje de WhatsApp para el dueño</span><span class="en">WhatsApp message to the owner</span></h2>
+            <h2><span class="es">Mensaje de WhatsApp para el dueño</span><span class="en">WhatsApp message to the owner</span></h2>
             <p><span class="es">Mándelo en la primera hora después de la llamada. Con el primer cliente, seguir el mismo día convirtió un "no" en un "sí". Puede editar el texto aquí.</span><span class="en">Send it within an hour of the call. With the first customer, a same-day follow-up turned a "no" into a "yes". You can edit the text here.</span></p>
           </div>
           <button type="button" class="btn primary small" id="copy-wa"><span class="es">Copiar mensaje</span><span class="en">Copy message</span></button>
@@ -239,7 +239,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
       <article class="out">
         <div class="out-head">
           <div>
-            <h2><span class="num">2</span><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h2>
+            <h2><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h2>
             <p><span class="es">Una propuesta en una sola imagen, con su logo. Mándela junto con el mensaje para que el dueño recuerde quién llamó.</span><span class="en">A one-image proposal with their logo. Send it with the message so the owner remembers who called.</span></p>
           </div>
           <button type="button" class="btn small" id="copy-owner"><span class="es">Copiar imagen</span><span class="en">Copy image</span></button>
@@ -492,12 +492,12 @@ const v=id=>$(id).value.trim();
 const pain=()=>PAINS.find(p=>p.id===(document.querySelector('input[name=pain]:checked')||{}).value)||PAINS[0];
 
 function renderWhy(){const p=pain(),en=document.documentElement.getAttribute('data-lang')==='en';
-  $('why').innerHTML=`<span class="eyebrow">${en?'Why this angle':'Por qué este enfoque'}</span><p class="quote">${en?p.quoteEn:p.quoteEs}</p><p>${en?p.evEn:p.evEs}</p>${p.tag==='warn'?`<p class="pill warn" style="justify-self:start">${en?'Feature in development: confirm before sending':'Función en desarrollo: confirme antes de enviar'}</p>`:''}`;}
+  $('why').innerHTML=`<strong style="font-size:13px">${en?'Why this angle works':'Por qué funciona este enfoque'}</strong><p class="quote">${en?p.quoteEn:p.quoteEs}</p><p>${en?p.evEn:p.evEs}</p>${p.tag==='warn'?`<p class="pill warn" style="justify-self:start">${en?'Feature in development: confirm before sending':'Función en desarrollo: confirme antes de enviar'}</p>`:''}`;}
 
 /* WhatsApp follow-up: 4 short lines a busy owner reads in 10 seconds. The CRM keeps the call log and callback time. */
 function buildWA(){const p=pain(),R=v('r-name')||'su restaurante',O=v('r-owner'),rep=v('r-rep')||'[su nombre]',link=v('r-link');
-  const es=[`Hola${O?', '+O:''}, soy ${rep} de SalesVu 👋`,p.hookEs(R),`Así se ve su tienda en línea: ${link||'[enlace de la tienda demo]'}`,'¿Le cuento en 5 minutos cómo funciona?'].join('\n\n');
-  const en=[`Hi${O?' '+O:''}, it's ${rep} from SalesVu 👋`,p.hookEn(R),`Here's your online store: ${link||'[demo store link]'}`,'Can I walk you through it in 5 minutes?'].join('\n\n');
+  const es=[`Hola${O?', '+O:''}, soy ${rep} de SalesVu.`,p.hookEs(R),`Así se ve su tienda en línea: ${link||'[enlace de la tienda demo]'}`,'¿Le cuento en 5 minutos cómo funciona?'].join('\n\n');
+  const en=[`Hi${O?' '+O:''}, it's ${rep} from SalesVu.`,p.hookEn(R),`Here's your online store: ${link||'[demo store link]'}`,'Can I walk you through it in 5 minutes?'].join('\n\n');
   $('wa').value=es;$('wa-en').textContent=en;$('miss-link').hidden=!!link;}
 
 /* ---------- Canvas drawing ---------- */
@@ -516,8 +516,6 @@ function drawOwner(){const W=1080,H=1350,c=document.createElement('canvas');c.wi
   const p=pain(),R=v('r-name')||'Su restaurante',city=v('r-city'),rep=v('r-rep')||'SalesVu',link=v('r-link');
   x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);
   x.fillStyle=navy;x.fillRect(0,0,W,300);
-  // soft blue glow like salesvu.com hero
-  const g=x.createRadialGradient(W,0,40,W,0,620);g.addColorStop(0,'rgba(0,102,255,.55)');g.addColorStop(1,'rgba(0,102,255,0)');x.fillStyle=g;x.fillRect(0,0,W,300);
   x.textBaseline='alphabetic';x.textAlign='left';
   x.font=`800 46px ${F}`;x.fillStyle='#FFFFFF';x.fillText('Sales',80,110);const sw=x.measureText('Sales').width;x.fillStyle='#4B93FF';x.fillText('Vu',80+sw,110);
   x.font=`600 26px ${F}`;x.fillStyle='#BFD7FF';x.fillText('Propuesta para',80,200);

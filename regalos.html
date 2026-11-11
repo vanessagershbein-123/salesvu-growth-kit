@@ -189,21 +189,21 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 <header class="band">
   <div class="wrap">
     <div class="band-top">
-      <div class="brand"><span class="wordmark">Sales<b>Vu</b></span><span class="kit-pill"><span class="es">Regalos para restaurantes</span><span class="en">Gifts for restaurants</span></span></div>
+      <div class="brand"><span class="wordmark">Sales<b>Vu</b></span><span class="kit-pill"><span class="es">Regalos que traen pedidos</span><span class="en">Gifts that bring orders</span></span></div>
       <div class="top-actions">
         <span class="datasrc" id="datasrc"></span>
-        <button type="button" class="gear" id="open-settings" aria-haspopup="dialog">⚙️ <span class="es">Ajustes</span><span class="en">Settings</span></button>
+        <button type="button" class="gear" id="open-settings" aria-haspopup="dialog"><span class="es">Ajustes</span><span class="en">Settings</span></button>
         <div class="lang" role="group" aria-label="Idioma / Language">
           <button type="button" id="lang-es" aria-pressed="true">Español</button>
           <button type="button" id="lang-en" aria-pressed="false">English</button>
         </div>
       </div>
     </div>
-    <h1><span class="es">Algo útil para el dueño, antes de pedirle algo</span><span class="en">Something useful for the owner, before asking for anything</span></h1>
-    <p class="lede"><span class="es">Escriba el restaurante una vez y obtenga dos regalos para el dueño: las oficinas cerca que pueden pedir almuerzo con MealPool, y un chequeo de su presencia en línea con lo que SalesVu le resuelve.</span><span class="en">Enter the restaurant once and get two gifts for the owner: the nearby offices that could order lunch with MealPool, and a check of their online presence with what SalesVu fixes.</span></p>
+    <h1><span class="es">Muéstrele al dueño de dónde van a salir sus próximos pedidos</span><span class="en">Show the owner where their next orders will come from</span></h1>
+    <p class="lede"><span class="es">Escriba el restaurante y presione un botón. Sale todo lo que necesita para la llamada y para el WhatsApp: las oficinas que pueden pedirle almuerzo, y lo que le falta en internet para recibir pedidos directos.</span><span class="en">Type the restaurant and press one button. You get everything for the call and the WhatsApp: the offices that could order lunch, and what's missing online to get direct orders.</span></p>
     <nav class="tabs" aria-label="Secciones">
-      <a href="#oficinas" id="tab-oficinas" aria-current="page"><span class="es">1 · Oficinas cerca</span><span class="en">1 · Offices nearby</span></a>
-      <a href="#presencia" id="tab-presencia"><span class="es">2 · Presencia en línea</span><span class="en">2 · Online presence</span></a>
+      <a href="#oficinas" id="tab-oficinas" aria-current="page"><span class="es">Pedidos de oficinas cerca</span><span class="en">Orders from nearby offices</span></a>
+      <a href="#presencia" id="tab-presencia"><span class="es">Pedidos en línea directos</span><span class="en">Direct online orders</span></a>
       <a href="index.html" class="ext"><span class="es">Kit de ventas ↗</span><span class="en">Sales kit ↗</span></a>
     </nav>
   </div>
@@ -215,7 +215,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 <section class="panel shared" aria-labelledby="shared-h">
   <div class="shared-head">
     <div>
-      <div class="eyebrow" id="shared-h"><span class="es">El restaurante</span><span class="en">The restaurant</span></div>
+      <h2 class="step-h" id="shared-h"><span class="es">El restaurante</span><span class="en">The restaurant</span></h2>
       <span class="hint"><span class="es">Escriba el nombre y la dirección, o pegue el enlace de Google Maps. Un clic prepara los dos regalos.</span><span class="en">Type the name and address, or paste the Google Maps link. One click makes both gifts.</span></span>
     </div>
     <button type="button" class="btn small" id="reset"><span class="es">Borrar el ejemplo</span><span class="en">Clear the example</span></button>
@@ -348,7 +348,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
       <div class="col" id="lunch-outs" hidden>
         <article class="out">
           <div class="out-head">
-            <div><h3><span class="num">A</span><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h3><p><span class="es">La prueba: cuánta gente trabaja cerca.</span><span class="en">The proof: how many people work nearby.</span></p></div>
+            <div><h3><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h3><p><span class="es">La prueba: cuánta gente trabaja cerca.</span><span class="en">The proof: how many people work nearby.</span></p></div>
             <div class="btns"><button type="button" class="btn small" id="copy-radar"><span class="es">Copiar imagen</span><span class="en">Copy image</span></button><a class="btn small" id="dl-radar" download="almuerzos.png"><span class="es">Descargar</span><span class="en">Download</span></a></div>
           </div>
           <div class="shot"><img id="img-radar" alt="Lugares de trabajo cerca del restaurante"></div>
@@ -357,7 +357,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 
         <article class="out">
           <div class="out-head">
-            <div><h3><span class="num">B</span><span class="es">Mensaje de WhatsApp para el dueño</span><span class="en">WhatsApp message to the owner</span></h3><p><span class="es">Puede editarlo antes de copiarlo.</span><span class="en">You can edit it before copying.</span></p></div>
+            <div><h3><span class="es">Mensaje de WhatsApp para el dueño</span><span class="en">WhatsApp message to the owner</span></h3><p><span class="es">Puede editarlo antes de copiarlo.</span><span class="en">You can edit it before copying.</span></p></div>
             <button type="button" class="btn primary small" id="copy-lunch-wa"><span class="es">Copiar mensaje</span><span class="en">Copy message</span></button>
           </div>
           <textarea id="lunch-wa" aria-label="Mensaje de WhatsApp para el dueño" style="min-height:260px"></textarea>
@@ -367,7 +367,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 
         <article class="out">
           <div class="out-head">
-            <div><h3><span class="num">C</span><span class="es">Volante y correo para cada oficina</span><span class="en">Flyer and email for each office</span></h3><p><span class="es">Para que el dueño los entregue o los mande él mismo.</span><span class="en">For the owner to hand over or send themselves.</span></p></div>
+            <div><h3><span class="es">Volante y correo para cada oficina</span><span class="en">Flyer and email for each office</span></h3><p><span class="es">Para que el dueño los entregue o los mande él mismo.</span><span class="en">For the owner to hand over or send themselves.</span></p></div>
           </div>
           <div class="field"><label for="flyer-for"><span class="es">Material para</span><span class="en">Materials for</span></label><select id="flyer-for"></select></div>
           <div class="btns"><button type="button" class="btn small" id="copy-flyer"><span class="es">Copiar volante</span><span class="en">Copy flyer</span></button><a class="btn small" id="dl-flyer" download="volante.png"><span class="es">Descargar volante</span><span class="en">Download flyer</span></a></div>
@@ -387,11 +387,11 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
   <div class="tool">
     <div class="col">
       <article class="out">
-        <div class="out-head"><div><h3><span class="es">Su pitch: más ventas para el dueño</span><span class="en">Your pitch: more sales for the owner</span></h3><p><span class="es">Dígalo así en la llamada. Es lo mismo que va en la imagen y el mensaje.</span><span class="en">Say it like this on the call. It matches the image and the message.</span></p></div></div>
+        <div class="out-head"><div><h3><span class="es">Qué decir en la llamada</span><span class="en">What to say on the call</span></h3><p><span class="es">Dígalo así en la llamada. Es lo mismo que va en la imagen y el mensaje.</span><span class="en">Say it like this on the call. It matches the image and the message.</span></p></div></div>
         <div class="summary" id="summary"></div>
       </article>
       <div class="panel col">
-        <h2 class="step-h"><span class="es">Lo que encontramos</span><span class="en">What we found</span></h2>
+        <h2 class="step-h"><span class="es">Qué le falta para recibir pedidos directos</span><span class="en">What they need to get direct orders</span></h2>
         <span class="hint"><span class="es">Las que dicen <span class="pill">Google</span> se llenaron solas. Corrija lo que no cuadre.</span><span class="en">Ones marked <span class="pill">Google</span> filled in automatically. Fix anything that's off.</span></span>
         <div class="qs" id="qs"></div>
         <details>
@@ -404,7 +404,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
     <div class="col">
       <article class="out">
         <div class="out-head">
-          <div><h3><span class="num">A</span><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h3><p><span class="es">Mándela por WhatsApp junto con el mensaje.</span><span class="en">Send it on WhatsApp with the message.</span></p></div>
+          <div><h3><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h3><p><span class="es">Mándela por WhatsApp junto con el mensaje.</span><span class="en">Send it on WhatsApp with the message.</span></p></div>
           <div class="btns"><button type="button" class="btn small" id="copy-report"><span class="es">Copiar imagen</span><span class="en">Copy image</span></button><a class="btn small" id="dl-report" download="chequeo.png"><span class="es">Descargar</span><span class="en">Download</span></a></div>
         </div>
         <div class="shot"><img id="img-report" alt="Chequeo en línea para el dueño"></div>
@@ -413,7 +413,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 
       <article class="out">
         <div class="out-head">
-          <div><h3><span class="num">B</span><span class="es">Mensaje de WhatsApp</span><span class="en">WhatsApp message</span></h3><p><span class="es">Puede editar el texto aquí antes de copiarlo.</span><span class="en">You can edit the text here before copying.</span></p></div>
+          <div><h3><span class="es">Mensaje de WhatsApp</span><span class="en">WhatsApp message</span></h3><p><span class="es">Puede editar el texto aquí antes de copiarlo.</span><span class="en">You can edit the text here before copying.</span></p></div>
           <button type="button" class="btn primary small" id="copy-wa"><span class="es">Copiar mensaje</span><span class="en">Copy message</span></button>
         </div>
         <textarea id="wa" aria-label="Mensaje de WhatsApp"></textarea>
@@ -422,7 +422,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
       </article>
 
       <article class="out">
-        <div class="out-head"><div><h3><span class="num">C</span><span class="es">Muestras del kit de marketing</span><span class="en">Marketing kit samples</span></h3><p><span class="es">Ejemplos con su logo de lo que SalesVu le da para atraer pedidos. Mándelos con el mensaje.</span><span class="en">Samples with their logo of what SalesVu gives them to bring in orders. Send them with the message.</span></p></div></div>
+        <div class="out-head"><div><h3><span class="es">Material para atraer pedidos (muestras con su logo)</span><span class="en">Materials that bring in orders (samples with their logo)</span></h3><p><span class="es">Ejemplos con su logo de lo que SalesVu le da para atraer pedidos. Mándelos con el mensaje.</span><span class="en">Samples with their logo of what SalesVu gives them to bring in orders. Send them with the message.</span></p></div></div>
         <div class="samples">
           <div class="sample"><img id="img-s-sticker" alt="Muestra: calcomanía con código QR"><p><span class="es">Para la puerta o la caja: sus clientes piden en línea, directo.</span><span class="en">For the door or register: customers order online, directly.</span></p><div class="btns"><button type="button" class="btn small" data-copy="img-s-sticker"><span class="es">Copiar</span><span class="en">Copy</span></button><a class="btn small" id="dl-s-sticker"><span class="es">Descargar</span><span class="en">Download</span></a></div></div>
           <div class="sample"><img id="img-s-fb" alt="Muestra: publicación de Facebook"><p><span class="es">Para Facebook: una publicación lista, si no publica seguido.</span><span class="en">For Facebook: a ready post, if they don't post often.</span></p><div class="btns"><button type="button" class="btn small" data-copy="img-s-fb"><span class="es">Copiar</span><span class="en">Copy</span></button><a class="btn small" id="dl-s-fb"><span class="es">Descargar</span><span class="en">Download</span></a></div></div>
@@ -678,9 +678,9 @@ function renderSummary(){const r=evaluate(),el=$('summary'),R=v('r-name')||(EN()
 /* ---------- WhatsApp message (Spanish for the owner, English for team review) ---------- */
 function buildMsg(lang){const es=lang==='es',r=evaluate(),R=v('r-name')||(es?'su restaurante':'your restaurant'),O=v('r-owner'),rep=v('r-rep'),link=v('r-link');
   const T=o=>es?o.es:o.en,first=pitch(r)[0],who={sv:es?'Eso se lo dejamos listo nosotros.':'We set that up for you.',kit:es?'Las imágenes ya se las preparé.':'I already made the images for you.',owner:es?'Es un cambio de 5 minutos.':'It\'s a 5-minute change.'}[first.who];
-  const m=[es?`Hola${O?', '+O:''}, soy ${rep||'[su nombre]'} de SalesVu 👋`:`Hi${O?' '+O:''}, it's ${rep||'[your name]'} from SalesVu 👋`,
+  const m=[es?`Hola${O?', '+O:''}, soy ${rep||'[su nombre]'} de SalesVu.`:`Hi${O?' '+O:''}, it's ${rep||'[your name]'} from SalesVu.`,
     es?`Revisé cómo aparece ${R} en internet y le hice este resumen.`:`I looked at how ${R} shows up online and made you this summary.`,
-    (es?`Lo más rápido para vender más: ${T(first.short)}. `:`The quickest way to sell more: ${T(first.short)}. `)+who];
+    (es?`Lo más rápido para recibir más pedidos: ${T(first.short)}. `:`The quickest way to get more orders: ${T(first.short)}. `)+who];
   if(link)m.push((es?'Así se ve su tienda en línea: ':'Here\'s your online store: ')+tracked(link,'regalo-chequeo'));
   m.push(es?'¿Le cuento en 5 minutos cómo funciona?':'Can I walk you through it in 5 minutes?');
   return m.join('\n\n');}
@@ -724,24 +724,23 @@ function drawReport(){const W=1080,c=document.createElement('canvas');c.width=W;
   const navy='#0A1A2E',blue='#0066FF',ink='#0F1B33',mut='#5B6B82',green='#15803D',r=evaluate(),R=v('r-name')||T('Su restaurante','Your restaurant'),rep=v('r-rep')||'SalesVu',link=v('r-link');
   x.fillStyle='#FFFFFF';x.fillRect(0,0,W,c.height);
   // header band with the salesvu.com blue glow
-  x.fillStyle=navy;x.fillRect(0,0,W,320);
-  const g=x.createRadialGradient(W,0,40,W,0,620);g.addColorStop(0,'rgba(0,102,255,.55)');g.addColorStop(1,'rgba(0,102,255,0)');x.fillStyle=g;x.fillRect(0,0,W,320);
   x.textAlign='left';x.textBaseline='alphabetic';
-  x.font=`800 44px ${F}`;x.fillStyle='#FFFFFF';x.fillText('Sales',80,104);const sw=x.measureText('Sales').width;x.fillStyle='#4B93FF';x.fillText('Vu',80+sw,104);
-  x.font=`600 26px ${F}`;x.fillStyle='#BFD7FF';x.fillText(T('Chequeo gratis · Más ventas para','Free check-up · More sales for'),80,180);
-  x.font=`800 52px ${F}`;x.fillStyle='#FFFFFF';const nl=wrap(x,R,700);x.fillText(nl[0]+(nl.length>1?'…':''),80,244);
-  drawLogo(x,W-170,320,100,'#FFFFFF',brandColor);x.lineWidth=8;x.strokeStyle='#FFFFFF';x.beginPath();x.arc(W-170,320,100,0,Math.PI*2);x.stroke();
-  let y=476;
+  const pill=T('MÁS PEDIDOS DIRECTOS','MORE DIRECT ORDERS');x.font=`800 22px ${F}`;const pw=x.measureText(pill).width+36;rr(x,80,64,pw,44,22);x.fillStyle='#EEEAFB';x.fill();x.fillStyle='#6D4FD8';x.fillText(pill,98,94);
+  x.font=`800 64px ${F}`;x.fillStyle=MP.navy;const nl=wrap(x,R,680);nl.slice(0,2).forEach((l,i)=>x.fillText(l+(i===1&&nl.length>2?'…':''),80,196+i*72));
+  const ny=196+Math.min(nl.length,2)*72;x.font=`600 32px ${F}`;x.fillStyle=MP.blue;x.fillText(T('Lo que encontramos en internet','What we found online'),80,ny);
+  x.fillStyle=MP.green;rr(x,80,ny+28,90,9,4);x.fill();
+  drawLogo(x,W-180,200,110);x.lineWidth=5;x.strokeStyle=MP.ring;x.beginPath();x.arc(W-180,200,110,0,Math.PI*2);x.stroke();
+  let y=Math.max(ny+110,400);
   if($('show-score').checked&&r.score!=null){const col=r.score<50?'#C2410C':r.score<75?blue:green;
-    x.font=`600 28px ${F}`;x.fillStyle=mut;x.fillText(T('Su restaurante en internet','Your restaurant online'),80,y);
+    x.font=`600 28px ${F}`;x.fillStyle=mut;x.fillText(T('Su presencia en internet','Your online presence'),80,y);
     x.font=`800 44px ${F}`;x.fillStyle=col;x.textAlign='right';x.fillText(`${r.score}/100`,W-80,y+4);x.textAlign='left';
     rr(x,80,y+30,W-160,22,11);x.fillStyle='#E8EEF7';x.fill();if(r.score>0){rr(x,80,y+30,Math.max(22,(W-160)*r.score/100),22,11);x.fillStyle=col;x.fill();}
     y+=120;}
   if(r.good.length){x.font=`700 28px ${F}`;x.fillStyle=green;x.fillText(T('Lo que ya hace bien','What you already do well'),80,y);y+=46;
     x.font=`500 28px ${F}`;r.good.slice(0,3).forEach(gd=>{x.strokeStyle=green;x.lineWidth=5;x.lineCap='round';x.lineJoin='round';x.beginPath();x.moveTo(84,y-10);x.lineTo(94,y);x.lineTo(112,y-22);x.stroke();
       x.fillStyle=ink;x.fillText(O(gd.good),130,y);y+=44;});y+=30;}
-  x.font=`800 44px ${F}`;x.fillStyle=ink;
-  const P=pitch(r),title=T(`${P.length} formas de vender más`,`${P.length} ways to sell more`);
+  x.font=`800 44px ${F}`;x.fillStyle=MP.navy;
+  const P=pitch(r),title=T(`${P.length} formas de recibir más pedidos`,`${P.length} ways to get more orders`);
   wrap(x,title,W-160).forEach(l=>{x.fillText(l,80,y+10);y+=56;});y+=24;
   const tagCol={sv:['#E6F0FF',blue],kit:['#E7F5EC',green],owner:['#FDF1DE','#9A5B00']};
   {P.forEach((cki,i)=>{x.font=`500 30px ${F}`;const lines=wrap(x,O(cki.fix),W-160-130);const h=40+lines.length*42+56;
@@ -781,6 +780,11 @@ const fmtMi=m=>m<0.1?'0.1':m.toFixed(1);
 const walkMin=m=>Math.max(1,Math.round(m*20));
 const radLabel=(lang,mi)=>lang==='es'?(mi===0.5?'media milla':mi===1?'1 milla':mi+' millas'):(mi===0.5?'half a mile':mi===1?'1 mile':mi+' miles');
 const selected=()=>lunch.places.filter(p=>lunch.sel.has(p.id));
+/* A simple, clearly hypothetical estimate the owner can picture: 3 offices × 10 lunches, once a week. */
+const EST={offices:3,people:10};
+const estimate=lang=>lunch.places.length<EST.offices?'':(lang==='es'
+  ?`Si solo ${EST.offices} de estas oficinas piden almuerzo para ${EST.people} personas una vez por semana, son ${EST.offices*EST.people} pedidos más cada semana.`
+  :`If just ${EST.offices} of these offices order lunch for ${EST.people} people once a week, that's ${EST.offices*EST.people} more orders every week.`);
 
 /* Where is the restaurant? Reuse the check-up's look-up when it matches; otherwise look up the address. */
 async function findCenter(){
@@ -890,9 +894,9 @@ function drawMap(){const LF=window.L,el=$('lunch-map');if(!LF||!lunch.center)ret
 /* ---------- Part 3 outputs ---------- */
 function buildLunchMsg(lang){const es=lang==='es',N=lunch.places.length,sel=selected(),R=v('r-name')||(es?'su restaurante':'your restaurant'),O=v('r-owner'),rep=v('r-rep');
   const near=sel[0]||lunch.places[0],where=near?(near.dist<=0.25?(es?'a unas cuadras':'a few blocks away'):(es?`a ${fmtMi(near.dist)} millas`:`${fmtMi(near.dist)} miles away`)):'';
-  const m=[es?`Hola${O?', '+O:''}, soy ${rep||'[su nombre]'} de SalesVu 👋`:`Hi${O?' '+O:''}, it's ${rep||'[your name]'} from SalesVu 👋`,
+  const m=[es?`Hola${O?', '+O:''}, soy ${rep||'[su nombre]'} de SalesVu.`:`Hi${O?' '+O:''}, it's ${rep||'[your name]'} from SalesVu.`,
     (es?`Le hice este mapa: hay ${N} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} de ${R}.`:`I made you this map: there are ${N} workplaces within ${radLabel('en',lunch.radius)} of ${R}.`)+(near?(es?` ${near.name} está ${where}.`:` ${near.name} is ${where}.`):''),
-    es?'Con MealPool, esas oficinas le piden el almuerzo en grupo, por adelantado, y usted decide cuántos pedidos acepta.':'With MealPool, those offices pre-order lunch as a group, and you decide how many orders to take.'];
+    (es?'Con MealPool, esas oficinas le piden el almuerzo en grupo, por adelantado. ':'With MealPool, those offices pre-order lunch as a group. ')+estimate(lang)];
   if(near)m.push(es?`Ya le preparé un volante para ${near.name}.`:`I already made a flyer for ${near.name}.`);
   m.push(es?'¿Le cuento en 5 minutos cómo funciona?':'Can I walk you through it in 5 minutes?');
   return m.join('\n\n');}
@@ -907,8 +911,8 @@ function renderLunchPitch(){const el=$('lunch-pitch');
   const mix=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,n])=>`${(es?CATS[k].es:CATS[k].en).toLowerCase()}: ${n}`).join(' · ');
   const open=es?`«${O?O+', ':''}hay ${N} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} de ${R}${near?`; ${near.name} está ${where}`:''}. Esa gente almuerza todos los días.»`
                :`"${O?O+', ':''}there are ${N} workplaces within ${radLabel('en',lunch.radius)} of ${R}${near?`; ${near.name} is ${where}`:''}. Those people eat lunch every day."`;
-  const pts=es?[`Qué hay cerca: ${mix}.`,`Con MealPool, una oficina pide junta, por adelantado, antes de las ${cut}. Usted cocina todo junto y decide cuántos pedidos acepta: su capacidad, sus horarios, su control.`,near?`Ya le preparé un volante para ${near.name}. Usted solo lo entrega.`:'']
-              :[`What's nearby: ${mix}.`,`With MealPool, an office orders together, ahead of time, by ${cut}. You cook it all at once and decide how many orders to take: your capacity, your cutoffs, your control.`,near?`I already made a flyer for ${near.name}. You just hand it over.`:''];
+  const pts=es?[`Qué hay cerca: ${mix}.`,estimate('es'),`Con MealPool, una oficina pide junta, por adelantado, antes de las ${cut}. Usted cocina todo junto y decide cuántos pedidos acepta: su capacidad, sus horarios, su control.`,near?`Ya le preparé un volante para ${near.name}. Usted solo lo entrega.`:'']
+              :[`What's nearby: ${mix}.`,estimate('en'),`With MealPool, an office orders together, ahead of time, by ${cut}. You cook it all at once and decide how many orders to take: your capacity, your cutoffs, your control.`,near?`I already made a flyer for ${near.name}. You just hand it over.`:''];
   const close=es?'«¿Le mando el mapa por WhatsApp para que lo vea con calma?»':'"Can I WhatsApp you the map so you can look at it later?"';
   el.innerHTML=`<p class="pitch-open"></p><ol class="opps"></ol><p style="margin:0;font-size:15px"></p>`;
   el.querySelector('.pitch-open').textContent=open;el.querySelector('p:last-child').textContent=close;
@@ -958,19 +962,18 @@ Si prefieren no recibir estos correos, respondan "no, gracias" y no volveremos a
 /* Owner image: a radar of the workplaces around the restaurant, in the owner's language. */
 function drawRadar(){const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
   const es=olang()==='es',T=(a,b)=>es?a:b,R=v('r-name')||T('Su restaurante','Your restaurant'),mi=lunch.radius,N=lunch.places.length,c=lunch.center;
-  x.fillStyle='#0A1A2E';x.fillRect(0,0,W,H);
-  const g=x.createRadialGradient(W,0,40,W,0,700);g.addColorStop(0,'rgba(0,102,255,.5)');g.addColorStop(1,'rgba(0,102,255,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);
   x.textAlign='left';x.textBaseline='alphabetic';
-  x.font=`800 40px ${F}`;x.fillStyle='#FFFFFF';x.fillText('Sales',80,96);const sw=x.measureText('Sales').width;x.fillStyle='#4B93FF';x.fillText('Vu',80+sw,96);
-  x.font=`600 26px ${F}`;x.fillStyle='#BFD7FF';x.fillText(T('Almuerzos cerca de','Lunch customers near'),80,164);
-  x.font=`800 48px ${F}`;x.fillStyle='#FFFFFF';const nl=wrap(x,R,920);x.fillText(nl[0]+(nl.length>1?'…':''),80,222);
-  x.font=`800 128px ${F}`;x.fillStyle='#FFFFFF';x.fillText(String(N),80,370);const nw=x.measureText(String(N)).width;
-  x.font=`700 34px ${F}`;x.fillStyle='#FFFFFF';x.fillText(T('lugares de trabajo','workplaces'),80+nw+28,318);
-  x.font=`500 30px ${F}`;x.fillStyle='#BFD7FF';x.fillText(T(`a menos de ${radLabel('es',mi)}`,`within ${radLabel('en',mi)}`),80+nw+28,362);
+  const pill='MEALPOOL BY SALESVU';x.font=`800 22px ${F}`;const pw=x.measureText(pill).width+36;rr(x,80,56,pw,44,22);x.fillStyle='#EEEAFB';x.fill();x.fillStyle='#6D4FD8';x.fillText(pill,98,86);
+  x.font=`600 30px ${F}`;x.fillStyle=MP.blue;x.fillText(T('Pedidos de almuerzo cerca de','Lunch orders near'),80,160);
+  x.font=`800 50px ${F}`;x.fillStyle=MP.navy;const nl=wrap(x,R,920);x.fillText(nl[0]+(nl.length>1?'…':''),80,220);
+  x.font=`800 128px ${F}`;x.fillStyle=MP.navy;x.fillText(String(N),80,370);const nw=x.measureText(String(N)).width;
+  x.font=`700 34px ${F}`;x.fillStyle=MP.navy;x.fillText(T('lugares de trabajo','workplaces'),80+nw+28,318);
+  x.font=`500 30px ${F}`;x.fillStyle='#5B6B82';x.fillText(T(`a menos de ${radLabel('es',mi)}`,`within ${radLabel('en',mi)}`),80+nw+28,362);
   const cx=540,cy=690,rad=270;
-  [1,.5].forEach(k=>{x.beginPath();x.arc(cx,cy,rad*k,0,Math.PI*2);x.fillStyle='rgba(255,255,255,.035)';x.fill();
-    x.setLineDash([10,10]);x.strokeStyle='rgba(255,255,255,.22)';x.lineWidth=2;x.stroke();x.setLineDash([]);
-    x.font=`600 20px ${F}`;x.fillStyle='rgba(255,255,255,.6)';x.textAlign='center';x.fillText(`${mi*k} mi`,cx,cy-rad*k-10);x.textAlign='left';});
+  [1,.5].forEach(k=>{x.beginPath();x.arc(cx,cy,rad*k,0,Math.PI*2);x.fillStyle='#F5F8FF';x.fill();
+    x.setLineDash([10,10]);x.strokeStyle='rgba(19,47,82,.22)';x.lineWidth=2;x.stroke();x.setLineDash([]);
+    x.font=`600 20px ${F}`;x.fillStyle='#5B6B82';x.textAlign='center';x.fillText(`${mi*k} mi`,cx,cy-rad*k-10);x.textAlign='left';});
   const cos=Math.cos(c.lat*Math.PI/180),inner=72; // keep dots outside the logo in the middle
   const pos=p=>{let dx=(p.lon-c.lon)*cos*69.17/mi*rad,dy=-(p.lat-c.lat)*69.17/mi*rad;let d=Math.hypot(dx,dy)||1;
     const nd=inner+(d/rad)*(rad-6-inner);dx*=nd/d;dy*=nd/d;return [cx+dx,cy+dy];};
@@ -982,19 +985,21 @@ function drawRadar(){const W=1080,H=1350,cv=document.createElement('canvas');cv.
   pts.forEach(q=>{const dx=q[0]-cx,dy=q[1]-cy,d=Math.hypot(dx,dy)||1;if(d<inner){q[0]=cx+dx/d*inner;q[1]=cy+dy/d*inner;}});
   top.forEach((p,i)=>{const [px,py]=pts[i];x.beginPath();x.arc(px,py,17,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.fill();x.lineWidth=4;x.strokeStyle='#FFFFFF';x.stroke();
     x.fillStyle='#FFFFFF';x.font=`800 20px ${F}`;x.textAlign='center';x.fillText(String(i+1),px,py+7);x.textAlign='left';});
-  x.beginPath();x.arc(cx,cy,58,0,Math.PI*2);x.fillStyle='#FFFFFF';x.fill();drawLogo(x,cx,cy,52);
+  x.beginPath();x.arc(cx,cy,60,0,Math.PI*2);x.fillStyle=MP.ring;x.fill();drawLogo(x,cx,cy,56);
   // numbered list of the chosen workplaces, two columns
   let ly=1010;top.forEach((p,i)=>{const col=i%2,row=Math.floor(i/2),lx=80+col*470,yy=ly+row*44;
     x.beginPath();x.arc(lx+14,yy-8,14,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.fill();x.fillStyle='#FFFFFF';x.font=`800 16px ${F}`;x.textAlign='center';x.fillText(String(i+1),lx+14,yy-2);x.textAlign='left';
-    x.font=`600 24px ${F}`;x.fillStyle='#FFFFFF';let t=p.name;while(x.measureText(t+' · '+fmtMi(p.dist)+' mi').width>410&&t.length>4)t=t.slice(0,-2);if(t!==p.name)t=t.trim()+'…';
-    x.fillText(t,lx+38,yy);const tw=x.measureText(t).width;x.font=`500 22px ${F}`;x.fillStyle='#9FB3CC';x.fillText(' · '+fmtMi(p.dist)+' mi',lx+38+tw,yy);});
+    x.font=`600 24px ${F}`;x.fillStyle=MP.navy;let t=p.name;while(x.measureText(t+' · '+fmtMi(p.dist)+' mi').width>410&&t.length>4)t=t.slice(0,-2);if(t!==p.name)t=t.trim()+'…';
+    x.fillText(t,lx+38,yy);const tw=x.measureText(t).width;x.font=`500 22px ${F}`;x.fillStyle='#5B6B82';x.fillText(' · '+fmtMi(p.dist)+' mi',lx+38+tw,yy);});
   const counts={};lunch.places.forEach(p=>{counts[p.cat]=(counts[p.cat]||0)+1;});
   let lx=80;ly=1010+Math.ceil(top.length/2)*44+26;x.font=`600 22px ${F}`;
   Object.keys(CATS).filter(k=>counts[k]).forEach(k=>{const t=`${T(CATS[k].es,CATS[k].en)} ${counts[k]}`,w=x.measureText(t).width+40;if(lx+w>W-80){lx=80;ly+=36;}
-    x.beginPath();x.arc(lx+8,ly-7,8,0,Math.PI*2);x.fillStyle=CATS[k].color;x.fill();x.fillStyle='#CBD5E1';x.fillText(t,lx+24,ly);lx+=w+10;});
-  x.font=`700 30px ${F}`;x.fillStyle='#FFFFFF';x.textAlign='center';
-  x.fillText(T('Sus próximos clientes de la comida están a la vuelta de la esquina.','Your next lunch customers are right around the corner.'),W/2,H-80,W-120);
-  x.font=`500 22px ${F}`;x.fillStyle='#9FB3CC';x.fillText('MealPool by SalesVu',W/2,H-40);
+    x.beginPath();x.arc(lx+8,ly-7,8,0,Math.PI*2);x.fillStyle=CATS[k].color;x.fill();x.fillStyle='#4B5B73';x.fillText(t,lx+24,ly);lx+=w+10;});
+  // the order estimate, in a green call-out like the MealPool deck
+  const est=N>=EST.offices?T(`${EST.offices} oficinas × ${EST.people} almuerzos = ${EST.offices*EST.people} pedidos más por semana`,`${EST.offices} offices × ${EST.people} lunches = ${EST.offices*EST.people} more orders a week`)
+                         :T('Sus próximos clientes de la comida están a la vuelta de la esquina.','Your next lunch customers are right around the corner.');
+  rr(x,80,H-170,W-160,84,18);x.fillStyle='#EAF7F0';x.fill();x.font=`800 34px ${F}`;x.fillStyle='#0E5C3A';x.textAlign='center';x.fillText(est,W/2,H-116,W-200);
+  x.font=`500 22px ${F}`;x.fillStyle='#5B6B82';x.fillText(T('Ejemplo: si 3 oficinas piden para 10 personas una vez por semana.','Example: if 3 offices order for 10 people once a week.'),W/2,H-44,W-160);
   return cv.toDataURL('image/png');}
 
 /* Office flyer, in English, Spanish or both. */
@@ -1069,7 +1074,7 @@ function drawSample(kind){const R=v('r-name')||'Su restaurante',link=v('r-link')
     x.fillStyle=MP.green;rr(x,80,660,90,9,4);x.fill();
     x.fillStyle='#4B5B73';x.font=`500 36px ${F}`;['Pida directo con nosotros:','sin filas y sin llamar.'].forEach((l,i)=>x.fillText(l,80,740+i*48));
     x.fillStyle='#EAF7F0';rr(x,80,850,W-160,130,20);x.fill();x.fillStyle='#0E7A4E';x.font=`700 34px ${F}`;
-    x.fillText(link?'👉 '+wrap(x,link.replace(/^https?:\/\//,''),W-260)[0]:'👉 Enlace en la descripción · Link in the caption',110,928);
+    x.fillText(link?wrap(x,link.replace(/^https?:\/\//,''),W-260)[0]:'Enlace en la descripción · Link in the caption',110,928);
     samplePill(x,W);return cv.toDataURL('image/png');}
   // WhatsApp Status: group lunch with MealPool
   x.fillStyle='#EEEAFB';rr(x,80,120,420,56,28);x.fill();x.fillStyle='#6D4FD8';x.font=`800 26px ${F}`;x.textAlign='left';x.fillText('ALMUERZO EN GRUPO',108,158);
