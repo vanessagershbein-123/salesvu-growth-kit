@@ -121,8 +121,11 @@ h2 .b{color:var(--blue);display:block}
 .diner strong{font-size:16px}
 .diner span{color:var(--muted);font-size:14.5px}
 
-.free{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-@media (max-width:640px){.free{grid-template-columns:minmax(0,1fr)}}
+.free{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.free .card:nth-child(3){background:var(--card);border-color:var(--card-line)}
+.free .card:nth-child(3) .money{font-size:clamp(34px,4vw,44px)}
+.free .card:nth-child(3) .money small{display:block;margin:10px 0 0}
+@media (max-width:760px){.free{grid-template-columns:minmax(0,1fr)}}
 .free .card{text-align:center;position:relative;background:var(--blue-soft);border-color:#DCE6FB}
 .free .card::before{content:"";position:absolute;top:-1px;left:24px;width:40px;height:4px;border-radius:2px;background:var(--blue)}
 .free h3{margin:0 0 16px;padding-bottom:14px;border-bottom:1px solid #D3DEF5;font-size:18px;letter-spacing:.02em;text-transform:uppercase}
@@ -316,9 +319,9 @@ txt('c-sub',T('Pedidos de almuerzo en grupo de las oficinas cercanas, sin comisi
 
 /* Free for restaurants (deck slide 9). Only the two numbers that apply to every restaurant. */
 two('g-h',T('MealPool es gratis','MealPool is free'),T('para su restaurante','for your restaurant'));
-[[T('Sin comisiones','No commissions'),'0%',T('por pedido','per order')],[T('Sin mensualidad','No monthly fee'),'$0',T('al mes','per month')]]
+[[T('Sin comisiones','No commissions'),'0%',T('por pedido','per order')],[T('Sin mensualidad','No monthly fee'),'$0',T('al mes','per month')],[T('Instalación','Setup'),T('Única vez','One-time'),T('puede aplicar','may apply')]]
  .forEach(([h,n,s])=>{const d=el('div','card','<h3></h3><div class="money"></div>');d.children[0].textContent=h;d.children[1].textContent=n;const sm=el('small');sm.textContent=s;d.children[1].appendChild(sm);$('g-cards').appendChild(d);});
-txt('g-bar',T('Cada empleado paga su propio almuerzo. Usted solo paga el procesamiento normal de tarjetas.','Each employee pays for their own lunch. You only pay standard card processing.'));
+txt('g-bar',T('Cada empleado paga su propio almuerzo. Usted solo paga el procesamiento normal de tarjetas y, si aplica, una pequeña cuota única de instalación. Su representante se la confirma.','Each employee pays for their own lunch. You only pay standard card processing and, if it applies, a small one-time setup fee. Your rep will confirm it.'));
 
 /* Online presence */
 const LBL={order:['Pedidos en línea directos','Direct online orders'],apps:['Sin comisiones de apps de entrega','No delivery-app commissions'],web:['Página web con menú','Website with menu'],gmaps:['Google Maps con horario','Google Maps with hours'],fb:['Facebook activo','Active on Facebook']};
