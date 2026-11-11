@@ -819,6 +819,12 @@ function splitName(q){if(!q||/\s/.test(q.trim()))return titleCase(q);let t=q.toL
     out.push(t);t='';}
   // join leftover single letters back onto neighbours so we never show "L A"
   return titleCase(out.join(' ').replace(/\b(\w)\s(?=\w\b)/g,'$1'));}
+/* Does a place's name contain every meaningful word of the guessed name? ("Mi Madres Restaurant" ≈ "Mi Madre's", ≠ "Taco Madres") */
+function nameMatch(guess,placeName){const norm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/['’`]/g,'').replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(Boolean);
+  const GEN=/^(restaurant|restaurante|restaurants|mexican|mexicana|mexicano|grill|kitchen|bar|cafe|and|y|the|tex|mex|co|llc|inc)$/;
+  const want=norm(guess).filter(w=>!GEN.test(w)),have=norm(placeName);if(!want.length||!have.length)return false;
+  const same=(a,b)=>a===b||(a.length>=4&&b.length>=4&&(a.startsWith(b)||b.startsWith(a)));
+  return want.every(w=>have.some(h=>same(w,h)));}
 function titleCase(q){return String(q||'').replace(/\b([a-zà-ÿ])/g,(m,c)=>c.toUpperCase()).replace(/\b(De|Del|Y)\b(?!$)/g,(m,w,i)=>i===0?m:m.toLowerCase());}
 async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
   if(/https?:\/\//i.test(v('r-addr')))$('r-addr').value=pickLink(v('r-addr'));
@@ -842,6 +848,9 @@ async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
       else list=await googleSearch((name+' '+addrText).trim(),near);
       src='Google';}catch(e){console.warn(e);}}
   if((!list||!list.length)&&name){list=await osmSearch(name,addrText,near);src='OpenStreetMap';}
+  // A name guessed from a web address is weak: keep only places whose name really matches it (or that list this website),
+  // so "mimadresrestaurant.com" never turns into some other "Taco Madres" in another state.
+  if(site&&guess&&name===guess.q&&list&&list.length)list=list.filter(p=>p.addrOnly?false:((guess.domain&&(p.web||'').includes(guess.domain))||nameMatch(guess.q,p.name)));
   if(near&&list&&list.length&&list[0].lat!=null&&distMi(near.lat,near.lon,list[0].lat,list[0].lon)>0.3)list=[]; // same name, different location: trust the pin
   if((!list||!list.length)&&near){let addr='';try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${near.lat}&lon=${near.lon}`);if(r.ok){const a=(await r.json()).address||{};addr=[[a.house_number,a.road].filter(Boolean).join(' '),a.city||a.town||a.village||'',a.state||''].filter(Boolean).join(', ');}}catch(e){}
     list=[{src:'Google Maps',addrOnly:true,pin:true,name,addr,lat:near.lat,lon:near.lon}];}
