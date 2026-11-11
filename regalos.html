@@ -267,7 +267,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 
     <div class="col">
       <article class="out">
-        <div class="out-head"><div><h3><span class="es">Resumen para usted</span><span class="en">Summary for you</span></h3><p><span class="es">Lo que va a ver el dueño, en orden de importancia.</span><span class="en">What the owner will see, in order of importance.</span></p></div></div>
+        <div class="out-head"><div><h3><span class="es">Su pitch: más ventas para el dueño</span><span class="en">Your pitch: more sales for the owner</span></h3><p><span class="es">Dígalo así en la llamada. Es lo mismo que va en la imagen y el mensaje.</span><span class="en">Say it like this on the call. It matches the image and the message.</span></p></div></div>
         <div class="summary" id="summary"></div>
       </article>
 
@@ -374,29 +374,29 @@ function updLogoPrev(){const p=$('logo-prev');p.innerHTML='';if(logoImg){const i
 
 /* ---------- Part 1: 5 quick questions ----------
    Kept short on purpose: this is sales collateral, so we only ask what leads to SalesVu's pitch.
-   w = points toward the score (sums to 100). p = how urgent the fix is (sets the order of the 3 opportunities).
+   w = points toward the score (sums to 100). p = how urgent the fix is (sets the order of the top 3 ways to sell more).
    who: sv = SalesVu does it · kit = included free in this kit · owner = free tip the owner can do. bad:'yes' = a "yes" is the problem. */
 const CHECKS=[
  {id:'order',w:30,p:100,who:'sv',
   q:{es:'¿Sus clientes pueden pedir en línea directo, sin apps?',en:'Can customers order online directly, without apps?'},
   good:{es:'Recibe pedidos en línea directos',en:'Takes direct online orders'},
-  fix:{es:'Tenga su propio enlace de pedidos: sus clientes piden directo y usted no paga comisión por cada pedido.',en:'Get its own ordering link: customers order directly and there is no commission on each order.'}},
+  fix:{es:'Más pedidos directos: sus clientes piden en línea con usted, sin pasar por las apps. Nosotros le armamos su enlace de pedidos.',en:'More direct orders: customers order online straight from the restaurant, not through the apps. We set up the ordering link.'}},
  {id:'apps',w:15,p:90,who:'sv',bad:'yes',
   q:{es:'¿Paga comisión a DoorDash, Uber Eats o Grubhub?',en:'Pays commission to DoorDash, Uber Eats or Grubhub?'},
   good:{es:'No paga comisiones a apps de entrega',en:'Pays no delivery-app commissions'},
-  fix:{es:'Las apps de entrega cobran entre 15% y 30% por pedido. Invite a sus clientes de siempre a pedir por su propio enlace.',en:'Delivery apps charge 15–30% per order. Invite regulars to order through the restaurant\'s own link.'}},
+  fix:{es:'Más ganancia en cada pedido: las apps cobran entre 15% y 30%. Con su propio enlace, sus clientes de siempre piden sin esa comisión.',en:'More profit on every order: the apps charge 15–30%. With its own link, regulars order without that commission.'}},
  {id:'web',w:20,p:80,who:'sv',
   q:{es:'¿Tiene página web con su menú?',en:'Website with its menu?'},
   good:{es:'Tiene su menú en internet',en:'Has its menu online'},
-  fix:{es:'Le preparamos una página con su menú y sus precios. Usted solo la revisa.',en:'We prepare a page with the menu and prices. The owner just reviews it.'}},
+  fix:{es:'Más clientes nuevos: que encuentren su menú y sus precios en internet. Nosotros le preparamos la página.',en:'More new customers: people find the menu and prices online. We prepare the page.'}},
  {id:'gmaps',w:20,p:75,who:'owner',
   q:{es:'¿Aparece en Google Maps con su horario?',en:'On Google Maps with its hours?'},
   good:{es:'Aparece en Google Maps con su horario',en:'Shows up on Google Maps with its hours'},
-  fix:{es:'Revise su perfil de Google: horario, teléfono y dirección. Es lo primero que ven los clientes nuevos.',en:'Check the Google profile: hours, phone and address. It is the first thing new customers see.'}},
+  fix:{es:'No pierda a los clientes que lo buscan: ponga su horario, teléfono y dirección correctos en Google.',en:'Don\'t lose customers who are looking for it: correct hours, phone and address on Google.'}},
  {id:'fb',w:15,p:70,who:'kit',
   q:{es:'¿Publicó en Facebook en el último mes?',en:'Posted on Facebook in the last month?'},
   good:{es:'Está activo en Facebook',en:'Active on Facebook'},
-  fix:{es:'Publique 2 veces por semana: el platillo del día o fotos de sus clientes. Le damos imágenes listas con su logo.',en:'Post twice a week: the dish of the day or customer photos. We provide ready images with the logo.'}}
+  fix:{es:'Más clientes que regresan: publique 2 veces por semana. Le damos las imágenes listas con su logo.',en:'More repeat customers: post twice a week. We provide ready images with the logo.'}}
 ];
 const TAGS={sv:{es:'Nosotros lo hacemos',en:'SalesVu does it',cls:''},kit:{es:'Incluido gratis en este kit',en:'Included free in this kit',cls:'ok'},owner:{es:'Consejo gratis',en:'Free tip',cls:'warn'}};
 const EXAMPLE={order:'no',apps:'yes',web:'no',gmaps:'yes',fb:'yes'};
@@ -520,14 +520,18 @@ $('lookup').onclick=async()=>{const st=$('lookup-st');const link=v('r-url')?read
 
 /* ---------- Summary for the rep ---------- */
 function L(o){return EN()?o.en:o.es;}
-function renderSummary(){const r=evaluate(),el=$('summary');
-  const col=r.score==null?'var(--muted)':r.score<50?'var(--warn)':r.score<75?'var(--blue)':'var(--ok)';
-  let h=`<div class="score-row"><span class="eyebrow">${EN()?'Online presence':'Presencia en internet'}</span><strong style="color:${col}">${r.score==null?'—':r.score+'/100'}</strong></div>
-  <div class="bar"><span style="width:${r.score||0}%;background:${col}"></span></div>`;
-  if(r.good.length)h+=`<p class="goods"><strong>${EN()?'Already doing well:':'Ya hace bien:'}</strong> ${r.good.slice(0,3).map(c=>L(c.good)).join(' · ')}</p>`;
-  if(r.top.length){h+=`<ol class="opps">`+r.top.map((c,i)=>`<li><span class="num">${i+1}</span><div><p>${L(c.fix)}</p><span class="pill ${TAGS[c.who].cls}">${L(TAGS[c.who])}</span></div></li>`).join('')+`</ol>`;}
-  else h+=`<p class="goods">${EN()?'No gaps found. Lead with MealPool: group lunch orders from nearby offices.':'No hay huecos. Hable de MealPool: pedidos de almuerzo en grupo de oficinas cercanas.'}</p>`;
-  if(r.unk.length)h+=`<p class="hint">${EN()?'Not checked':'Sin revisar'}: ${r.unk.map(c=>L(c.q)).join(' · ')}</p>`;
+function renderSummary(){const r=evaluate(),el=$('summary'),R=v('r-name')||(EN()?'the restaurant':'su restaurante'),O=v('r-owner');
+  const n=r.top.length;let h='';
+  const open=EN()?`"${O?O+', ':''}I looked at how ${R} shows up online and found ${n?n+' way'+(n>1?'s':''):'a way'} to get you more sales."`
+    :`«${O?O+', ':''}revisé cómo aparece ${R} en internet y encontré ${n===0?'una forma':n===1?'una forma':n+' formas'} de conseguirle más ventas.»`;
+  h+=`<p style="margin:0;font-size:16px;font-weight:600">${open}</p>`;
+  if(n)h+=`<ol class="opps">`+r.top.map((c,i)=>`<li><span class="num">${i+1}</span><div><p>${L(c.fix)}</p><span class="pill ${TAGS[c.who].cls}">${L(TAGS[c.who])}</span></div></li>`).join('')+`</ol>`;
+  else h+=`<ol class="opps"><li><span class="num">1</span><div><p>${EN()?'More lunch sales: group orders from nearby offices with MealPool.':'Más ventas a la hora de la comida: pedidos en grupo de oficinas cercanas con MealPool.'}</p><span class="pill">${L(TAGS.sv)}</span></div></li></ol>`;
+  h+=`<p style="margin:0;font-size:15px">${EN()?`"Can I send you this on WhatsApp so we can go over it ${v('r-next')||'tomorrow'}?"`:`«¿Le mando esto por WhatsApp y lo revisamos ${v('r-next')||'mañana'}?»`}</p>`;
+  const extra=[r.good.length?(EN()?'Already doing well: ':'Ya hace bien: ')+r.good.slice(0,3).map(c=>L(c.good)).join(' · '):'',
+    r.score!=null?(EN()?`Score (for you): ${r.score}/100`:`Puntaje (para usted): ${r.score}/100`):'',
+    r.unk.length?(EN()?'Not checked: ':'Sin revisar: ')+r.unk.map(c=>L(c.q)).join(' · '):''].filter(Boolean);
+  if(extra.length)h+=`<p class="hint" style="margin:0">${extra.join('<br>')}</p>`;
   el.innerHTML=h;}
 
 /* ---------- WhatsApp message (Spanish for the owner, English for team review) ---------- */
@@ -536,7 +540,7 @@ function buildMsg(lang){const es=lang==='es',r=evaluate(),R=v('r-name')||(es?'su
   m.push(es?`Buen día${O?', '+O:''}. Soy ${rep}, de SalesVu.`:`Good day${O?', '+O:''}. This is ${rep} from SalesVu.`);
   m.push(es?`Como le comenté, le preparé un chequeo gratis de cómo aparece ${R} en internet. Se lo mando en la imagen.`:`As I mentioned, I put together a free check-up of how ${R} shows up online. It's in the image.`);
   if(r.good.length)m.push((es?'Lo que ya hace bien:\n':'What you already do well:\n')+r.good.slice(0,3).map(c=>'✅ '+T(c.good)).join('\n'));
-  if(r.top.length){m.push((es?`${r.top.length===1?'Una oportunidad':r.top.length+' oportunidades'} para conseguir más pedidos esta semana:\n`:`${r.top.length===1?'One opportunity':r.top.length+' opportunities'} to get more orders this week:\n`)+r.top.map((c,i)=>`${i+1}. ${T(c.fix)}`).join('\n'));
+  if(r.top.length){m.push((es?`Encontré ${r.top.length===1?'una forma':r.top.length+' formas'} de conseguirle más ventas:\n`:`I found ${r.top.length===1?'one way':r.top.length+' ways'} to get you more sales:\n`)+r.top.map((c,i)=>`${i+1}. ${T(c.fix)}`).join('\n'));
     if(r.top.some(c=>c.who!=='owner'))m.push(es?'Lo que le toca a SalesVu se lo dejamos listo, sin que usted tenga que hacer nada.':'Whatever is on SalesVu\'s side, we set up for you, with nothing for you to do.');}
   else m.push(es?`${R} está muy bien en internet. El siguiente paso es llenar la hora de la comida con pedidos en grupo de oficinas cercanas, con MealPool.`:`${R} is in great shape online. The next step is filling lunchtime with group orders from nearby offices, with MealPool.`);
   if(link)m.push((es?'Aquí puede ver la tienda en línea que le preparamos:\n':'Here\'s the online store we set up for you:\n')+link);
@@ -563,7 +567,7 @@ function drawReport(){const W=1080,c=document.createElement('canvas');c.width=W;
   const g=x.createRadialGradient(W,0,40,W,0,620);g.addColorStop(0,'rgba(0,102,255,.55)');g.addColorStop(1,'rgba(0,102,255,0)');x.fillStyle=g;x.fillRect(0,0,W,320);
   x.textAlign='left';x.textBaseline='alphabetic';
   x.font=`800 44px ${F}`;x.fillStyle='#FFFFFF';x.fillText('Sales',80,104);const sw=x.measureText('Sales').width;x.fillStyle='#4B93FF';x.fillText('Vu',80+sw,104);
-  x.font=`600 26px ${F}`;x.fillStyle='#BFD7FF';x.fillText('Chequeo en línea gratis para',80,180);
+  x.font=`600 26px ${F}`;x.fillStyle='#BFD7FF';x.fillText('Chequeo gratis · Más ventas para',80,180);
   x.font=`800 52px ${F}`;x.fillStyle='#FFFFFF';const nl=wrap(x,R,700);x.fillText(nl[0]+(nl.length>1?'…':''),80,244);
   drawLogo(x,W-170,320,100,'#FFFFFF',brandColor);x.lineWidth=8;x.strokeStyle='#FFFFFF';x.beginPath();x.arc(W-170,320,100,0,Math.PI*2);x.stroke();
   let y=476;
@@ -576,7 +580,7 @@ function drawReport(){const W=1080,c=document.createElement('canvas');c.width=W;
     x.font=`500 28px ${F}`;r.good.slice(0,3).forEach(gd=>{x.strokeStyle=green;x.lineWidth=5;x.lineCap='round';x.lineJoin='round';x.beginPath();x.moveTo(84,y-10);x.lineTo(94,y);x.lineTo(112,y-22);x.stroke();
       x.fillStyle=ink;x.fillText(gd.good.es,130,y);y+=44;});y+=30;}
   x.font=`800 44px ${F}`;x.fillStyle=ink;
-  const title=r.top.length?`${r.top.length===1?'Una oportunidad':r.top.length+' oportunidades'} para conseguir más pedidos esta semana`:'Su restaurante está muy bien en internet';
+  const title=r.top.length?`${r.top.length===1?'Una forma':r.top.length+' formas'} de vender más`:'Su restaurante está muy bien en internet';
   wrap(x,title,W-160).forEach(l=>{x.fillText(l,80,y+10);y+=56;});y+=24;
   const tagCol={sv:['#E6F0FF',blue],kit:['#E7F5EC',green],owner:['#FDF1DE','#9A5B00']};
   if(r.top.length){r.top.forEach((cki,i)=>{x.font=`500 30px ${F}`;const lines=wrap(x,cki.fix.es,W-160-130);const h=40+lines.length*42+56;
