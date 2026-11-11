@@ -163,6 +163,17 @@ details pre{white-space:pre-wrap;font-family:var(--font);font-size:13px;backgrou
 .addrow{display:grid;grid-template-columns:minmax(0,1fr) auto 76px auto;gap:6px;margin-top:10px}
 @media (max-width:520px){.addrow{grid-template-columns:1fr 1fr}}
 .empty{color:var(--muted);font-size:14px;margin:0}
+.btn.big{font-size:16px;padding:12px 22px;border-radius:12px}
+.go-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.go-row .status{font-size:13px}
+details.more{border-top:1px solid var(--line);padding-top:12px}
+details.more>summary,details.panel>summary{font-size:13px;color:var(--muted)}
+details.panel[open]>summary{margin-bottom:14px}
+.pitch-open{margin:0;font-size:17px;font-weight:600;line-height:1.45}
+.samples{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:16px}
+.sample{display:grid;gap:8px;align-content:start;min-width:0}
+.sample img{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+.sample p{margin:0;font-size:12px;color:var(--muted)}
 dialog{border:1px solid var(--line);border-radius:var(--r-lg);padding:0;background:var(--surface);color:var(--fg);width:min(520px,calc(100vw - 32px))}
 dialog::backdrop{background:rgba(6,18,31,.55)}
 .dlg{display:grid;gap:14px;padding:22px}
@@ -188,11 +199,10 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
       </div>
     </div>
     <h1><span class="es">Algo útil para el dueño, antes de pedirle algo</span><span class="en">Something useful for the owner, before asking for anything</span></h1>
-    <p class="lede"><span class="es">Prepare un regalo gratis con los datos del restaurante: un chequeo en línea, marketing listo para usar, y las oficinas cercanas que pueden pedir almuerzo en grupo con MealPool.</span><span class="en">Make a free gift from the restaurant's details: an online check-up, ready-to-use marketing, and the nearby offices that could order group lunch with MealPool.</span></p>
+    <p class="lede"><span class="es">Escriba el restaurante una vez y obtenga dos regalos para el dueño: las oficinas cerca que pueden pedir almuerzo con MealPool, y un chequeo de su presencia en línea con lo que SalesVu le resuelve.</span><span class="en">Enter the restaurant once and get two gifts for the owner: the nearby offices that could order lunch with MealPool, and a check of their online presence with what SalesVu fixes.</span></p>
     <nav class="tabs" aria-label="Secciones">
-      <a href="#chequeo" id="tab-chequeo" aria-current="page"><span class="es">1 · Chequeo en línea</span><span class="en">1 · Online check-up</span></a>
-      <a href="#marketing" id="tab-marketing"><span class="es">2 · Kit de marketing</span><span class="en">2 · Marketing kit</span></a>
-      <a href="#almuerzos" id="tab-almuerzos"><span class="es">3 · Almuerzos cerca</span><span class="en">3 · Lunch nearby</span></a>
+      <a href="#oficinas" id="tab-oficinas" aria-current="page"><span class="es">1 · Oficinas cerca</span><span class="en">1 · Offices nearby</span></a>
+      <a href="#presencia" id="tab-presencia"><span class="es">2 · Presencia en línea</span><span class="en">2 · Online presence</span></a>
       <a href="index.html" class="ext"><span class="es">Kit de ventas ↗</span><span class="en">Sales kit ↗</span></a>
     </nav>
   </div>
@@ -200,12 +210,12 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 
 <main class="wrap">
 
-<!-- ================= PART 0: SHARED RESTAURANT DETAILS ================= -->
+<!-- ================= THE RESTAURANT (used by both gifts) ================= -->
 <section class="panel shared" aria-labelledby="shared-h">
   <div class="shared-head">
     <div>
       <div class="eyebrow" id="shared-h"><span class="es">El restaurante</span><span class="en">The restaurant</span></div>
-      <span class="hint"><span class="es">Escríbalo una vez. Los tres regalos usan estos datos.</span><span class="en">Enter it once. All three gifts use these details.</span></span>
+      <span class="hint"><span class="es">Escriba el nombre y la dirección, o pegue el enlace de Google Maps. Un clic prepara los dos regalos.</span><span class="en">Type the name and address, or paste the Google Maps link. One click makes both gifts.</span></span>
     </div>
     <button type="button" class="btn small" id="reset"><span class="es">Borrar el ejemplo</span><span class="en">Clear the example</span></button>
   </div>
@@ -215,142 +225,79 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
       <input type="text" id="r-name" value="Taquería Los Compadres">
     </div>
     <div class="field wide">
-      <label for="r-addr"><span class="es">Dirección (calle y ciudad)</span><span class="en">Address (street and city)</span></label>
-      <input type="text" id="r-addr" value="2400 Navigation Blvd, Houston, TX">
-    </div>
-    <div class="field">
-      <label for="r-owner"><span class="es">Nombre del dueño</span><span class="en">Owner's name</span></label>
-      <input type="text" id="r-owner" value="Don Ramiro" placeholder="Opcional">
-    </div>
-    <div class="field">
-      <label for="r-rep"><span class="es">Su nombre</span><span class="en">Your name</span></label>
-      <input type="text" id="r-rep" value="Andrea">
+      <label for="r-addr"><span class="es">Dirección o enlace de Google Maps</span><span class="en">Address or Google Maps link</span></label>
+      <input type="text" id="r-addr" value="2400 Navigation Blvd, Houston, TX" placeholder="Calle y ciudad, o https://www.google.com/maps/place/…">
     </div>
     <div class="field wide">
-      <label for="r-link"><span class="es">Enlace de la tienda en línea</span><span class="en">Online store link</span></label>
+      <label for="r-link"><span class="es">Enlace de la tienda en línea (del CRM)</span><span class="en">Online store link (from the CRM)</span></label>
       <input type="url" id="r-link" placeholder="https://…">
-      <span class="hint"><span class="es">La tienda que SalesVu preparó para este restaurante. Va en los mensajes y los códigos QR.</span><span class="en">The store SalesVu set up for this restaurant. It goes in the messages and QR codes.</span></span>
-    </div>
-    <div class="field">
-      <span class="lbl"><span class="es">Logo</span><span class="en">Logo</span></span>
-      <div class="logo-row">
-        <div class="logo-prev" id="logo-prev">TC</div>
-        <label class="btn small" for="r-logo"><span class="es">Subir logo</span><span class="en">Upload logo</span></label>
-        <input type="file" id="r-logo" accept="image/*" hidden>
-      </div>
-    </div>
-    <div class="field">
-      <span class="lbl"><span class="es">Color del restaurante</span><span class="en">Restaurant color</span></span>
-      <div class="swatches" id="swatches"></div>
+      <span class="hint"><span class="es">Va en los mensajes y los códigos QR.</span><span class="en">It goes in the messages and QR codes.</span></span>
     </div>
   </form>
+  <div class="go-row">
+    <button type="button" class="btn primary big" id="go"><span class="es">Preparar los regalos</span><span class="en">Make the gifts</span></button>
+    <div class="status" id="go-st" role="status"></div>
+  </div>
+  <div class="found" id="found"></div>
+  <details class="more" id="more">
+    <summary><span class="es">Más opciones: dueño, su nombre, logo, idioma</span><span class="en">More options: owner, your name, logo, language</span></summary>
+    <div class="shared-grid" style="margin-top:14px">
+      <div class="field">
+        <label for="r-owner"><span class="es">Nombre del dueño</span><span class="en">Owner's name</span></label>
+        <input type="text" id="r-owner" value="Don Ramiro" placeholder="Opcional">
+      </div>
+      <div class="field">
+        <label for="r-rep"><span class="es">Su nombre</span><span class="en">Your name</span></label>
+        <input type="text" id="r-rep" value="Andrea">
+      </div>
+      <div class="field">
+        <span class="lbl"><span class="es">Logo (si no hay, se crea uno)</span><span class="en">Logo (one is made if there's none)</span></span>
+        <div class="logo-row">
+          <div class="logo-prev" id="logo-prev"></div>
+          <label class="btn small" for="r-logo"><span class="es">Subir logo</span><span class="en">Upload logo</span></label>
+          <input type="file" id="r-logo" accept="image/*" hidden>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lbl"><span class="es">Color del restaurante</span><span class="en">Restaurant color</span></span>
+        <div class="swatches" id="swatches"></div>
+      </div>
+      <div class="field">
+        <span class="lbl"><span class="es">Idioma del dueño</span><span class="en">Owner's language</span></span>
+        <div class="tri" role="radiogroup" aria-label="Idioma del dueño">
+          <label><input type="radio" name="olang" value="es" checked><span>Español</span></label>
+          <label><input type="radio" name="olang" value="en"><span>English</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lbl"><span class="es">Distancia para buscar oficinas</span><span class="en">Distance to search for offices</span></span>
+        <div class="tri" role="radiogroup" aria-label="Distancia">
+          <label><input type="radio" name="radius" value="0.5"><span>½ mi</span></label>
+          <label><input type="radio" name="radius" value="1" checked><span>1 mi</span></label>
+          <label><input type="radio" name="radius" value="2"><span>2 mi</span></label>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="show-score" checked><span><span class="es">Mostrar el puntaje en la imagen del chequeo</span><span class="en">Show the score on the check-up image</span></span></label>
+    </div>
+  </details>
 </section>
 
-<!-- ================= PART 1: ONLINE HEALTH CHECK ================= -->
-<section id="view-chequeo" aria-labelledby="tab-chequeo">
+<!-- ================= GIFT 1: OFFICES NEARBY (MealPool) ================= -->
+<section id="view-oficinas" aria-labelledby="tab-oficinas">
   <div class="tool">
     <div class="col">
-      <div class="panel col">
-        <h2 class="step-h"><span class="num">1</span><span class="es">Busque el restaurante</span><span class="en">Look up the restaurant</span></h2>
-        <div class="field">
-          <label for="r-url"><span class="es">Enlace de Google Maps o página del restaurante (opcional)</span><span class="en">Google Maps link or restaurant website (optional)</span></label>
-          <input type="url" id="r-url" placeholder="https://www.google.com/maps/place/…">
-          <span class="hint"><span class="es">Con el enlace de Google Maps se encuentra el restaurante exacto. Con su página web, la herramienta ve si ya vende en línea o en apps.</span><span class="en">A Google Maps link finds the exact restaurant. A website link shows whether it already sells online or through apps.</span></span>
-        </div>
-        <div class="btns">
-          <button type="button" class="btn primary" id="lookup"><span class="es">Buscar y llenar automáticamente</span><span class="en">Look up and auto-fill</span></button>
-        </div>
-        <div class="status" id="lookup-st" role="status"></div>
-        <div class="found" id="found"></div>
-        <div>
-          <div class="hint" style="margin-bottom:6px"><span class="es">Revise usted mismo (se abre en otra pestaña):</span><span class="en">Check for yourself (opens in a new tab):</span></div>
-          <div class="links" id="links"></div>
-        </div>
-      </div>
-
-      <div class="panel col">
-        <h2 class="step-h"><span class="num">2</span><span class="es">Confirme las respuestas</span><span class="en">Confirm the answers</span></h2>
-        <span class="hint"><span class="es">5 preguntas. Las que dicen <span class="pill">Google</span> se llenaron solas.</span><span class="en">5 questions. Ones marked <span class="pill">Google</span> filled in automatically.</span></span>
-        <div class="qs" id="qs"></div>
-      </div>
-
-      <div class="panel col">
-        <h2 class="step-h"><span class="num">3</span><span class="es">Cierre</span><span class="en">Wrap up</span></h2>
-        <div class="field">
-          <label for="r-next"><span class="es">¿Cuándo vuelve a llamar?</span><span class="en">When will you call back?</span></label>
-          <input type="text" id="r-next" value="mañana a las 3 de la tarde">
-          <span class="hint"><span class="es">Escríbalo en español: "hoy a las 4".</span><span class="en">Type it in Spanish, e.g. "hoy a las 4".</span></span>
-        </div>
-        <div class="field">
-          <span class="lbl"><span class="es">Idioma para el dueño (imagen y mensaje)</span><span class="en">Owner's language (image and message)</span></span>
-          <div class="tri" role="radiogroup" aria-label="Idioma para el dueño">
-            <label><input type="radio" name="olang" value="es" checked><span>Español</span></label>
-            <label><input type="radio" name="olang" value="en"><span>English</span></label>
-          </div>
-        </div>
-        <label class="check"><input type="checkbox" id="show-score" checked><span><span class="es">Mostrar el puntaje en la imagen para el dueño</span><span class="en">Show the score on the owner's image</span></span></label>
-      </div>
-    </div>
-
-    <div class="col">
-      <article class="out">
-        <div class="out-head"><div><h3><span class="es">Su pitch: más ventas para el dueño</span><span class="en">Your pitch: more sales for the owner</span></h3><p><span class="es">Dígalo así en la llamada. Es lo mismo que va en la imagen y el mensaje.</span><span class="en">Say it like this on the call. It matches the image and the message.</span></p></div></div>
-        <div class="summary" id="summary"></div>
-      </article>
-
       <article class="out">
         <div class="out-head">
-          <div><h3><span class="num">A</span><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h3><p><span class="es">Mándela por WhatsApp junto con el mensaje.</span><span class="en">Send it on WhatsApp with the message.</span></p></div>
-          <div class="btns"><button type="button" class="btn small" id="copy-report"><span class="es">Copiar imagen</span><span class="en">Copy image</span></button><a class="btn small" id="dl-report" download="chequeo.png"><span class="es">Descargar</span><span class="en">Download</span></a></div>
+          <div><h3><span class="es">Qué decir en la llamada</span><span class="en">What to say on the call</span></h3><p><span class="es">Con los datos reales del área, en el idioma del dueño.</span><span class="en">Built from the real area data, in the owner's language.</span></p></div>
+          <button type="button" class="btn small" id="copy-pitch"><span class="es">Copiar</span><span class="en">Copy</span></button>
         </div>
-        <div class="shot"><img id="img-report" alt="Chequeo en línea para el dueño"></div>
-        <div class="status" id="st-report" role="status"></div>
+        <div class="summary" id="lunch-pitch"></div>
+        <div class="status" id="st-pitch" role="status"></div>
       </article>
-
-      <article class="out">
-        <div class="out-head">
-          <div><h3><span class="num">B</span><span class="es">Mensaje de WhatsApp</span><span class="en">WhatsApp message</span></h3><p><span class="es">Puede editar el texto aquí antes de copiarlo.</span><span class="en">You can edit the text here before copying.</span></p></div>
-          <button type="button" class="btn primary small" id="copy-wa"><span class="es">Copiar mensaje</span><span class="en">Copy message</span></button>
-        </div>
-        <textarea id="wa" aria-label="Mensaje de WhatsApp"></textarea>
-        <div class="status" id="st-wa" role="status"></div>
-        <details><summary><span class="es">Ver en el otro idioma</span><span class="en">Other-language version</span></summary><pre id="wa-en"></pre></details>
-      </article>
-
-      <div class="warnbox"><strong><span class="es">Usted revisa y envía.</span><span class="en">You review and send.</span></strong> <span class="es">La herramienta no manda nada. No agregue precios ni cuotas en el mensaje.</span><span class="en">The tool never sends anything. Don't add prices or fees to the message.</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= PART 2 / PART 3 (next) ================= -->
-<section id="view-marketing" aria-labelledby="tab-marketing" hidden>
-  <div class="panel soon">
-    <span class="pill warn"><span class="es">Próximamente</span><span class="en">Coming next</span></span>
-    <h2><span class="es">Kit de marketing</span><span class="en">Marketing kit</span></h2>
-    <p><span class="es">Calcomanía con QR, tarjeta de mesa, estado de WhatsApp y publicación de Facebook, con el logo del restaurante.</span><span class="en">QR window sticker, table tent, WhatsApp Status and Facebook post, with the restaurant's logo.</span></p>
-  </div>
-</section>
-<section id="view-almuerzos" aria-labelledby="tab-almuerzos" hidden>
-  <div class="tool">
-    <div class="col">
-      <div class="panel col">
-        <h2 class="step-h"><span class="num">1</span><span class="es">Busque lugares de trabajo cerca</span><span class="en">Find workplaces nearby</span></h2>
-        <span class="hint"><span class="es">Usa la dirección de arriba. Busca oficinas, clínicas, escuelas, gobierno y negocios con empleados.</span><span class="en">Uses the address above. Looks for offices, clinics, schools, government and businesses with staff.</span></span>
-        <div class="field">
-          <span class="lbl"><span class="es">Distancia</span><span class="en">Distance</span></span>
-          <div class="tri" role="radiogroup" aria-label="Distancia">
-            <label><input type="radio" name="radius" value="0.5"><span><span class="es">½ milla</span><span class="en">½ mile</span></span></label>
-            <label><input type="radio" name="radius" value="1" checked><span><span class="es">1 milla</span><span class="en">1 mile</span></span></label>
-            <label><input type="radio" name="radius" value="2"><span><span class="es">2 millas</span><span class="en">2 miles</span></span></label>
-          </div>
-        </div>
-        <div class="btns"><button type="button" class="btn primary" id="lunch-search"><span class="es">Buscar lugares cerca</span><span class="en">Find places nearby</span></button></div>
-        <div class="status" id="lunch-st" role="status"></div>
-      </div>
 
       <div class="panel col" id="lunch-pick" hidden>
-        <h2 class="step-h"><span class="num">2</span><span class="es">Elija a quién invitar</span><span class="en">Choose who to invite</span></h2>
-        <span class="hint"><span class="es">Los 5 más cercanos ya están marcados. Cada uno recibe su propio volante.</span><span class="en">The 5 closest are already ticked. Each one gets its own flyer.</span></span>
+        <h2 class="step-h"><span class="es">Oficinas para invitar</span><span class="en">Offices to invite</span></h2>
+        <span class="hint"><span class="es">Las 5 más cercanas ya están marcadas. Cada una recibe su volante.</span><span class="en">The 5 closest are ticked. Each one gets a flyer.</span></span>
         <div class="chips" id="lunch-chips"></div>
         <div class="plist" id="lunch-list"></div>
         <details>
@@ -364,41 +311,43 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
         </details>
       </div>
 
-      <div class="panel col">
-        <h2 class="step-h"><span class="num">3</span><span class="es">Detalles del almuerzo</span><span class="en">Lunch details</span></h2>
-        <div class="row2">
-          <div class="field"><label for="l-cutoff"><span class="es">Pedir antes de</span><span class="en">Order by</span></label><input type="text" id="l-cutoff" value="10:30 am"></div>
-          <div class="field"><label for="l-time"><span class="es">Almuerzo listo a las</span><span class="en">Lunch ready at</span></label><input type="text" id="l-time" value="12:00 pm"></div>
-        </div>
-        <div class="field">
-          <span class="lbl"><span class="es">¿Cómo reciben la comida?</span><span class="en">How do they get the food?</span></span>
-          <div class="tri" role="radiogroup" aria-label="Entrega">
-            <label><input type="radio" name="l-mode" value="deliver" checked><span><span class="es">Entrega a la oficina</span><span class="en">Delivered</span></span></label>
-            <label><input type="radio" name="l-mode" value="pickup"><span><span class="es">Recogen en el restaurante</span><span class="en">Pickup</span></span></label>
+      <details class="panel">
+        <summary><span class="es">Ajustar el almuerzo: horas, entrega, idioma del volante</span><span class="en">Adjust the lunch: times, delivery, flyer language</span></summary>
+        <div class="col">
+          <div class="row2">
+            <div class="field"><label for="l-cutoff"><span class="es">Pedir antes de</span><span class="en">Order by</span></label><input type="text" id="l-cutoff" value="10:30 am"></div>
+            <div class="field"><label for="l-time"><span class="es">Almuerzo listo a las</span><span class="en">Lunch ready at</span></label><input type="text" id="l-time" value="12:00 pm"></div>
+          </div>
+          <div class="field">
+            <span class="lbl"><span class="es">¿Cómo reciben la comida?</span><span class="en">How do they get the food?</span></span>
+            <div class="tri" role="radiogroup" aria-label="Entrega">
+              <label><input type="radio" name="l-mode" value="deliver" checked><span><span class="es">Entrega a la oficina</span><span class="en">Delivered</span></span></label>
+              <label><input type="radio" name="l-mode" value="pickup"><span><span class="es">Recogen en el restaurante</span><span class="en">Pickup</span></span></label>
+            </div>
+          </div>
+          <div class="field">
+            <span class="lbl"><span class="es">Idioma del volante y el correo para la oficina</span><span class="en">Language of the office flyer and email</span></span>
+            <div class="tri" role="radiogroup" aria-label="Idioma para la oficina">
+              <label><input type="radio" name="l-lang" value="en" checked><span>English</span></label>
+              <label><input type="radio" name="l-lang" value="es"><span>Español</span></label>
+              <label><input type="radio" name="l-lang" value="both"><span><span class="es">Bilingüe</span><span class="en">Bilingual</span></span></label>
+            </div>
           </div>
         </div>
-        <div class="field">
-          <span class="lbl"><span class="es">Idioma del volante y el correo para la oficina</span><span class="en">Language of the office flyer and email</span></span>
-          <div class="tri" role="radiogroup" aria-label="Idioma para la oficina">
-            <label><input type="radio" name="l-lang" value="en" checked><span>English</span></label>
-            <label><input type="radio" name="l-lang" value="es"><span>Español</span></label>
-            <label><input type="radio" name="l-lang" value="both"><span><span class="es">Bilingüe</span><span class="en">Bilingual</span></span></label>
-          </div>
-        </div>
-      </div>
+      </details>
     </div>
 
     <div class="col">
       <article class="out">
-        <div class="out-head"><div><h3><span class="es">Mapa</span><span class="en">Map</span></h3><p><span class="es">El restaurante está en el centro. Toque un punto para agregarlo o quitarlo.</span><span class="en">The restaurant is in the middle. Tap a dot to add or remove it.</span></p></div></div>
-        <p class="empty" id="lunch-empty"><span class="es">Busque lugares cerca para ver el mapa y preparar el material.</span><span class="en">Find places nearby to see the map and make the materials.</span></p>
+        <div class="out-head"><div><h3><span class="es">Mapa</span><span class="en">Map</span></h3><p><span class="es">Para enseñarlo en la llamada o en la demo. Toque un punto para agregarlo o quitarlo.</span><span class="en">Share it on the call or in the demo. Tap a dot to add or remove it.</span></p></div></div>
+        <p class="empty" id="lunch-empty"><span class="es">Presione «Preparar los regalos» para ver el mapa.</span><span class="en">Press "Make the gifts" to see the map.</span></p>
         <div class="map" id="lunch-map" hidden></div>
       </article>
 
       <div class="col" id="lunch-outs" hidden>
         <article class="out">
           <div class="out-head">
-            <div><h3><span class="num">A</span><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h3><p><span class="es">La prueba: cuánta gente trabaja cerca. Va en el idioma del dueño (paso 3 del chequeo).</span><span class="en">The proof: how many workplaces are nearby. Uses the owner's language (check-up, step 3).</span></p></div>
+            <div><h3><span class="num">A</span><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h3><p><span class="es">La prueba: cuánta gente trabaja cerca.</span><span class="en">The proof: how many people work nearby.</span></p></div>
             <div class="btns"><button type="button" class="btn small" id="copy-radar"><span class="es">Copiar imagen</span><span class="en">Copy image</span></button><a class="btn small" id="dl-radar" download="almuerzos.png"><span class="es">Descargar</span><span class="en">Download</span></a></div>
           </div>
           <div class="shot"><img id="img-radar" alt="Lugares de trabajo cerca del restaurante"></div>
@@ -428,6 +377,60 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
           <div class="status" id="st-email" role="status"></div>
         </article>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GIFT 2: ONLINE PRESENCE + MARKETING KIT ================= -->
+<section id="view-presencia" aria-labelledby="tab-presencia" hidden>
+  <div class="tool">
+    <div class="col">
+      <article class="out">
+        <div class="out-head"><div><h3><span class="es">Su pitch: más ventas para el dueño</span><span class="en">Your pitch: more sales for the owner</span></h3><p><span class="es">Dígalo así en la llamada. Es lo mismo que va en la imagen y el mensaje.</span><span class="en">Say it like this on the call. It matches the image and the message.</span></p></div></div>
+        <div class="summary" id="summary"></div>
+      </article>
+      <div class="panel col">
+        <h2 class="step-h"><span class="es">Lo que encontramos</span><span class="en">What we found</span></h2>
+        <span class="hint"><span class="es">Las que dicen <span class="pill">Google</span> se llenaron solas. Corrija lo que no cuadre.</span><span class="en">Ones marked <span class="pill">Google</span> filled in automatically. Fix anything that's off.</span></span>
+        <div class="qs" id="qs"></div>
+        <details>
+          <summary><span class="es">Revisar usted mismo (se abre en otra pestaña)</span><span class="en">Check for yourself (opens in a new tab)</span></summary>
+          <div class="links" id="links" style="margin-top:10px"></div>
+        </details>
+      </div>
+    </div>
+
+    <div class="col">
+      <article class="out">
+        <div class="out-head">
+          <div><h3><span class="num">A</span><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h3><p><span class="es">Mándela por WhatsApp junto con el mensaje.</span><span class="en">Send it on WhatsApp with the message.</span></p></div>
+          <div class="btns"><button type="button" class="btn small" id="copy-report"><span class="es">Copiar imagen</span><span class="en">Copy image</span></button><a class="btn small" id="dl-report" download="chequeo.png"><span class="es">Descargar</span><span class="en">Download</span></a></div>
+        </div>
+        <div class="shot"><img id="img-report" alt="Chequeo en línea para el dueño"></div>
+        <div class="status" id="st-report" role="status"></div>
+      </article>
+
+      <article class="out">
+        <div class="out-head">
+          <div><h3><span class="num">B</span><span class="es">Mensaje de WhatsApp</span><span class="en">WhatsApp message</span></h3><p><span class="es">Puede editar el texto aquí antes de copiarlo.</span><span class="en">You can edit the text here before copying.</span></p></div>
+          <button type="button" class="btn primary small" id="copy-wa"><span class="es">Copiar mensaje</span><span class="en">Copy message</span></button>
+        </div>
+        <textarea id="wa" aria-label="Mensaje de WhatsApp"></textarea>
+        <div class="status" id="st-wa" role="status"></div>
+        <details><summary><span class="es">Ver en el otro idioma</span><span class="en">Other-language version</span></summary><pre id="wa-en"></pre></details>
+      </article>
+
+      <article class="out">
+        <div class="out-head"><div><h3><span class="num">C</span><span class="es">Muestras del kit de marketing</span><span class="en">Marketing kit samples</span></h3><p><span class="es">Ejemplos con su logo de lo que SalesVu le da para atraer pedidos. Mándelos con el mensaje.</span><span class="en">Samples with their logo of what SalesVu gives them to bring in orders. Send them with the message.</span></p></div></div>
+        <div class="samples">
+          <div class="sample"><img id="img-s-sticker" alt="Muestra: calcomanía con código QR"><p><span class="es">Para la puerta o la caja: sus clientes piden en línea, directo.</span><span class="en">For the door or register: customers order online, directly.</span></p><div class="btns"><button type="button" class="btn small" data-copy="img-s-sticker"><span class="es">Copiar</span><span class="en">Copy</span></button><a class="btn small" id="dl-s-sticker"><span class="es">Descargar</span><span class="en">Download</span></a></div></div>
+          <div class="sample"><img id="img-s-fb" alt="Muestra: publicación de Facebook"><p><span class="es">Para Facebook: una publicación lista, si no publica seguido.</span><span class="en">For Facebook: a ready post, if they don't post often.</span></p><div class="btns"><button type="button" class="btn small" data-copy="img-s-fb"><span class="es">Copiar</span><span class="en">Copy</span></button><a class="btn small" id="dl-s-fb"><span class="es">Descargar</span><span class="en">Download</span></a></div></div>
+          <div class="sample"><img id="img-s-status" alt="Muestra: estado de WhatsApp"><p><span class="es">Para su estado de WhatsApp: almuerzos en grupo con MealPool.</span><span class="en">For their WhatsApp Status: group lunches with MealPool.</span></p><div class="btns"><button type="button" class="btn small" data-copy="img-s-status"><span class="es">Copiar</span><span class="en">Copy</span></button><a class="btn small" id="dl-s-status"><span class="es">Descargar</span><span class="en">Download</span></a></div></div>
+        </div>
+        <div class="status" id="st-samples" role="status"></div>
+      </article>
+
+      <div class="warnbox"><strong><span class="es">Usted revisa y envía.</span><span class="en">You review and send.</span></strong> <span class="es">La herramienta no manda nada. No agregue precios ni cuotas en el mensaje.</span><span class="en">The tool never sends anything. Don't add prices or fees to the message.</span></div>
     </div>
   </div>
 </section>
@@ -466,14 +469,14 @@ const v=id=>$(id).value.trim();
 
 /* ---------- Language (shared with the Kit de ventas) ---------- */
 function setLang(l){document.documentElement.setAttribute('data-lang',l);document.documentElement.lang=l;
-  $('lang-es').setAttribute('aria-pressed',l==='es');$('lang-en').setAttribute('aria-pressed',l==='en');store.set('svkit-lang',l);showSrc();renderSummary();}
+  $('lang-es').setAttribute('aria-pressed',l==='es');$('lang-en').setAttribute('aria-pressed',l==='en');store.set('svkit-lang',l);showSrc();renderSummary();renderLunchPitch();}
 $('lang-es').onclick=()=>setLang('es');$('lang-en').onclick=()=>setLang('en');
 
 /* ---------- Tabs ---------- */
-const VIEWS=['chequeo','marketing','almuerzos'];
-function route(){const h=location.hash.slice(1);const cur=VIEWS.includes(h)?h:'chequeo';
+const VIEWS=['oficinas','presencia'],ALIAS={almuerzos:'oficinas',chequeo:'presencia',marketing:'presencia'};
+function route(){let h=location.hash.slice(1);h=ALIAS[h]||h;const cur=VIEWS.includes(h)?h:'oficinas';
   VIEWS.forEach(n=>{$('view-'+n).hidden=n!==cur;const t=$('tab-'+n);if(n===cur)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
-  if(cur==='almuerzos'&&typeof lunch!=='undefined'&&lunch.map)setTimeout(()=>lunch.map.invalidateSize(),50);}
+  if(cur==='oficinas'&&typeof lunch!=='undefined'&&lunch.map)setTimeout(()=>lunch.map.invalidateSize(),50);}
 window.addEventListener('hashchange',route);
 
 /* ---------- Settings (Google key) ---------- */
@@ -502,22 +505,27 @@ function updLogoPrev(){const p=$('logo-prev');p.innerHTML='';const c=document.cr
 const CHECKS=[
  {id:'order',w:30,p:100,who:'sv',
   q:{es:'¿Sus clientes pueden pedir en línea directo, sin apps?',en:'Can customers order online directly, without apps?'},
+  short:{es:'que sus clientes le pidan en línea directo, sin pasar por las apps',en:'your customers ordering online straight from you, not through the apps'},
   good:{es:'Recibe pedidos en línea directos',en:'You take direct online orders'},
   fix:{es:'Más pedidos directos: sus clientes piden en línea con usted, sin pasar por las apps. Nosotros le armamos su enlace de pedidos.',en:'More direct orders: your customers order online straight from you, not through the apps. We set up your ordering link.'}},
  {id:'apps',w:15,p:90,who:'sv',bad:'yes',
   q:{es:'¿Paga comisión a DoorDash, Uber Eats o Grubhub?',en:'Pays commission to DoorDash, Uber Eats or Grubhub?'},
+  short:{es:'quedarse con el 15–30% que hoy le cobran las apps',en:'keeping the 15–30% the apps take today'},
   good:{es:'No paga comisiones a apps de entrega',en:'You don\'t pay delivery-app commissions'},
   fix:{es:'Más ganancia en cada pedido: las apps cobran entre 15% y 30%. Con su propio enlace, sus clientes de siempre piden sin esa comisión.',en:'More profit on every order: the apps charge 15–30%. With your own link, your regulars order without that commission.'}},
  {id:'web',w:20,p:80,who:'sv',
   q:{es:'¿Tiene página web con su menú?',en:'Website with its menu?'},
+  short:{es:'que los clientes nuevos encuentren su menú en internet',en:'new customers finding your menu online'},
   good:{es:'Tiene su menú en internet',en:'Your menu is online'},
   fix:{es:'Más clientes nuevos: que encuentren su menú y sus precios en internet. Nosotros le preparamos la página.',en:'More new customers: people find your menu and prices online. We build the page for you.'}},
  {id:'gmaps',w:20,p:75,who:'owner',
   q:{es:'¿Aparece en Google Maps con su horario?',en:'On Google Maps with its hours?'},
+  short:{es:'tener su horario y teléfono correctos en Google',en:'having the right hours and phone number on Google'},
   good:{es:'Aparece en Google Maps con su horario',en:'You show up on Google Maps with your hours'},
   fix:{es:'No pierda a los clientes que lo buscan: ponga su horario, teléfono y dirección correctos en Google.',en:'Don\'t lose customers who are looking for you: put your correct hours, phone and address on Google.'}},
  {id:'fb',w:15,p:70,who:'kit',
   q:{es:'¿Publicó en Facebook en el último mes?',en:'Posted on Facebook in the last month?'},
+  short:{es:'publicar en Facebook con imágenes ya listas',en:'posting on Facebook with ready-made images'},
   good:{es:'Está activo en Facebook',en:'You\'re active on Facebook'},
   fix:{es:'Más clientes que regresan: publique 2 veces por semana. Le damos las imágenes listas con su logo.',en:'More repeat customers: post twice a week. We give you ready-made images with your logo.'}}
 ];
@@ -541,7 +549,8 @@ function evaluate(){let got=0,max=0;const good=[],bad=[],unk=[];
   return {score:max?Math.round(got/max*100):null,good,bad,unk,top:bad.slice(0,3)};}
 
 /* ---------- Look-up links ---------- */
-function city(){const parts=v('r-addr').split(',').map(s=>s.trim()).filter(Boolean);return parts.length>1?parts.slice(1).join(', '):parts[0]||'';}
+const isURL=t=>/^https?:\/\//i.test(t);
+function city(){if(isURL(v('r-addr')))return '';const parts=v('r-addr').split(',').map(s=>s.trim()).filter(Boolean);return parts.length>1?parts.slice(1).join(', '):parts[0]||'';}
 function renderLinks(){const name=v('r-name'),both=(name+' '+v('r-addr')).trim(),nc=(name+' '+city()).trim();const e=encodeURIComponent;
   const L=[['Google Maps',`https://www.google.com/maps/search/?api=1&query=${e(both)}`],['Google',`https://www.google.com/search?q=${e(both)}`],
     ['Facebook',`https://www.facebook.com/search/pages/?q=${e(name)}`],['Instagram',`https://www.google.com/search?q=${e('site:instagram.com '+nc)}`],
@@ -605,46 +614,45 @@ function siteKind(u){u=(u||'').toLowerCase();if(!u)return 'none';
   if(/toasttab|square\.site|squareup|clover|chownow|menufy|owner\.com|slicelife|beyondmenu|order/.test(u))return 'ordering';return 'website';}
 
 function applyPlace(p){place=p;const S=p.src;
-  if(p.addrOnly){placeKey=v('r-name')+'|'+v('r-addr');render();return;} // we only found the street address, not the restaurant itself
+  if(p.addrOnly){if((!v('r-addr')||isURL(v('r-addr')))&&p.addr)$('r-addr').value=p.addr;placeKey=v('r-name')+'|'+v('r-addr');render();return;} // we only found the street address, not the restaurant itself
   if(S==='Google')setAns('gmaps',p.hours?'yes':'no',S); // only Google can answer the Google Maps question
   const k=siteKind(p.web);
   if(k==='website'||k==='ordering')setAns('web','yes',S);
   if(k==='ordering')setAns('order','yes',S);
   if(k==='apps'){setAns('apps','yes',S);setAns('web','no',S);}
   if(k==='none'||k==='facebook'||k==='instagram')setAns('web','no',S);
-  if(!v('r-addr')&&p.addr)$('r-addr').value=p.addr;
+  if((!v('r-addr')||isURL(v('r-addr')))&&p.addr)$('r-addr').value=p.addr;
   placeKey=v('r-name')+'|'+v('r-addr');
   render();}
 
-function showFound(list){const f=$('found');f.innerHTML='';
+function showFound(list){const f=$('found');f.innerHTML=`<span class="hint">${EN()?'Several matches. Pick the right one:':'Hay varios resultados. Elija el correcto:'}</span>`;
   list.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='place';b.setAttribute('aria-pressed',i===0);
     const bits=[p.rating!=null?`★ ${p.rating.toFixed(1)}${p.ratings?` (${p.ratings})`:''}`:'',p.web?(EN()?'website':'página web'):'',p.hours?(EN()?'hours listed':'con horario'):''].filter(Boolean).join(' · ');
     b.innerHTML=`<strong></strong><small></small><small></small>`;b.children[0].textContent=p.name;b.children[1].textContent=p.addr;b.children[2].textContent=`${p.src}${bits?' · '+bits:''}`;
-    b.onclick=()=>{f.querySelectorAll('.place').forEach(x=>x.setAttribute('aria-pressed',x===b));applyPlace(p);};f.appendChild(b);});}
+    b.onclick=async()=>{f.querySelectorAll('.place').forEach(x=>x.setAttribute('aria-pressed',x===b));applyPlace(p);try{await searchLunch();}catch(e){showLunchError(e);}};f.appendChild(b);});}
 
-$('lookup').onclick=async()=>{const st=$('lookup-st');const link=v('r-url')?readLink(v('r-url')):null;
-  if(v('r-url')&&!link){st.className='status err';st.textContent=EN()?'That link doesn\'t look right. Copy it again from the browser bar.':'Ese enlace no parece correcto. Cópielo otra vez de la barra del navegador.';return;}
-  if(link&&link.kind==='short'){st.className='status err';st.textContent=EN()?'Short links (maps.app.goo.gl) can\'t be read. Open the link, then copy the full address from the browser bar.':'Los enlaces cortos (maps.app.goo.gl) no se pueden leer. Abra el enlace y copie la dirección completa de la barra del navegador.';return;}
-  const maps=link&&link.kind==='maps'?link:null,site=link&&link.kind==='site'?link.url:'';
-  if(maps&&maps.name&&!v('r-name')){$('r-name').value=maps.name;}
-  if(!v('r-name')){st.className='status err';st.textContent=EN()?'Type the restaurant name first.':'Escriba primero el nombre del restaurante.';return;}
-  const q=(v('r-name')+' '+(maps&&maps.near?'':v('r-addr'))).trim(),near=maps&&maps.near;
-  $('lookup').disabled=true;st.className='status';st.textContent=EN()?'Searching…':'Buscando…';$('found').innerHTML='';
-  try{let list,src;
-    if(gkey()){try{list=maps&&maps.pid?await googleDetails(maps.pid):await googleSearch(q,near);src='Google';}catch(e){st.className='status err';st.textContent=(EN()?'Google didn\'t answer (check the key in Settings). Trying OpenStreetMap… ':'Google no respondió (revise la clave en Ajustes). Probando con OpenStreetMap… ')+e.message;console.warn(e);}}
-    if(!list){list=await osmSearch(v('r-name'),v('r-addr'),near);src='OpenStreetMap';}
-    if(site)list.forEach(p=>{if(!p.addrOnly)p.web=site;}); // the rep's pasted website beats what the map service knows
-    if(site&&list.length&&list[0].addrOnly){const k=siteKind(site);if(k!=='none'){list[0]=Object.assign({},list[0],{addrOnly:false,web:site,name:v('r-name')});}}
-    if(!list.length){st.className='status err';st.textContent=EN()?`No match on ${src}. Check the name and address, or answer the questions by hand.`:`No se encontró en ${src}. Revise el nombre y la dirección, o conteste las preguntas a mano.`;return;}
-    if(list[0].addrOnly){st.className='status';st.textContent=EN()?'OpenStreetMap found the address but not the restaurant. Answer the questions with the links below (a Google key in Settings finds much more).':'OpenStreetMap encontró la dirección, pero no el restaurante. Conteste las preguntas con los enlaces de abajo (con una clave de Google en Ajustes encuentra mucho más).';applyPlace(list[0]);return;}
-    st.className='status okc';st.textContent=EN()?`Found on ${src}. Pick the right one if there are several.`:`Encontrado en ${src}. Elija el correcto si hay varios.`+(src==='OpenStreetMap'?(EN()?' (Fewer details than Google.)':' (Menos datos que Google.)'):'');
-    showFound(list);applyPlace(list[0]);
-  }catch(e){st.className='status err';st.textContent=(EN()?'The search didn\'t work. Answer the questions by hand. ':'La búsqueda no funcionó. Conteste las preguntas a mano. ')+e.message;console.warn(e);}
-  finally{$('lookup').disabled=false;}};
+/* Step 1 of "Make the gifts": find the restaurant and auto-fill the online-presence answers.
+   Returns a short status line. Throws only when there's nothing to go on. */
+async function lookupRestaurant(){const raw=v('r-addr'),link=isURL(raw)?readLink(raw):null;
+  if(isURL(raw)&&!link)throw new Error(EN()?'That link doesn\'t look right. Copy it again from the browser bar.':'Ese enlace no parece correcto. Cópielo otra vez de la barra del navegador.');
+  if(link&&link.kind==='short')throw new Error(EN()?'Short links (maps.app.goo.gl) can\'t be read. Open the link, then copy the full address from the browser bar.':'Los enlaces cortos (maps.app.goo.gl) no se pueden leer. Abra el enlace y copie la dirección completa de la barra del navegador.');
+  if(link&&link.kind==='site')throw new Error(EN()?'That looks like a website, not a Google Maps link. Type the street address instead.':'Eso parece una página web, no un enlace de Google Maps. Escriba la dirección.');
+  const maps=link&&link.kind==='maps'?link:null,near=maps&&maps.near,addrText=maps?'':raw;
+  if(maps&&maps.name&&!v('r-name'))$('r-name').value=maps.name;
+  if(!v('r-name'))throw new Error(EN()?'Type the restaurant name first.':'Escriba primero el nombre del restaurante.');
+  $('found').innerHTML='';let list=null,src='';
+  if(gkey()){try{list=maps&&maps.pid?await googleDetails(maps.pid):await googleSearch((v('r-name')+' '+addrText).trim(),near);src='Google';}catch(e){console.warn(e);}}
+  if(!list||!list.length){list=await osmSearch(v('r-name'),addrText,near);src='OpenStreetMap';}
+  if(!list.length&&near)list=[{src:'Google Maps',addrOnly:true,name:v('r-name'),addr:'',lat:near.lat,lon:near.lon}];
+  if(!list.length)return EN()?'Restaurant not found online: answer the online questions by hand.':'No encontramos el restaurante en internet: conteste las preguntas de presencia a mano.';
+  if(list.length>1&&!list[0].addrOnly)showFound(list);
+  applyPlace(list[0]);
+  return list[0].addrOnly?(EN()?'Found the address, not the restaurant: check the online answers by hand.':'Encontramos la dirección, no el restaurante: revise las respuestas de presencia a mano.')
+    :(EN()?`Restaurant found on ${src}.`:`Restaurante encontrado en ${src}.`);}
 
 /* MealPool closes every pitch: it's SalesVu's lead offer ("recurring orders from nearby corporate workers"),
    and it leads into Part 3, which finds those offices. */
-const MEALPOOL={id:'mealpool',who:'sv',
+const MEALPOOL={id:'mealpool',who:'sv',short:{es:'recibir pedidos de almuerzo en grupo de las oficinas cercanas, con MealPool',en:'group lunch orders from nearby offices, with MealPool'},
   fix:{es:'Más ventas a la hora de la comida: las oficinas y negocios cerca de usted pueden pedir almuerzo en grupo, por adelantado, con MealPool. Le muestro cuáles.',en:'More lunchtime sales: offices and businesses near you can pre-order group lunch with MealPool. I\'ll show you which ones.'}};
 const pitch=r=>r.top.concat([MEALPOOL]);
 /* Tag store links so SalesVu can count visits that came from a gift (e.g. ?ref=regalo-chequeo). */
@@ -658,8 +666,8 @@ function renderSummary(){const r=evaluate(),el=$('summary'),R=v('r-name')||(EN()
     :`«${O?O+', ':''}revisé cómo aparece ${R} en internet y encontré ${n===0?'una forma':n===1?'una forma':n+' formas'} de conseguirle más ventas.»`;
   h+=`<p style="margin:0;font-size:16px;font-weight:600">${open}</p>`;
   h+=`<ol class="opps">`+P.map((c,i)=>`<li><span class="num">${i+1}</span><div><p>${L(c.fix)}</p><span class="pill ${TAGS[c.who].cls}">${L(TAGS[c.who])}</span></div></li>`).join('')+`</ol>`;
-  h+=`<a class="btn small" href="#almuerzos" style="justify-self:start">${EN()?'See the offices near this restaurant →':'Ver las oficinas cerca de este restaurante →'}</a>`;
-  h+=`<p style="margin:0;font-size:15px">${EN()?`"Can I send you this on WhatsApp so we can go over it ${v('r-next')||'tomorrow'}?"`:`«¿Le mando esto por WhatsApp y lo revisamos ${v('r-next')||'mañana'}?»`}</p>`;
+  h+=`<a class="btn small" href="#oficinas" style="justify-self:start">${EN()?'See the offices near this restaurant →':'Ver las oficinas cerca de este restaurante →'}</a>`;
+  h+=`<p style="margin:0;font-size:15px">${EN()?'"Can I send you this on WhatsApp, with some sample posts with your logo?"':'«¿Le mando esto por WhatsApp, con unos ejemplos de publicaciones con su logo?»'}</p>`;
   const extra=[r.good.length?(EN()?'Already doing well: ':'Ya hace bien: ')+r.good.slice(0,3).map(c=>L(c.good)).join(' · '):'',
     r.score!=null?(EN()?`Score (for you): ${r.score}/100`:`Puntaje (para usted): ${r.score}/100`):'',
     r.unk.length?(EN()?'Not checked: ':'Sin revisar: ')+r.unk.map(c=>L(c.q)).join(' · '):''].filter(Boolean);
@@ -667,17 +675,13 @@ function renderSummary(){const r=evaluate(),el=$('summary'),R=v('r-name')||(EN()
   el.innerHTML=h;}
 
 /* ---------- WhatsApp message (Spanish for the owner, English for team review) ---------- */
-function buildMsg(lang){const es=lang==='es',r=evaluate(),R=v('r-name')||(es?'su restaurante':'your restaurant'),O=v('r-owner'),rep=v('r-rep')||(es?'[su nombre]':'[your name]'),next=v('r-next')||(es?'mañana':'tomorrow'),link=v('r-link');
-  const T=o=>es?o.es:o.en;let m=[];
-  m.push(es?`Buen día${O?', '+O:''}. Soy ${rep}, de SalesVu.`:`Good day${O?', '+O:''}. This is ${rep} from SalesVu.`);
-  m.push(es?`Como le comenté, le preparé un chequeo gratis de cómo aparece ${R} en internet. Se lo mando en la imagen.`:`As I mentioned, I put together a free check-up of how ${R} shows up online. It's in the image.`);
-  if(r.good.length)m.push((es?'Lo que ya hace bien:\n':'What you already do well:\n')+r.good.slice(0,3).map(c=>'✅ '+T(c.good)).join('\n'));
-  const P=pitch(r);
-  m.push((es?`Encontré ${P.length} formas de conseguirle más ventas:\n`:`I found ${P.length} ways to get you more sales:\n`)+P.map((c,i)=>`${i+1}. ${T(c.fix)}`).join('\n'));
-  m.push(es?'Lo que le toca a SalesVu se lo dejamos listo, sin que usted tenga que hacer nada.':'Whatever is on SalesVu\'s side, we set up for you, with nothing for you to do.');
-  if(link)m.push((es?'Aquí puede ver la tienda en línea que le preparamos:\n':'Here\'s the online store we set up for you:\n')+tracked(link,'regalo-chequeo'));
-  m.push(es?`¿Le parece si le llamo ${next} para revisarlo juntos? Son 10 minutos.`:`Would it be OK if I call you ${next} to go over it together? It takes 10 minutes.`);
-  m.push(es?`Saludos,\n${rep} · SalesVu`:`Best,\n${rep} · SalesVu`);
+function buildMsg(lang){const es=lang==='es',r=evaluate(),R=v('r-name')||(es?'su restaurante':'your restaurant'),O=v('r-owner'),rep=v('r-rep'),link=v('r-link');
+  const T=o=>es?o.es:o.en,first=pitch(r)[0],who={sv:es?'Eso se lo dejamos listo nosotros.':'We set that up for you.',kit:es?'Las imágenes ya se las preparé.':'I already made the images for you.',owner:es?'Es un cambio de 5 minutos.':'It\'s a 5-minute change.'}[first.who];
+  const m=[es?`Hola${O?', '+O:''}, soy ${rep||'[su nombre]'} de SalesVu 👋`:`Hi${O?' '+O:''}, it's ${rep||'[your name]'} from SalesVu 👋`,
+    es?`Revisé cómo aparece ${R} en internet y le hice este resumen.`:`I looked at how ${R} shows up online and made you this summary.`,
+    (es?`Lo más rápido para vender más: ${T(first.short)}. `:`The quickest way to sell more: ${T(first.short)}. `)+who];
+  if(link)m.push((es?'Así se ve su tienda en línea: ':'Here\'s your online store: ')+tracked(link,'regalo-chequeo'));
+  m.push(es?'¿Le cuento en 5 minutos cómo funciona?':'Can I walk you through it in 5 minutes?');
   return m.join('\n\n');}
 
 /* ---------- Report image (in the owner's language) ---------- */
@@ -690,18 +694,18 @@ function drawLogo(ctx,cx,cy,r){ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math
   if(logoImg){const s=Math.max(2*r/logoImg.width,2*r/logoImg.height);const w=logoImg.width*s,h=logoImg.height*s;ctx.drawImage(logoImg,cx-w/2,cy-h/2,w,h);}
   else genericLogo(ctx,cx,cy,r);
   ctx.restore();}
-/* No logo uploaded (the usual case): the restaurant's name in white over a faint pattern of Mexican food, in the restaurant's color. */
-const FOOD=['🌮','🌶️','🥑','🌯','🫔','🍋'],EMOJI='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
-function genericLogo(ctx,cx,cy,r){ctx.fillStyle=brandColor;ctx.fillRect(cx-r,cy-r,2*r,2*r);
-  const step=r*0.62,fs=Math.round(r*0.34);ctx.save();ctx.globalAlpha=.30;ctx.font=`${fs}px ${EMOJI}`;ctx.textAlign='center';ctx.textBaseline='middle';let k=0;
-  for(let yy=-r;yy<=r+step;yy+=step){for(let xx=-r+((Math.round(yy/step)%2)?step/2:0);xx<=r+step;xx+=step){
-    ctx.save();ctx.translate(cx+xx,cy+yy);ctx.rotate(((k*37)%60-30)*Math.PI/180);ctx.fillText(FOOD[k%FOOD.length],0,0);ctx.restore();k++;}}
-  ctx.restore();
-  const g=ctx.createRadialGradient(cx,cy,r*0.15,cx,cy,r);g.addColorStop(0,'rgba(0,0,0,.28)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(cx-r,cy-r,2*r,2*r);
-  const name=(v('r-name')||'Restaurante').trim(),maxW=r*1.5;let lines=[name],size=r*0.5;
-  for(size=r*0.46;size>=r*0.14;size-=r*0.02){ctx.font=`800 ${size}px ${F}`;lines=wrap(ctx,name,maxW);if(lines.length<=3&&lines.every(l=>ctx.measureText(l).width<=maxW)&&lines.length*size*1.1<=r*1.3)break;}
-  ctx.font=`800 ${size}px ${F}`;ctx.fillStyle='#FFFFFF';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=r*0.06;
-  const lh=size*1.1;lines.slice(0,3).forEach((l,i)=>ctx.fillText(l,cx,cy+(i-(Math.min(lines.length,3)-1)/2)*lh));ctx.shadowBlur=0;}
+/* No logo uploaded (the usual case): a badge in the MealPool collateral style (white, bold navy name, short green rule) with a taco on top. */
+const MP={navy:'#132F52',blue:'#2D7CFF',green:'#16BD77',ring:'#E3E8EF'},EMOJI='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+function genericLogo(ctx,cx,cy,r){ctx.fillStyle='#FFFFFF';ctx.fillRect(cx-r,cy-r,2*r,2*r);
+  ctx.lineWidth=Math.max(1.5,r*0.04);ctx.strokeStyle=MP.ring;ctx.beginPath();ctx.arc(cx,cy,r*0.9,0,Math.PI*2);ctx.stroke();
+  const name=(v('r-name')||'Restaurante').trim(),maxW=r*1.4;let lines=[name],size;
+  for(size=r*0.34;size>=r*0.12;size-=r*0.02){ctx.font=`800 ${size}px ${F}`;lines=wrap(ctx,name,maxW);
+    if(lines.length<=3&&lines.every(l=>ctx.measureText(l).width<=maxW)&&lines.length*size*1.08<=r*0.85)break;}
+  lines=lines.slice(0,3);const emo=r*0.36,lh=size*1.08,ruleH=Math.max(2,r*0.05),total=emo+r*0.06+lines.length*lh+r*0.08+ruleH;
+  let y=cy-total/2;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font=`${Math.round(emo)}px ${EMOJI}`;ctx.fillText('🌮',cx,y+emo/2);y+=emo+r*0.06;
+  ctx.font=`800 ${size}px ${F}`;ctx.fillStyle=MP.navy;lines.forEach(l=>{ctx.fillText(l,cx,y+lh/2);y+=lh;});y+=r*0.08;
+  ctx.fillStyle=MP.green;rr(ctx,cx-r*0.2,y,r*0.4,ruleH,ruleH/2);ctx.fill();}
 function qrCanvas(text,size,fg){try{if(!window.QRious)return null;const c=document.createElement('canvas');new QRious({element:c,value:text,size:size,level:'M',background:'#FFFFFF',foreground:fg,padding:0});return c;}catch(e){return null;}}
 
 function drawReport(){const W=1080,c=document.createElement('canvas');c.width=W;c.height=2200;const x=c.getContext('2d');
@@ -770,10 +774,10 @@ const selected=()=>lunch.places.filter(p=>lunch.sel.has(p.id));
 /* Where is the restaurant? Reuse the check-up's look-up when it matches; otherwise look up the address. */
 async function findCenter(){
   if(place&&place.lat!=null&&placeKey===v('r-name')+'|'+v('r-addr'))return {lat:place.lat,lon:place.lon};
-  const addr=v('r-addr');if(!addr)throw new Error(EN()?'Type the address first (top of the page).':'Escriba primero la dirección (arriba).');
+  const addr=v('r-addr');if(!addr||isURL(addr))throw new Error(EN()?'Type the address, or paste the restaurant\'s Google Maps link.':'Escriba la dirección, o pegue el enlace de Google Maps del restaurante.');
   if(gkey()){try{const l=await googleSearch(addr);if(l.length)return {lat:l[0].lat,lon:l[0].lon};}catch(e){console.warn(e);}}
   const j=await osmQuery(addr);if(j.length)return {lat:+j[0].lat,lon:+j[0].lon};
-  throw new Error(EN()?'Address not found. Check it, or paste the Google Maps link in the check-up, step 1.':'No se encontró la dirección. Revísela, o pegue el enlace de Google Maps en el chequeo, paso 1.');}
+  throw new Error(EN()?'Address not found. Check it, or paste the restaurant\'s Google Maps link instead.':'No se encontró la dirección. Revísela, o pegue el enlace de Google Maps del restaurante.');}
 
 /* Google Places Nearby Search: one call per category, 20 closest each. A failed category is skipped. */
 async function googleNearby(c,mi){const key=gkey(),out=[];let ok=0;
@@ -816,23 +820,32 @@ function cleanPlaces(list,c,mi){const seen=new Set(),self=(v('r-name')||'').toLo
       const kk=k+'|'+p.cat;if(seen.has(kk))return false;seen.add(kk);return true;})
     .sort((a,b)=>a.dist-b.dist).map((p,i)=>Object.assign(p,{id:'p'+i}));}
 
-$('lunch-search').onclick=async()=>{const st=$('lunch-st');st.className='status';st.textContent=EN()?'Searching…':'Buscando…';$('lunch-search').disabled=true;
-  try{const c=await findCenter(),mi=radiusMi();let list=null,src='';
-    if(gkey()){try{list=await googleNearby(c,mi);src='Google Maps';}catch(e){console.warn(e);}}
-    if(!list){list=await osmNearby(c,mi);src='OpenStreetMap';}
-    lunch.center=c;lunch.radius=mi;lunch.places=cleanPlaces(list,c,mi);lunch.sel=new Set(lunch.places.slice(0,5).map(p=>p.id));
-    const n=lunch.places.length;
-    st.className=n?'status okc':'status err';
-    st.textContent=n?(EN()?`${n} workplaces found on ${src}.`:`${n} lugares de trabajo encontrados en ${src}.`)+(n<5?(EN()?' Try a wider distance, or add places by hand.':' Pruebe una distancia mayor, o agregue lugares a mano.'):'')
-      :(EN()?`Nothing found on ${src}. Try 2 miles, or add places by hand.`:`No se encontró nada en ${src}. Pruebe 2 millas, o agregue lugares a mano.`);
-    renderLunch();
-  }catch(e){st.className='status err';st.textContent=e.message.length<160?e.message:(EN()?'The search didn\'t work. Try again in a minute.':'La búsqueda no funcionó. Intente de nuevo en un minuto.');console.warn(e);}
-  finally{$('lunch-search').disabled=false;}};
+async function searchLunch(){const c=await findCenter(),mi=radiusMi();let list=null,src='';
+  if(gkey()){try{list=await googleNearby(c,mi);src='Google Maps';}catch(e){console.warn(e);}}
+  if(!list){list=await osmNearby(c,mi);src='OpenStreetMap';}
+  lunch.center=c;lunch.radius=mi;lunch.places=cleanPlaces(list,c,mi);lunch.sel=new Set(lunch.places.slice(0,5).map(p=>p.id));
+  renderLunch();const n=lunch.places.length;
+  return n?(EN()?`${n} workplaces nearby (${src}).`:`${n} lugares de trabajo cerca (${src}).`)+(n<5?(EN()?' Try 2 miles in More options, or add places by hand.':' Pruebe 2 millas en Más opciones, o agregue lugares a mano.'):'')
+    :(EN()?`No workplaces found on ${src}. Try 2 miles in More options.`:`No se encontraron lugares de trabajo en ${src}. Pruebe 2 millas en Más opciones.`);}
+function showLunchError(e){$('lunch-pitch').innerHTML='';const p=document.createElement('p');p.className='status err';p.textContent=e.message;$('lunch-pitch').appendChild(p);}
+
+/* "Make the gifts": one click finds the restaurant, fills in the online check, and finds the offices nearby. */
+async function prepare(){const st=$('go-st'),btn=$('go');btn.disabled=true;st.className='status';
+  const say=t=>{st.textContent=t;};const msgs=[];
+  say(EN()?'Looking up the restaurant…':'Buscando el restaurante…');
+  try{msgs.push(await lookupRestaurant());}catch(e){msgs.push(e.message);st.className='status err';say(msgs.join(' '));btn.disabled=false;return;}
+  say(msgs.join(' ')+' '+(EN()?'Finding offices nearby…':'Buscando oficinas cerca…'));
+  try{msgs.push(await searchLunch());st.className='status okc';}catch(e){msgs.push(e.message);st.className='status err';showLunchError(e);console.warn(e);}
+  say(msgs.join(' '));btn.disabled=false;}
+$('go').onclick=prepare;
+document.querySelectorAll('input[name=radius]').forEach(e=>e.addEventListener('change',async()=>{if(!lunch.center)return;const st=$('go-st');st.className='status';st.textContent=EN()?'Searching again…':'Buscando de nuevo…';
+  try{st.textContent=await searchLunch();st.className='status okc';}catch(err){st.className='status err';st.textContent=err.message;}}));
+$('copy-pitch').onclick=()=>{if(!pitchText)return;const ok=()=>flash('st-pitch',EN()?'Copied.':'Copiado.');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(pitchText).then(ok,()=>{});};
 
 /* Add a place by hand: placed on the map at the given distance, in a random direction. */
 Object.entries(CATS).forEach(([k,c])=>{const o=document.createElement('option');o.value=k;o.textContent=c.es+' / '+c.en;$('add-cat').appendChild(o);});
 $('add-btn').onclick=()=>{const name=v('add-name');if(!name){$('add-name').focus();return;}
-  if(!lunch.center){$('lunch-st').className='status err';$('lunch-st').textContent=EN()?'Search first, then add places.':'Busque primero; después agregue lugares.';return;}
+  if(!lunch.center)return;
   const d=Math.max(0.05,parseFloat(v('add-dist'))||0.3),a=Math.random()*Math.PI*2,c=lunch.center;
   const p={id:'m'+Date.now(),name,cat:$('add-cat').value,dist:d,lat:c.lat+(d/69.17)*Math.sin(a),lon:c.lon+(d/(69.17*Math.cos(c.lat*Math.PI/180)))*Math.cos(a),
     addr:'',maps:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name+' '+city())}`};
@@ -864,20 +877,32 @@ function drawMap(){const LF=window.L,el=$('lunch-map');if(!LF||!lunch.center)ret
   setTimeout(()=>{lunch.map.invalidateSize();lunch.map.fitBounds(bounds,{padding:[8,8]});},30);}
 
 /* ---------- Part 3 outputs ---------- */
-function buildLunchMsg(lang){const es=lang==='es',N=lunch.places.length,sel=selected(),R=v('r-name')||(es?'su restaurante':'your restaurant'),O=v('r-owner'),
-    rep=v('r-rep')||(es?'[su nombre]':'[your name]'),next=v('r-next')||(es?'mañana':'tomorrow'),cut=v('l-cutoff')||'10:30 am',lt=v('l-time')||'12:00 pm',del=lmode()==='deliver';
-  const names=sel.slice(0,3).map(p=>p.name),and=es?' y ':' and ',list=names.length>1?names.slice(0,-1).join(', ')+and+names[names.length-1]:(names[0]||'');
-  const m=[];
-  m.push(es?`Buen día${O?', '+O:''}. Soy ${rep}, de SalesVu.`:`Good day${O?', '+O:''}. This is ${rep} from SalesVu.`);
-  m.push(es?`Le comparto algo que encontramos: hay ${N} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} de ${R}${list?`, como ${list}`:''}.`
-           :`Here's something we found: there are ${N} workplaces within ${radLabel('en',lunch.radius)} of ${R}${list?`, like ${list}`:''}.`);
-  m.push(es?`Esa gente almuerza todos los días. Con MealPool, los empleados de una oficina piden juntos, por adelantado, antes de las ${cut}, y usted ${del?'les lleva':'les tiene listo'} todo junto a las ${lt}. Usted decide cuántos pedidos acepta: su capacidad, sus horarios, su control.`
-           :`Those people eat lunch every day. With MealPool, an office's employees order together, ahead of time, by ${cut}, and you ${del?'deliver':'have'} it all ${del?'':'ready '}at ${lt}. You decide how many orders you take: your capacity, your cutoffs, your control.`);
-  if(sel.length)m.push(es?`Ya le preparé ${sel.length>1?`un volante y un correo para cada una de esas ${sel.length} oficinas`:`un volante y un correo para ${sel[0].name}`}, listos para entregar o mandar.`
-                         :`I've already made ${sel.length>1?`a flyer and an email for each of those ${sel.length} offices`:`a flyer and an email for ${sel[0].name}`}, ready to hand over or send.`);
-  m.push(es?`¿Le parece si le llamo ${next} y le muestro el mapa? Son 10 minutos.`:`Could I call you ${next} to show you the map? It takes 10 minutes.`);
-  m.push(es?`Saludos,\n${rep} · SalesVu`:`Best,\n${rep} · SalesVu`);
+function buildLunchMsg(lang){const es=lang==='es',N=lunch.places.length,sel=selected(),R=v('r-name')||(es?'su restaurante':'your restaurant'),O=v('r-owner'),rep=v('r-rep');
+  const near=sel[0]||lunch.places[0],where=near?(near.dist<=0.25?(es?'a unas cuadras':'a few blocks away'):(es?`a ${fmtMi(near.dist)} millas`:`${fmtMi(near.dist)} miles away`)):'';
+  const m=[es?`Hola${O?', '+O:''}, soy ${rep||'[su nombre]'} de SalesVu 👋`:`Hi${O?' '+O:''}, it's ${rep||'[your name]'} from SalesVu 👋`,
+    (es?`Le hice este mapa: hay ${N} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} de ${R}.`:`I made you this map: there are ${N} workplaces within ${radLabel('en',lunch.radius)} of ${R}.`)+(near?(es?` ${near.name} está ${where}.`:` ${near.name} is ${where}.`):''),
+    es?'Con MealPool, esas oficinas le piden el almuerzo en grupo, por adelantado, y usted decide cuántos pedidos acepta.':'With MealPool, those offices pre-order lunch as a group, and you decide how many orders to take.'];
+  if(near)m.push(es?`Ya le preparé un volante para ${near.name}.`:`I already made a flyer for ${near.name}.`);
+  m.push(es?'¿Le cuento en 5 minutos cómo funciona?':'Can I walk you through it in 5 minutes?');
   return m.join('\n\n');}
+
+/* What to say on the call: built from the real search results, in the owner's language. */
+let pitchText='';
+function renderLunchPitch(){const el=$('lunch-pitch');
+  if(!lunch.center){el.innerHTML=`<p class="empty">${EN()?'Press "Make the gifts" above to see the offices nearby and what to say.':'Presione «Preparar los regalos» arriba para ver las oficinas cercanas y qué decir.'}</p>`;pitchText='';return;}
+  const es=olang()==='es',N=lunch.places.length,O=v('r-owner'),R=v('r-name')||(es?'su restaurante':'your restaurant'),cut=v('l-cutoff')||'10:30 am';
+  const near=selected()[0]||lunch.places[0],where=near?(near.dist<=0.25?(es?'a unas cuadras':'a few blocks away'):(es?`a ${fmtMi(near.dist)} millas`:`${fmtMi(near.dist)} miles away`)):'';
+  const counts={};lunch.places.forEach(p=>{counts[p.cat]=(counts[p.cat]||0)+1;});
+  const mix=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,n])=>`${(es?CATS[k].es:CATS[k].en).toLowerCase()}: ${n}`).join(' · ');
+  const open=es?`«${O?O+', ':''}hay ${N} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} de ${R}${near?`; ${near.name} está ${where}`:''}. Esa gente almuerza todos los días.»`
+               :`"${O?O+', ':''}there are ${N} workplaces within ${radLabel('en',lunch.radius)} of ${R}${near?`; ${near.name} is ${where}`:''}. Those people eat lunch every day."`;
+  const pts=es?[`Qué hay cerca: ${mix}.`,`Con MealPool, una oficina pide junta, por adelantado, antes de las ${cut}. Usted cocina todo junto y decide cuántos pedidos acepta: su capacidad, sus horarios, su control.`,near?`Ya le preparé un volante para ${near.name}. Usted solo lo entrega.`:'']
+              :[`What's nearby: ${mix}.`,`With MealPool, an office orders together, ahead of time, by ${cut}. You cook it all at once and decide how many orders to take: your capacity, your cutoffs, your control.`,near?`I already made a flyer for ${near.name}. You just hand it over.`:''];
+  const close=es?'«¿Le mando el mapa por WhatsApp para que lo vea con calma?»':'"Can I WhatsApp you the map so you can look at it later?"';
+  el.innerHTML=`<p class="pitch-open"></p><ol class="opps"></ol><p style="margin:0;font-size:15px"></p>`;
+  el.querySelector('.pitch-open').textContent=open;el.querySelector('p:last-child').textContent=close;
+  pts.filter(Boolean).forEach((t,i)=>{const li=document.createElement('li');li.innerHTML=`<span class="num">${i+1}</span><div><p></p></div>`;li.querySelector('p').textContent=t;el.querySelector('ol').appendChild(li);});
+  pitchText=[open,...pts.filter(Boolean).map((t,i)=>`${i+1}. ${t}`),close].join('\n');}
 
 function buildEmail(o,lang){const R=v('r-name')||'[restaurant]',O=v('r-owner'),addr=v('r-addr'),d=fmtMi(o.dist),near=o.dist<=1,
     cut=v('l-cutoff')||'10:30 am',lt=v('l-time')||'12:00 pm',del=lmode()==='deliver',link=v('r-link')?tracked(v('r-link'),'regalo-almuerzo'):'[menu link]';
@@ -996,9 +1021,9 @@ function renderLunchOutputs(){if(!lunch.center){$('lunch-outs').hidden=true;retu
   const o=sel.find(p=>p.id===fs.value);
   $('img-flyer').closest('.out').querySelectorAll('.btns,.shot,textarea,#copy-email').forEach(e=>{e.hidden=!o;});
   if(o){const f=drawFlyer(o,llang());$('img-flyer').src=f;$('dl-flyer').href=f;$('dl-flyer').download=`volante-${slug(o.name)}.png`;$('lunch-email').value=buildEmail(o,llang());}}
-function renderLunch(){renderLunchList();drawMap();renderLunchOutputs();}
+function renderLunch(){renderLunchList();drawMap();renderLunchOutputs();renderLunchPitch();}
 
-['l-cutoff','l-time'].forEach(id=>$(id).addEventListener('input',()=>{clearTimeout(t);t=setTimeout(renderLunchOutputs,150);}));
+['l-cutoff','l-time'].forEach(id=>$(id).addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>{renderLunchOutputs();renderLunchPitch();},150);}));
 document.querySelectorAll('input[name=l-mode],input[name=l-lang]').forEach(e=>e.addEventListener('change',renderLunchOutputs));
 $('flyer-for').addEventListener('change',renderLunchOutputs);
 ['lunch-wa','lunch-email'].forEach(id=>$(id).addEventListener('input',e=>e.stopPropagation()));
@@ -1007,12 +1032,52 @@ $('copy-email').onclick=()=>copyText('lunch-email','st-email');
 $('copy-radar').onclick=()=>copyImage('img-radar','st-radar');
 $('copy-flyer').onclick=()=>copyImage('img-flyer','st-flyer');
 
+/* ---------- Marketing kit samples (Gift 2), MealPool collateral style: white, bold navy, blue accent, green rule ---------- */
+function samplePill(x,W){x.font=`700 22px ${F}`;const t='EJEMPLO · SAMPLE',w=x.measureText(t).width+32;rr(x,W-w-36,36,w,40,20);x.fillStyle='#EEEAFB';x.fill();x.fillStyle='#6D4FD8';x.textAlign='left';x.fillText(t,W-w-20,63);}
+function qrOrBox(x,link,X,Y,size){const q=link?qrCanvas(tracked(link,'regalo-kit'),size,MP.navy):null;
+  if(q){x.drawImage(q,X,Y,size,size);return;}x.fillStyle='#F1F4F8';rr(x,X,Y,size,size,16);x.fill();x.fillStyle='#8A97AB';x.font=`600 24px ${F}`;x.textAlign='center';x.fillText('QR',X+size/2,Y+size/2+8);}
+function drawSample(kind){const R=v('r-name')||'Su restaurante',link=v('r-link'),cut=v('l-cutoff')||'10:30 am';
+  const W=1080,H=kind==='status'?1920:1080,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);x.textBaseline='alphabetic';
+  if(kind==='sticker'){ // window or register sticker: big QR to order online
+    x.lineWidth=18;x.strokeStyle=MP.navy;rr(x,30,30,W-60,H-60,48);x.stroke();
+    x.textAlign='center';x.fillStyle=MP.navy;x.font=`800 92px ${F}`;x.fillText('Pida en línea',W/2,200);
+    x.fillStyle=MP.blue;x.font=`800 52px ${F}`;x.fillText('Order online',W/2,268);
+    qrOrBox(x,link,W/2-210,320,420);
+    x.fillStyle=MP.green;rr(x,W/2-60,775,120,10,5);x.fill();
+    x.fillStyle=MP.navy;x.font=`800 50px ${F}`;x.textAlign='center';x.fillText(wrap(x,R,900)[0],W/2,860);
+    x.fillStyle='#5B6B82';x.font=`500 28px ${F}`;x.fillText('Escanee con la cámara · Scan with your camera',W/2,920);
+    samplePill(x,W);return cv.toDataURL('image/png');}
+  if(kind==='fb'){ // Facebook post
+    drawLogo(x,170,180,96);x.lineWidth=4;x.strokeStyle=MP.ring;x.beginPath();x.arc(170,180,96,0,Math.PI*2);x.stroke();
+    x.textAlign='left';x.fillStyle=MP.navy;x.font=`700 34px ${F}`;x.fillText(wrap(x,R,560)[0],300,170);
+    x.fillStyle='#5B6B82';x.font=`500 26px ${F}`;x.fillText(city()||'',300,212);
+    x.fillStyle=MP.navy;x.font=`800 96px ${F}`;x.fillText('¡Ya puede',80,430);x.fillText('pedir en línea!',80,535);
+    x.fillStyle=MP.blue;x.font=`800 58px ${F}`;x.fillText('Order online now.',80,620);
+    x.fillStyle=MP.green;rr(x,80,660,90,9,4);x.fill();
+    x.fillStyle='#4B5B73';x.font=`500 36px ${F}`;['Pida directo con nosotros:','sin filas y sin llamar.'].forEach((l,i)=>x.fillText(l,80,740+i*48));
+    x.fillStyle='#EAF7F0';rr(x,80,850,W-160,130,20);x.fill();x.fillStyle='#0E7A4E';x.font=`700 34px ${F}`;
+    x.fillText(link?'👉 '+wrap(x,link.replace(/^https?:\/\//,''),W-260)[0]:'👉 Enlace en la descripción · Link in the caption',110,928);
+    samplePill(x,W);return cv.toDataURL('image/png');}
+  // WhatsApp Status: group lunch with MealPool
+  x.fillStyle='#EEEAFB';rr(x,80,120,420,56,28);x.fill();x.fillStyle='#6D4FD8';x.font=`800 26px ${F}`;x.textAlign='left';x.fillText('ALMUERZO EN GRUPO',108,158);
+  drawLogo(x,W/2,420,170);x.lineWidth=6;x.strokeStyle=MP.ring;x.beginPath();x.arc(W/2,420,170,0,Math.PI*2);x.stroke();
+  x.textAlign='left';x.fillStyle=MP.navy;x.font=`800 104px ${F}`;let y=760;wrap(x,'¿Almuerzo para la oficina?',W-160).forEach(l=>{x.fillText(l,80,y);y+=118;});
+  x.fillStyle=MP.blue;x.font=`800 64px ${F}`;x.fillText(`Pidan juntos antes de las ${cut}.`,80,y+10,W-160);y+=60;
+  x.fillStyle=MP.green;rr(x,80,y+20,90,9,4);x.fill();y+=90;
+  x.fillStyle='#4B5B73';x.font=`500 40px ${F}`;['Un solo pedido para todo el equipo.','Lunch for your whole team, ordered together.'].forEach(l=>{x.fillText(l,80,y,W-160);y+=56;});
+  qrOrBox(x,link,W/2-200,y+40,400);
+  x.fillStyle=MP.navy;x.font=`700 34px ${F}`;x.textAlign='center';x.fillText('MealPool by SalesVu',W/2,H-90);
+  samplePill(x,W);return cv.toDataURL('image/png');}
+function renderSamples(){['sticker','fb','status'].forEach(k=>{const d=drawSample(k);$('img-s-'+k).src=d;const a=$('dl-s-'+k);a.href=d;a.download=`${k}-${slug(v('r-name'))}.png`;});}
+document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>copyImage(b.dataset.copy,'st-samples'));
+
 /* ---------- Render + copy ---------- */
 function slug(s){return (s||'restaurante').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'restaurante';}
 function render(){updLogoPrev();renderLinks();renderSummary();
   $('wa').value=buildMsg(olang());$('wa-en').textContent=buildMsg(olang()==='es'?'en':'es');
   const img=drawReport();$('img-report').src=img;$('dl-report').href=img;$('dl-report').download=`chequeo-${slug(v('r-name'))}.png`;
-  if(lunch.center){renderLunchOutputs();drawMap();}}
+  renderSamples();renderLunchPitch();if(lunch.center){renderLunchOutputs();drawMap();}}
 function copyText(taId,stId){const t=$(taId).value;const ok=()=>flash(stId,EN()?'Copied.':'Copiado.');
   const fb=()=>{$(taId).focus();$(taId).select();flash(stId,EN()?'Text selected. Press Ctrl+C / Cmd+C to copy.':'Texto seleccionado. Presione Ctrl+C / Cmd+C para copiar.');};
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb();}
@@ -1025,32 +1090,33 @@ $('copy-wa').onclick=()=>{const t=$('wa').value;const ok=()=>flash('st-wa',EN()?
 $('copy-report').onclick=()=>{const src=$('img-report').src;const fail=()=>flash('st-report',EN()?'Your browser blocked copying. Use Download, or long-press the image.':'Su navegador no permitió copiar. Use Descargar, o mantenga presionada la imagen.');
   try{fetch(src).then(r=>r.blob()).then(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})])).then(()=>flash('st-report',EN()?'Image copied. Paste it in WhatsApp.':'Imagen copiada. Péguela en WhatsApp.'),fail);}catch(e){fail();}};
 
-$('reset').onclick=()=>{['r-name','r-addr','r-owner','r-link'].forEach(i=>$(i).value='');$('r-next').value='mañana';logoImg=null;$('r-logo').value='';place=null;
-  $('found').innerHTML='';$('lookup-st').textContent='';setAll({});CHECKS.forEach(c=>{$('src-'+c.id).hidden=true;});render();$('r-name').focus();};
+$('reset').onclick=()=>{['r-name','r-addr','r-owner','r-link'].forEach(i=>$(i).value='');logoImg=null;$('r-logo').value='';place=null;placeKey='';
+  lunch.center=null;lunch.places=[];lunch.sel=new Set();$('lunch-pick').hidden=true;$('lunch-outs').hidden=true;$('lunch-map').hidden=true;$('lunch-empty').hidden=false;
+  $('found').innerHTML='';$('go-st').textContent='';setAll({});CHECKS.forEach(c=>{$('src-'+c.id).hidden=true;});render();$('r-name').focus();};
 
 /* ---------- Wire up ---------- */
 let t;const later=()=>{clearTimeout(t);t=setTimeout(render,150);};
 $('shared').addEventListener('input',later);$('shared').addEventListener('submit',e=>e.preventDefault());
 $('qs').addEventListener('change',e=>{const id=e.target.name&&e.target.name.slice(2);if(id&&$('src-'+id))$('src-'+id).hidden=true;render();});
-$('r-next').addEventListener('input',later);$('show-score').addEventListener('change',render);
+$('more').addEventListener('input',later);$('show-score').addEventListener('change',render);
 document.querySelectorAll('input[name=olang]').forEach(e=>e.addEventListener('change',render)); // render() also redraws Part 3
 $('wa').addEventListener('input',e=>e.stopPropagation());
 
 /* ---------- Shortcuts for reps ----------
-   1) Pasting a link starts the look-up right away.
-   2) The page can open pre-filled from its own address, e.g. from a button in SalesVu's CRM:
-      regalos.html?name=Taqueria%20X&addr=123%20Main%20St%2C%20Houston%2C%20TX&maps=<Google Maps link>&store=<store link>&owner=Ana&rep=Luis
-      With any of these, the example is cleared and the look-up runs on its own.
+   1) Pasting a Google Maps link into the address box makes the gifts right away.
+   2) Optional: SalesVu's CRM can open the page pre-filled, and the gifts are made on their own:
+      regalos.html?name=Taqueria%20X&addr=123%20Main%20St%2C%20Houston%2C%20TX&store=<store link>&owner=Ana&rep=Luis
+      (or &maps=<Google Maps link> instead of &addr).
    3) The rep's name is remembered on this device. */
-$('r-url').addEventListener('paste',()=>setTimeout(()=>{if(v('r-url'))$('lookup').click();},50));
+$('r-addr').addEventListener('paste',()=>setTimeout(()=>{if(isURL(v('r-addr')))prepare();},50));
 $('r-rep').addEventListener('change',()=>store.set('svkit-rep',v('r-rep')));
 const P=new URLSearchParams(location.search),FROM_URL=['name','addr','maps','store','owner','rep'].some(k=>P.get(k));
-if(FROM_URL){[['name','r-name'],['addr','r-addr'],['owner','r-owner'],['rep','r-rep'],['store','r-link'],['maps','r-url']].forEach(([k,id])=>{$(id).value=P.get(k)||'';});
-  if(!P.get('rep'))$('r-rep').value=store.get('svkit-rep')||'';$('r-next').value='mañana';setAll({});}
+if(FROM_URL){$('r-name').value=P.get('name')||'';$('r-addr').value=P.get('maps')||P.get('addr')||'';$('r-owner').value=P.get('owner')||'';$('r-link').value=P.get('store')||'';
+  $('r-rep').value=P.get('rep')||store.get('svkit-rep')||'';setAll({});}
 else{setAll(EXAMPLE);if(store.get('svkit-rep'))$('r-rep').value=store.get('svkit-rep');}
 setLang(store.get('svkit-lang')==='en'?'en':'es');
 route();render();
-if(FROM_URL&&(v('r-name')||v('r-url')))$('lookup').click();
+if(FROM_URL&&(v('r-name')||v('r-addr')))prepare();
 (document.fonts&&document.fonts.load?Promise.all(['800','700','600','500'].map(w=>document.fonts.load(`${w} 40px Inter`))):Promise.resolve()).then(render,render);
 })();
 </script>
