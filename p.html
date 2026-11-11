@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MealPool by SalesVu</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Emoji:wght@500&display=swap">
+<style>
+/* A personalized page a rep sends to one restaurant owner. Everything on it comes from the link itself
+   (the part after #), made by the Call Prep tool. Style follows salesvu.com and the MealPool deck. */
+:root{
+  --bg:#FFFFFF; --soft:#F5F8FF; --fg:#0F1729; --muted:#5B6B82; --line:#E3E8EF;
+  --blue:#0066FF; --blue-ink:#0052CC; --blue-soft:rgba(0,102,255,.08);
+  --navy:#132F52; --green:#16BD77; --green-soft:#EAF7F0; --green-ink:#0E5C3A; --lav:#EEEAFB; --lav-ink:#6D4FD8;
+  --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+[hidden]{display:none!important}
+a{color:var(--blue-ink);text-underline-offset:3px}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
+.wordmark{font-weight:800;font-size:22px;letter-spacing:-.02em;color:var(--fg);text-decoration:none}
+.wordmark b{color:var(--blue)}
+.btn{font:inherit;font-size:15px;font-weight:600;border-radius:999px;padding:11px 22px;border:1px solid var(--line);background:#fff;color:var(--blue-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn.small{font-size:14px;padding:8px 16px;box-shadow:none}
+
+.hero{position:relative;isolation:isolate;padding-block:64px 56px;text-align:center}
+.hero::before{content:"";position:absolute;inset:0 -20% auto;height:560px;z-index:-1;pointer-events:none;
+  background:radial-gradient(40% 55% at 32% 40%,rgba(124,92,255,.18),transparent 70%),radial-gradient(40% 55% at 64% 34%,rgba(0,102,255,.16),transparent 70%)}
+.logo{width:120px;height:120px;border-radius:50%;margin:0 auto 22px;display:block;box-shadow:0 10px 30px rgba(15,23,41,.10)}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--blue-ink);background:var(--blue-soft);padding:6px 14px;border-radius:999px}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue)}
+h1{font-size:clamp(34px,6vw,60px);line-height:1.04;letter-spacing:-.04em;margin:18px auto 16px;max-width:16ch;text-wrap:balance}
+.hl{color:var(--blue)}
+.lede{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:56ch;margin:0 auto 28px}
+.ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.fine{font-size:13px;color:var(--muted);margin-top:14px}
+
+section.block{padding-block:56px;border-top:1px solid var(--line)}
+h2{font-size:clamp(26px,3.6vw,38px);line-height:1.12;letter-spacing:-.03em;margin:0 0 10px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 28px;max-width:60ch}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.split{grid-template-columns:minmax(0,1fr)}}
+.big{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.big strong{font-size:clamp(56px,9vw,88px);line-height:1;letter-spacing:-.05em;color:var(--navy);font-variant-numeric:tabular-nums}
+.big span{font-size:18px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font-size:14px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--soft);border:1px solid var(--line)}
+.places{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.places li{display:flex;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.places li span{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.callout{margin-top:22px;background:var(--green-soft);color:var(--green-ink);border-radius:16px;padding:18px 20px;font-weight:700;font-size:18px}
+.callout small{display:block;font-weight:500;font-size:13px;margin-top:4px;opacity:.85}
+
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;counter-reset:s}
+@media (max-width:820px){.steps{grid-template-columns:minmax(0,1fr)}}
+.step{padding:22px;border:1px solid var(--line);border-radius:18px;background:#fff}
+.step::before{counter-increment:s;content:counter(s);display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;margin-bottom:12px}
+.step h3{margin:0 0 6px;font-size:18px;letter-spacing:-.01em}
+.step p{margin:0;color:var(--muted);font-size:15px}
+.control{margin-top:18px;display:inline-block;background:var(--green-soft);color:var(--green-ink);font-weight:700;border-radius:12px;padding:12px 18px}
+
+.checks{display:grid;gap:10px}
+.check{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:var(--soft)}
+.check b{font-size:13px;font-weight:700;white-space:nowrap}
+.check b.ok{color:#0E7A4E}.check b.fix{color:#C2410C}.check b.unk{color:var(--muted)}
+.help{display:grid;gap:12px}
+.help div{padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.help strong{display:block;margin-bottom:4px}
+.help p{margin:0;color:var(--muted);font-size:15px}
+
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:900px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.cards{grid-template-columns:minmax(0,1fr)}}
+.card{padding:22px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 1px 2px rgba(15,23,41,.04),0 8px 24px rgba(15,23,41,.04)}
+.card .ico{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--blue-soft);color:var(--blue);margin-bottom:12px}
+.card .ico svg{width:22px;height:22px}
+.card h3{margin:0 0 6px;font-size:17px}
+.card p{margin:0;color:var(--muted);font-size:15px}
+
+.formwrap{background:var(--navy);color:#fff;border-radius:24px;padding:clamp(24px,4vw,44px)}
+.formwrap h2{color:#fff}
+.formwrap .sub{color:#C7D3E6}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px}
+.field{display:grid;gap:6px}
+label{font-size:14px;font-weight:600;color:#E6EDF7}
+input,select{font:inherit;font-size:16px;width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff}
+input::placeholder{color:#9FB3CC}
+select option{color:#0F1729}
+.form-go{grid-column:1/-1;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.thanks{grid-column:1/-1;background:rgba(22,189,119,.16);border-radius:12px;padding:14px 16px;color:#D1FAE5}
+footer{padding-block:36px 48px;color:var(--muted);font-size:13px;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+<header><div class="wrap head">
+  <a class="wordmark" href="#top">Sales<b>Vu</b></a>
+  <a class="btn primary small" href="#empezar" id="h-cta"></a>
+</div></header>
+
+<main id="top">
+  <section class="hero wrap">
+    <canvas class="logo" id="logo" width="240" height="240" aria-hidden="true"></canvas>
+    <span class="badge" id="badge"></span>
+    <h1 id="h1"></h1>
+    <p class="lede" id="lede"></p>
+    <div class="ctas"><a class="btn primary" href="#empezar" id="cta1"></a><a class="btn" href="#oficinas" id="cta2"></a></div>
+    <p class="fine" id="fine"></p>
+  </section>
+
+  <section class="block wrap" id="oficinas">
+    <h2 id="o-h"></h2><p class="sub" id="o-sub"></p>
+    <div class="split">
+      <div><div class="big"><strong id="o-n"></strong><span id="o-n-lbl"></span></div><div class="chips" id="o-chips"></div><div class="callout" id="o-est"></div></div>
+      <ul class="places" id="o-list"></ul>
+    </div>
+  </section>
+
+  <section class="block wrap" id="como">
+    <h2 id="c-h"></h2><p class="sub" id="c-sub"></p>
+    <div class="steps" id="c-steps"></div>
+    <div class="control" id="c-control"></div>
+  </section>
+
+  <section class="block wrap" id="presencia">
+    <h2 id="p-h"></h2><p class="sub" id="p-sub"></p>
+    <div class="split"><div class="checks" id="p-checks"></div><div class="help" id="p-help"></div></div>
+  </section>
+
+  <section class="block wrap" id="salesvu">
+    <h2 id="s-h"></h2><p class="sub" id="s-sub"></p>
+    <div class="cards" id="s-cards"></div>
+  </section>
+
+  <section class="block wrap" id="empezar">
+    <div class="formwrap">
+      <h2 id="f-h"></h2><p class="sub" id="f-sub"></p>
+      <form id="f" autocomplete="on">
+        <div class="field"><label for="f-name" id="l-name"></label><input id="f-name" name="name" type="text" autocomplete="name"></div>
+        <div class="field"><label for="f-phone" id="l-phone"></label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
+        <div class="field"><label for="f-meals" id="l-meals"></label><select id="f-meals" name="meals"></select></div>
+        <div class="field"><label for="f-time" id="l-time"></label><select id="f-time" name="time"></select></div>
+        <div class="form-go"><button type="submit" class="btn primary" id="f-go"></button><span id="f-note" style="font-size:13px;color:#C7D3E6"></span></div>
+        <div class="thanks" id="f-thanks" hidden></div>
+      </form>
+    </div>
+  </section>
+</main>
+<footer class="wrap" id="foot"></footer>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+/* The tool puts this restaurant's details after #d= (base64 JSON). With no data, show a clearly marked example. */
+function readData(){try{const h=new URLSearchParams(location.hash.slice(1)).get('d');if(!h)return null;
+  const b=atob(h.replace(/-/g,'+').replace(/_/g,'/'));return JSON.parse(decodeURIComponent(escape(b)));}catch(e){return null;}}
+const EXAMPLE={n:'Taquería Los Compadres',c:'Houston, TX',r:'Andrea',lg:'es',demo:1,
+  ofs:{n:43,r:1,top:[['Frost Bank',0.1,'office'],['EaDo Family Dental',0.1,'health'],['Urban Office',0.2,'office'],['Houston International Brokers',0.2,'office'],['Iridium Pharmacy',0.2,'health']],cats:[['office',21],['gov',8],['school',6],['health',5]]},
+  pr:{good:['gmaps','fb'],bad:['order','apps','web']},kit:1};
+const D=readData()||EXAMPLE,es=D.lg!=='en',T=(a,b)=>es?a:b;
+document.documentElement.lang=es?'es':'en';
+const R=D.n||T('su restaurante','your restaurant'),rep=D.r||'SalesVu';
+const CAT={office:['oficinas','offices'],health:['salud','health'],school:['escuelas','schools'],gov:['gobierno','government'],cars:['agencias y talleres','dealers & shops'],industry:['industria y bodegas','industry & warehouses']};
+const radL=mi=>es?(mi===0.5?'media milla':mi===1?'1 milla':mi+' millas'):(mi===0.5?'half a mile':mi===1?'1 mile':mi+' miles');
+const txt=(id,t)=>{$(id).textContent=t;};
+
+document.title=`${R} · MealPool by SalesVu`;
+txt('h-cta',T('Quiero empezar','Get started'));
+txt('badge',T(`Preparado para ${R}`,`Prepared for ${R}`));
+$('h1').innerHTML='';$('h1').append(T('Más pedidos para ','More orders for '));const hl=document.createElement('span');hl.className='hl';hl.textContent=R;$('h1').append(hl);
+txt('lede',T('Almuerzos de oficina, pedidos por adelantado. Empiece el día con pedidos, no con suposiciones.','Office lunches, pre-ordered. Start the day with orders, not guesswork.'));
+txt('cta1',T('Quiero probar MealPool','Try MealPool'));txt('cta2',T('Ver las oficinas cerca','See the offices nearby'));
+txt('fine',D.demo?T('Ejemplo de página. Su representante le prepara una con los datos de su restaurante.','Example page. Your rep prepares one with your restaurant\'s details.'):T(`Preparado por ${rep}, de SalesVu${D.c?' · '+D.c:''}.`,`Prepared by ${rep} from SalesVu${D.c?' · '+D.c:''}.`));
+
+/* Offices nearby */
+const O=D.ofs;
+if(O&&O.n){txt('o-h',T('Sus próximos clientes de la comida están a la vuelta de la esquina','Your next lunch customers are right around the corner'));
+  txt('o-sub',T(`Estos lugares de trabajo están a menos de ${radL(O.r)} de ${R}. Su gente almuerza todos los días.`,`These workplaces are within ${radL(O.r)} of ${R}. Their people eat lunch every day.`));
+  txt('o-n',O.n);txt('o-n-lbl',T(`lugares de trabajo a menos de ${radL(O.r)}`,`workplaces within ${radL(O.r)}`));
+  (O.cats||[]).slice(0,4).forEach(([k,n])=>{const c=document.createElement('span');c.className='chip';c.textContent=`${n} ${(CAT[k]||[k,k])[es?0:1]}`;$('o-chips').appendChild(c);});
+  (O.top||[]).slice(0,5).forEach(([name,d])=>{const li=document.createElement('li');li.innerHTML='<strong></strong><span></span>';li.children[0].textContent=name;li.children[1].textContent=`${d<0.1?'0.1':d.toFixed(1)} mi`;$('o-list').appendChild(li);});
+  if(O.n>=3){$('o-est').innerHTML='';$('o-est').append(T('3 oficinas × 10 almuerzos = 30 pedidos más por semana','3 offices × 10 lunches = 30 more orders a week'));const sm=document.createElement('small');sm.textContent=T('Ejemplo: si 3 oficinas piden para 10 personas una vez por semana.','Example: if 3 offices order for 10 people once a week.');$('o-est').appendChild(sm);}else $('o-est').hidden=true;
+}else $('oficinas').hidden=true;
+
+/* How MealPool works (wording from the MealPool deck) */
+txt('c-h',T('Cómo funciona MealPool','How MealPool works'));
+txt('c-sub',T('Pedidos de almuerzo en grupo de las oficinas cercanas, sin pagar comisión por pedido.','Group lunch orders from nearby offices, with no per-order commission.'));
+[[T('Las oficinas piden juntas','Offices order together'),T('Los compañeros de una oficina arman un pedido en grupo, por adelantado.','Coworkers build one group order, ahead of time.')],
+ [T('Usted ve los pedidos temprano','You see orders early'),T('Sabe cuánto cocinar antes de abrir. Sin sorpresas en la hora pico.','You know how much to cook before you open. No surprises at rush hour.')],
+ [T('Usted cocina todo junto','You cook it all at once'),T('Prepara y entrega (o tienen listo para recoger) a la hora que usted elija.','Prepare and deliver, or have it ready for pickup, at the time you choose.')]]
+ .forEach(([h,p])=>{const d=document.createElement('div');d.className='step';d.innerHTML='<h3></h3><p></p>';d.children[0].textContent=h;d.children[1].textContent=p;$('c-steps').appendChild(d);});
+txt('c-control',T('Su capacidad. Sus horarios. Su control.','Your capacity. Your cutoffs. Your control.'));
+
+/* Online presence */
+const LBL={order:['Pedidos en línea directos','Direct online orders'],apps:['Sin comisiones de apps de entrega','No delivery-app commissions'],web:['Página web con menú','Website with menu'],gmaps:['Google Maps con horario','Google Maps with hours'],fb:['Facebook activo','Active on Facebook']};
+const HELP={order:[T('Más pedidos directos','More direct orders'),T('Sus clientes piden en línea con usted, sin pasar por las apps. Nosotros le armamos su enlace de pedidos.','Your customers order online straight from you, not through the apps. We set up your ordering link.')],
+  apps:[T('Más ganancia en cada pedido','More profit on every order'),T('Las apps cobran entre 15% y 30%. Con su propio enlace, sus clientes de siempre piden sin esa comisión.','The apps charge 15–30%. With your own link, your regulars order without that commission.')],
+  web:[T('Más clientes nuevos','More new customers'),T('Que encuentren su menú y sus precios en internet. Nosotros le preparamos la página.','People find your menu and prices online. We build the page for you.')],
+  gmaps:[T('No pierda clientes que lo buscan','Don\'t lose customers looking for you'),T('Ponga su horario, teléfono y dirección correctos en Google.','Put your correct hours, phone and address on Google.')],
+  fb:[T('Más clientes que regresan','More repeat customers'),T('Publique 2 veces por semana. Le damos las imágenes listas con su logo.','Post twice a week. We give you ready-made images with your logo.')]};
+const P=D.pr;
+if(P&&((P.good||[]).length||(P.bad||[]).length)){txt('p-h',T(`${R} en internet`,`${R} online`));txt('p-sub',T('Lo que ya funciona, y lo que le ayudamos a mejorar para recibir más pedidos.','What already works, and what we help you improve to get more orders.'));
+  Object.keys(LBL).forEach(k=>{const st=(P.good||[]).includes(k)?'ok':(P.bad||[]).includes(k)?'fix':'unk';const d=document.createElement('div');d.className='check';d.innerHTML='<span></span><b></b>';
+    d.children[0].textContent=LBL[k][es?0:1];d.children[1].className=st;d.children[1].textContent=st==='ok'?T('Bien','Good'):st==='fix'?T('Le ayudamos','We can help'):T('Por revisar','To check');$('p-checks').appendChild(d);});
+  (P.bad||[]).slice(0,3).forEach(k=>{if(!HELP[k])return;const d=document.createElement('div');d.innerHTML='<strong></strong><p></p>';d.children[0].textContent=HELP[k][0];d.children[1].textContent=HELP[k][1];$('p-help').appendChild(d);});
+  if(!$('p-help').children.length){const d=document.createElement('div');d.innerHTML='<strong></strong><p></p>';d.children[0].textContent=T('Ya va muy bien','You\'re in great shape');d.children[1].textContent=T('El siguiente paso: pedidos de almuerzo en grupo de las oficinas cercanas, con MealPool.','Next step: group lunch orders from nearby offices, with MealPool.');$('p-help').appendChild(d);}
+}else $('presencia').hidden=true;
+
+/* What SalesVu does (features from salesvu.com and the MealPool deck) */
+const ICONS={"🛒": '<path d="M4 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L20 8H7"/><circle cx="10" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/>', "💵": '<path d="M19 5 5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>', "🌮": '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M14 19a4 4 0 0 1 7-2.6"/>', "📣": '<path d="M4 10v4a1 1 0 0 0 1 1h2l6 4V5L7 9H5a1 1 0 0 0-1 1Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/>'};
+txt('s-h',T('SalesVu trabaja para usted','SalesVu works for you'));txt('s-sub',T('Le dejamos todo listo. Usted se enfoca en su cocina y sus clientes.','We set everything up. You focus on your kitchen and your customers.'));
+[['🛒',T('Su tienda en línea','Your online store'),T('Con su menú y sus precios. La armamos nosotros.','With your menu and prices. We build it.')],
+ ['💵',T('Sin comisión por pedido','No per-order commission'),T('Sus clientes piden directo con usted.','Customers order directly from you.')],
+ ['🌮',T('Almuerzos en grupo','Group lunches'),T('MealPool trae pedidos de las oficinas cercanas.','MealPool brings orders from nearby offices.')],
+ ['📣',T('Marketing con su logo','Marketing with your logo'),T('Calcomanía con QR, publicaciones para Facebook y WhatsApp.','A QR sticker, posts for Facebook and WhatsApp.')]]
+ .forEach(([i,h,p])=>{const d=document.createElement('div');d.className='card';d.innerHTML=`<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[i]}</svg></span><h3></h3><p></p>`;d.children[1].textContent=h;d.children[2].textContent=p;$('s-cards').appendChild(d);});
+
+/* Form: sends the owner's answers to the rep on WhatsApp (nothing is stored on a server). */
+txt('f-h',T('¿Le interesa? Empecemos','Interested? Let\'s start'));
+txt('f-sub',T(`Déjenos sus datos y ${rep} le contacta para dejar todo listo.`,`Leave your details and ${rep} will contact you to set everything up.`));
+txt('l-name',T('Su nombre','Your name'));txt('l-phone',T('Su WhatsApp o teléfono','Your WhatsApp or phone'));
+txt('l-meals',T('¿Cuántos almuerzos extra puede preparar al día?','How many extra lunches can you make a day?'));txt('l-time',T('Mejor hora para hablar','Best time to talk'));
+[['10–20','10–20'],['20–50','20–50'],['50+','50+'],[T('No sé todavía','Not sure yet'),T('No sé todavía','Not sure yet')]].forEach(([a])=>{const o=document.createElement('option');o.textContent=a;$('f-meals').appendChild(o);});
+[T('En la mañana','Morning'),T('Después de la comida (3–5 pm)','After lunch (3–5 pm)'),T('En la noche','Evening')].forEach(t=>{const o=document.createElement('option');o.textContent=t;$('f-time').appendChild(o);});
+txt('f-go',T('Enviar por WhatsApp','Send on WhatsApp'));
+const wa=(D.w||'').replace(/[^\d]/g,'');
+txt('f-note',wa?T(`Se abre WhatsApp con un mensaje para ${rep}.`,`WhatsApp opens with a message to ${rep}.`):T(`O responda directamente al WhatsApp de ${rep}.`,`Or reply directly to ${rep}'s WhatsApp.`));
+$('f').addEventListener('submit',e=>{e.preventDefault();
+  const msg=T(`Hola ${rep}, soy ${$('f-name').value||'[nombre]'} de ${R}. Me interesa MealPool. Puedo preparar ${$('f-meals').value} almuerzos extra al día. Mejor hora: ${$('f-time').value}. Mi número: ${$('f-phone').value||'[número]'}.`,
+              `Hi ${rep}, this is ${$('f-name').value||'[name]'} from ${R}. I'm interested in MealPool. I can make ${$('f-meals').value} extra lunches a day. Best time: ${$('f-time').value}. My number: ${$('f-phone').value||'[number]'}.`);
+  const t=$('f-thanks');t.hidden=false;
+  if(wa){t.textContent=T('¡Gracias! Se abrió WhatsApp con su mensaje. Si no se abrió, copie este texto y mándelo: ','Thanks! WhatsApp opened with your message. If it didn\'t, copy this text and send it: ')+msg;window.location.href=`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;}
+  else t.textContent=T('¡Gracias! Copie este texto y respóndalo en el WhatsApp de su representante: ','Thanks! Copy this text and send it in your rep\'s WhatsApp: ')+msg;});
+
+$('foot').textContent=T('MealPool by SalesVu · Restaurant Growth Solutions for the AI Age','MealPool by SalesVu · Restaurant Growth Solutions for the AI Age');
+
+/* Logo: the restaurant's name in the MealPool collateral style, with Mexican-food icons (Noto Emoji). */
+function drawLogo(){const c=$('logo'),x=c.getContext('2d'),r=120;x.clearRect(0,0,240,240);x.save();x.beginPath();x.arc(r,r,r,0,Math.PI*2);x.clip();
+  x.fillStyle='#EEF4FF';x.fillRect(0,0,240,240);x.globalAlpha=.55;x.fillStyle='#2D7CFF';x.font='500 30px "Noto Emoji",sans-serif';x.textAlign='center';x.textBaseline='middle';
+  const F=['🌮','🌶','🥑','🌯','🌽','🌮','🌵','🍋'];let k=0;for(let y=10;y<250;y+=54){for(let xx=(k%2?37:10);xx<250;xx+=56){x.save();x.translate(xx,y);x.rotate(((k*47)%40-20)*Math.PI/180);x.fillText(F[k%F.length],0,0);x.restore();k++;}}
+  x.globalAlpha=1;x.beginPath();x.arc(r,r,84,0,Math.PI*2);x.fillStyle='#fff';x.fill();
+  const words=R.split(' '),lines=[];let line='';x.font='800 26px Inter, sans-serif';words.forEach(w=>{const t=line?line+' '+w:w;if(x.measureText(t).width>130&&line){lines.push(line);line=w;}else line=t;});if(line)lines.push(line);
+  const L=lines.slice(0,3),lh=28;let yy=r-((L.length-1)*lh)/2-6;x.fillStyle='#132F52';L.forEach(l=>{x.fillText(l,r,yy);yy+=lh;});
+  x.fillStyle='#16BD77';x.fillRect(r-20,yy-8,40,5);x.restore();}
+drawLogo();if(document.fonts&&document.fonts.load)Promise.all([document.fonts.load('500 30px "Noto Emoji"','🌮🌶🥑'),document.fonts.load('800 26px Inter')]).then(drawLogo,()=>{});
+})();
+</script>
+</body>
+</html>

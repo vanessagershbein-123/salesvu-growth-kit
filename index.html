@@ -105,7 +105,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .btn.primary:hover{color:#fff}
 .btn.primary{background:var(--btn);border-color:var(--btn);color:#fff}
 .btn.primary:hover{filter:brightness(1.08)}
-.btn.big{font-size:16px;padding:14px 30px;box-shadow:0 8px 20px rgba(0,102,255,.22)}
+.btn.big{font-size:16px;padding:14px 30px}
 .btn.small{font-size:13px;padding:6px 12px}
 .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .btn[disabled]{opacity:.65;cursor:progress}
@@ -245,6 +245,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
       <div class="grid2">
         <div class="field"><label for="r-owner"><span class="es">Nombre del dueño</span><span class="en">Owner's name</span></label><input type="text" id="r-owner" placeholder="Don Ramiro"></div>
         <div class="field"><label for="r-rep"><span class="es">Su nombre</span><span class="en">Your name</span></label><input type="text" id="r-rep" placeholder="Ej.: Andrea"></div>
+        <div class="field"><label for="r-wa"><span class="es">Su WhatsApp (para la página del dueño)</span><span class="en">Your WhatsApp (for the owner's page)</span></label><input type="text" id="r-wa" inputmode="tel" placeholder="+57 300 000 0000"></div>
         <div class="field"><label for="r-link"><span class="es">Enlace para el dueño (opcional)</span><span class="en">Link for the owner (optional)</span></label><input type="text" id="r-link" inputmode="url" placeholder="https://…"><span class="hint"><span class="es">Va en el mensaje y en los códigos QR. Lo ideal: la tienda que SalesVu le preparó (del CRM). También sirve su página, Google Maps o un enlace para agendar.</span><span class="en">It goes in the message and the QR codes. Best: the store SalesVu built for them (from the CRM). Their website, Google Maps or a booking link also work.</span></span></div>
         <div class="field">
           <span class="lbl"><span class="es">Logo</span><span class="en">Logo</span></span>
@@ -364,6 +365,11 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
       </div>
       <div class="pages" id="pages"></div>
     </div>
+    <div class="field">
+      <label for="land"><span class="es">Página personalizada para el dueño</span><span class="en">Personalized page for the owner</span></label>
+      <div class="go-row"><input type="text" id="land" readonly style="flex:1 1 260px"><button type="button" class="btn small" data-copytext="land"><span class="es">Copiar enlace</span><span class="en">Copy link</span></button><a class="btn small" id="land-open" target="_blank" rel="noopener"><span class="es">Ver página</span><span class="en">Open page</span></a></div>
+      <span class="hint"><span class="es">Una página con su nombre, las oficinas cerca, cómo funciona MealPool y un formulario que le llega a usted por WhatsApp. Va en el mensaje.</span><span class="en">A page with their name, the offices nearby, how MealPool works, and a form that reaches you on WhatsApp. It's in the message.</span></span>
+    </div>
     <details class="sub" id="kit-loose">
       <summary><span class="es">Imágenes sueltas del kit (para publicar)</span><span class="en">Individual kit images (for posting)</span></summary>
       <div class="pages" id="samples"></div>
@@ -426,6 +432,11 @@ const pickLink=t=>{const m=(t||'').match(/https?:\/\/[^\s<>"']+/i);return m?m[0]
 const fixLink=t=>{t=(t||'').trim();return !t||isURL(t)?t:(/^[\w-]+(\.[\w-]+)+(\/|$)/.test(t)?'https://'+t:t);};
 function city(){if(isURL(v('r-addr')))return '';const parts=v('r-addr').split(',').map(s=>s.trim()).filter(Boolean);return parts.length>1?parts.slice(1).join(', '):parts[0]||'';}
 const L=o=>EN()?o.en:o.es;
+/* "Austin, Texas" out of a long address like "4715, East Cesar Chavez Street, Austin, Condado de Travis, Texas, 78702, …". */
+function shortCity(){const parts=v('r-addr').split(',').map(t=>t.trim()).filter(Boolean);if(isURL(v('r-addr'))||parts.length<2)return city();
+  const st=parts.findIndex(t=>/^(Texas|California|Arizona|New Mexico|Illinois|Florida|Nevada|Colorado|Georgia|New York|[A-Z]{2}( \d{5})?)$/.test(t));
+  if(st>0){let c=st-1;while(c>0&&/^(Condado|County|Harris|Travis)|County$/i.test(parts[c]))c--;return parts[c]+', '+parts[st].replace(/ \d{5}$/,'');}
+  return parts.slice(1,3).join(', ');}
 const on=id=>$(id).checked;
 
 const CHECKS=[
@@ -1073,7 +1084,16 @@ function buildPack(){const sec=$('sec-pack');const any=on('m-offices')||on('m-pr
   if(on('m-kit'))[['sticker',es?'Calcomanía':'Sticker'],['fb','Facebook'],['status',es?'Estado de WhatsApp':'WhatsApp Status']].forEach(([k,t])=>{const url=drawSample(k).toDataURL('image/png');
     const d=document.createElement('div');d.className='page';d.innerHTML=`<img alt="" style="aspect-ratio:auto"><span></span><div class="btns"><button type="button" class="btn small">${EN()?'Copy':'Copiar'}</button><a class="btn small">${EN()?'Download':'Descargar'}</a></div>`;
     const im=d.querySelector('img');im.src=url;im.alt=t;d.querySelector('span').textContent=t;d.querySelector('button').onclick=()=>copyImage(im,'bar-st');const a=d.querySelector('a');a.href=url;a.download=`${k}-${slug(v('r-name'))}.png`;sm.appendChild(d);});
-  $('wa').value=buildMsg(olang());$('wa-alt').textContent=buildMsg(olang()==='es'?'en':'es');}
+  $('wa').value=buildMsg(olang());$('wa-alt').textContent=buildMsg(olang()==='es'?'en':'es');
+  const u=landingURL();$('land').value=u;$('land-open').href=u;}
+/* The owner's personalized page (p.html): everything it shows travels in the link after #d= (nothing stored anywhere). */
+function landingURL(){const r=evaluate(),d={v:1,n:v('r-name'),c:shortCity(),o:v('r-owner'),r:v('r-rep'),w:v('r-wa'),l:fixLink(v('r-link')),lg:olang()};
+  if(on('m-offices')&&lunch.places.length){const top=(selected().length?selected():lunch.places).slice(0,5);
+    d.ofs={n:lunch.places.length,r:lunch.radius,top:top.map(p=>[p.name,Math.round(p.dist*10)/10,p.cat]),cats:catCounts(lunch.places).slice(0,4)};}
+  if(on('m-presence'))d.pr={good:r.good.map(c=>c.id),bad:r.bad.map(c=>c.id)};
+  if(on('m-kit'))d.kit=1;
+  const b=btoa(unescape(encodeURIComponent(JSON.stringify(d)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  return new URL('p.html',location.href).toString().split('#')[0]+'#d='+b;}
 function buildMsg(lang){const es=lang==='es',O=v('r-owner'),rep=v('r-rep'),R=v('r-name')||(es?'su restaurante':'your restaurant'),link=v('r-link'),n=packPages.length;
   const m=[es?`Hola${O?', '+O:''}, soy ${rep||'[su nombre]'} de SalesVu.`:`Hi${O?' '+O:''}, it's ${rep||'[your name]'} from SalesVu.`];
   const f=[];
@@ -1081,6 +1101,7 @@ function buildMsg(lang){const es=lang==='es',O=v('r-owner'),rep=v('r-rep'),R=v('
   if(on('m-presence')){const k=evaluate().top.length;if(k)f.push(es?`encontré ${k} formas de recibir más pedidos directos`:`I found ${k} ways to get more direct orders`);}
   m.push(f.length?(es?`Le preparé un resumen: ${f.join(', y ')}.`:`I put together a summary: ${f.join(', and ')}.`):(es?`Le preparé un resumen para ${R}.`:`I put together a summary for ${R}.`));
   m.push(es?`Se lo mando en ${n} imágenes${on('m-kit')?', con material listo con su logo':''}.`:`It's in these ${n} images${on('m-kit')?', with ready-made materials with your logo':''}.`);
+  m.push((es?'Le hice una página con todo: ':'I made you a page with everything: ')+landingURL());
   if(link)m.push((es?'Su tienda en línea: ':'Your online store: ')+tracked(link,'regalo-whatsapp'));
   m.push(es?'¿Le cuento en 5 minutos cómo funciona?':'Can I walk you through it in 5 minutes?');
   return m.join('\n\n');}
@@ -1128,6 +1149,8 @@ $('r-addr').addEventListener('paste',()=>setTimeout(()=>{if(/https?:\/\//i.test(
 /* Remember what each rep usually prepares, and their name. */
 ['m-offices','m-presence','m-comp','m-kit'].forEach(id=>{const s=store.get('svkit-'+id);if(s!=null)$(id).checked=s==='1';$(id).addEventListener('change',()=>store.set('svkit-'+id,$(id).checked?'1':'0'));});
 if(store.get('svkit-rep'))$('r-rep').value=store.get('svkit-rep');
+if(store.get('svkit-wa'))$('r-wa').value=store.get('svkit-wa');
+$('r-wa').addEventListener('change',()=>store.set('svkit-wa',v('r-wa')));
 $('r-rep').addEventListener('change',()=>store.set('svkit-rep',v('r-rep')));
 $('r-link').addEventListener('change',()=>{$('r-link').value=fixLink($('r-link').value);});
 

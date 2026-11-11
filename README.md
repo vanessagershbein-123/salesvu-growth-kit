@@ -12,6 +12,7 @@ A free web tool that SalesVu's reps use before calling an independent Mexican re
 
 Files:
 - `index.html`: the tool
+- `p.html`: the **personalized page** for one owner (their name and logo, offices nearby with the order estimate, how MealPool works, their online check, what SalesVu does, and a form that opens WhatsApp to the rep). Everything it shows travels in the link after `#d=`; nothing is stored on a server.
 - `guia.html`: call guide for reps
 - `regalos.html`: old link, forwards to `index.html`
 
