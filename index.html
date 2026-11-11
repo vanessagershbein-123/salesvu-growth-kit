@@ -15,7 +15,7 @@
 /* One flow: a short form → a call brief for the rep → an owner pack (PDF + WhatsApp images).
    Tokens follow salesvu.com and the MealPool collateral: navy type, SalesVu blue, MealPool green. */
 :root{
-  --bg:#F5F7FB; --surface:#FFFFFF; --fg:#0F1B33; --muted:#5B6B82; --line:#E2E8F0;
+  --bg:#FFFFFF; --surface:#FFFFFF; --fg:#0F1729; --muted:#5B6B82; --line:#E2E8F0;
   --blue:#0066FF; --btn:#0066FF; --blue-ink:#0052CC; --blue-soft:rgba(0,102,255,.08);
   --navy:#0A1A2E; --band-fg:#F1F5F9;
   --ok:#15803D; --ok-soft:rgba(21,128,61,.10); --bad:#B45309; --bad-soft:rgba(234,120,0,.12);
@@ -43,40 +43,46 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-
 [hidden]{display:none!important}
 a{color:var(--blue-ink);text-underline-offset:3px}
 
+.hl{color:var(--blue)}
+.badge{display:inline-flex;align-items:center;gap:8px;justify-self:start;font-size:13px;font-weight:500;color:var(--blue-ink);background:var(--blue-soft);padding:6px 14px;border-radius:999px}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue)}
+.glow{position:relative;isolation:isolate}
+.glow::before{content:"";position:absolute;inset:-60px -10% auto;height:520px;z-index:-1;pointer-events:none;
+  background:radial-gradient(45% 55% at 30% 35%,rgba(124,92,255,.16),transparent 70%),radial-gradient(45% 55% at 60% 30%,rgba(0,102,255,.14),transparent 70%)}
 /* Header */
-.top{background:var(--navy);color:var(--band-fg)}
+.top{background:color-mix(in srgb,var(--surface) 88%,transparent);color:var(--fg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px)}
 .top-in{max-width:1080px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.wordmark{font-weight:800;font-size:22px;letter-spacing:-.02em;text-decoration:none;color:#fff}
-.wordmark b{color:#4B93FF}
+.wordmark{font-weight:800;font-size:22px;letter-spacing:-.02em;text-decoration:none;color:var(--fg)}
+.wordmark b{color:var(--blue)}
 .top-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.top-link{all:unset;cursor:pointer;font-size:13px;font-weight:600;color:#C9D4E3;padding:6px 10px;border-radius:999px}
-.top-link:hover{color:#fff;background:rgba(255,255,255,.08)}
+.top-link{all:unset;cursor:pointer;font-size:14px;font-weight:500;color:var(--fg);padding:7px 12px;border-radius:999px}
+.top-link:hover{background:var(--blue-soft)}
 .top-link:focus-visible,.lang button:focus-visible{outline:2px solid #4B93FF;outline-offset:2px}
-.lang{display:inline-flex;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:3px}
-.lang button{all:unset;cursor:pointer;font-size:13px;font-weight:600;padding:4px 11px;border-radius:999px;color:#C9D4E3}
-.lang button[aria-pressed="true"]{background:#fff;color:#0A1A2E}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px}
+.lang button{all:unset;cursor:pointer;font-size:13px;font-weight:600;padding:4px 11px;border-radius:999px;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--btn);color:#fff}
 
 main{max-width:1080px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-right,0px)) 120px max(16px,env(safe-area-inset-left,0px))}
-h1{font-size:clamp(26px,3.6vw,34px);line-height:1.15;letter-spacing:-.025em;margin:0;text-wrap:balance}
+h1{font-size:clamp(28px,4.4vw,44px);line-height:1.08;letter-spacing:-.035em;margin:0;text-wrap:balance}
 h2{font-size:21px;line-height:1.25;letter-spacing:-.015em;margin:0;text-wrap:balance}
 h3{font-size:16px;margin:0;letter-spacing:-.01em}
 p{margin:0}
 .muted{color:var(--muted)}
 .hint{font-size:12.5px;color:var(--muted)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 1px 2px rgba(15,23,41,.04),0 8px 24px rgba(15,23,41,.04)}
 
 /* Form */
 .new{display:grid;gap:22px;max-width:760px;margin:0 auto}
 .new-head{display:grid;gap:6px}
 .field{display:grid;gap:6px;min-width:0}
 .field label,.field .lbl{font-size:13px;font-weight:600}
-input[type=text],input[type=url],input[type=password],select,textarea{font:inherit;font-size:16px;width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+input[type=text],input[type=url],input[type=password],select,textarea{font:inherit;font-size:16px;width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--blue) 3%,var(--surface));color:var(--fg)}
 textarea{resize:vertical;line-height:1.5}
 input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-color:transparent}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px}
 .mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:10px;border:0;padding:0;margin:0}
 .mods legend{font-size:13px;font-weight:600;margin-bottom:8px;padding:0}
-.mod{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--bg);cursor:pointer}
+.mod{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer}
 .mod input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--blue)}
 .mod strong{display:block;font-size:15px}
 .mod small{display:block;color:var(--muted);font-size:13px;line-height:1.45;margin-top:2px}
@@ -94,12 +100,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .logo-prev{width:48px;height:48px;border-radius:50%;overflow:hidden;flex:none;border:1px solid var(--line)}
 .logo-prev img{width:100%;height:100%;display:block}
 
-.btn{font:inherit;font-size:14px;font-weight:600;border-radius:10px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;white-space:nowrap}
-.btn:hover{border-color:var(--blue)}
+.btn{font:inherit;font-size:14px;font-weight:600;border-radius:999px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--blue);color:var(--blue-ink)}
+.btn.primary:hover{color:#fff}
 .btn.primary{background:var(--btn);border-color:var(--btn);color:#fff}
 .btn.primary:hover{filter:brightness(1.08)}
-.btn.big{font-size:17px;padding:14px 26px;border-radius:12px}
-.btn.small{font-size:13px;padding:6px 10px;border-radius:8px}
+.btn.big{font-size:16px;padding:14px 30px;box-shadow:0 8px 20px rgba(0,102,255,.22)}
+.btn.small{font-size:13px;padding:6px 12px}
 .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .btn[disabled]{opacity:.65;cursor:progress}
 .go-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
@@ -204,10 +211,11 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
 
 <main>
 <!-- ================= 1. NEW CALL ================= -->
-<section id="view-new" aria-labelledby="new-h">
-  <form class="card new" id="f" autocomplete="off">
+<section id="view-new" class="glow" aria-labelledby="new-h">
+  <form class="new" id="f" autocomplete="off">
     <div class="new-head">
-      <h1 id="new-h"><span class="es">Prepare su próxima llamada</span><span class="en">Prepare your next call</span></h1>
+      <span class="badge">MealPool by SalesVu</span>
+      <h1 id="new-h"><span class="es">Prepare su próxima <span class="hl">llamada</span> en 20 segundos</span><span class="en">Prepare your next <span class="hl">call</span> in 20 seconds</span></h1>
       <p class="muted"><span class="es">Escriba el restaurante, elija qué necesita y presione Generar.</span><span class="en">Type the restaurant, choose what you need, and press Generate.</span></p>
     </div>
     <div class="field">
@@ -257,7 +265,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
 </section>
 
 <!-- ================= 2. CALL BRIEF ================= -->
-<section id="view-brief" class="brief" hidden aria-labelledby="b-name">
+<section id="view-brief" class="brief glow" hidden aria-labelledby="b-name">
   <div class="brief-head">
     <div>
       <h1 id="b-name"></h1>
