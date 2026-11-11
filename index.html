@@ -135,6 +135,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line);display:inline-flex;gap:6px;align-items:center;background:var(--bg)}
 .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.swatch input{width:22px;height:22px;padding:0;border:0;border-radius:6px;background:none;cursor:pointer}
 .callout{background:var(--green-soft);color:var(--green-ink);border-radius:12px;padding:14px 16px;font-weight:700;font-size:15px}
 .tips{margin:0;padding:0;list-style:none;display:grid;gap:10px}
 .tips li{display:grid;gap:2px;font-size:14px}
@@ -359,6 +360,16 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
 
   <section class="card sec" id="sec-pack" aria-labelledby="s-pack">
     <div class="sec-head"><h2 id="s-pack"><span class="es">Paquete para el dueño</span><span class="en">Owner pack</span></h2><span class="hint"><span class="es">Las mismas páginas en PDF y como imágenes para WhatsApp.</span><span class="en">The same pages as a PDF and as WhatsApp images.</span></span></div>
+    <div class="field brand">
+      <label for="brand-site"><span class="es">Estilo del restaurante (opcional)</span><span class="en">Restaurant's style (optional)</span></label>
+      <div class="go-row">
+        <input type="url" id="brand-site" placeholder="https://" style="flex:1 1 240px">
+        <button type="button" class="btn small" id="brand-go"><span class="es">Copiar su estilo</span><span class="en">Match their style</span></button>
+        <label class="btn small swatch" for="brand-color"><input type="color" id="brand-color" value="#0066FF"><span class="es">Color</span><span class="en">Color</span></label>
+        <button type="button" class="btn small" id="brand-reset"><span class="es">Colores SalesVu</span><span class="en">SalesVu colors</span></button>
+      </div>
+      <span class="hint" id="brand-st"><span class="es">Pegue su página web para poner su logo y su color en el volante y el paquete. También puede escoger el color a mano.</span><span class="en">Paste their website to put their logo and color on the flyer and the pack. You can also pick the color by hand.</span></span>
+    </div>
     <div class="wa-row">
       <div class="sec">
         <div class="field"><label for="wa"><span class="es">Mensaje de WhatsApp</span><span class="en">WhatsApp message</span></label><textarea id="wa" class="wa"></textarea></div>
@@ -934,7 +945,7 @@ function renderSummary(){const es=olang()==='es',O=v('r-owner'),R=v('r-name'),r=
   $('b-bul').innerHTML='';b.forEach(t=>{const li=document.createElement('li');li.textContent=t;$('b-bul').appendChild(li);});
   const n=v('r-notes');$('b-notes').hidden=!n;$('b-notes').textContent=n;}
 
-function renderHead(){$('b-name').textContent=v('r-name');$('b-where').textContent=v('r-addr');
+function renderHead(){$('b-name').textContent=v('r-name');$('b-where').textContent=v('r-addr');if(!v('brand-site')){const w=(facts&&facts.web)||(isURL(v('r-link'))?'':'');if(w&&!/doordash|ubereats|grubhub|postmates|facebook|instagram/i.test(w))$('brand-site').value=w;}
   const f=[];if(facts.rating!=null)f.push(`★ ${facts.rating.toFixed(1)}${facts.ratings?` · ${facts.ratings}`:''}`);
   if(facts.phone)f.push(facts.phone);if(place&&!place.addrOnly&&(facts.web||place.src==='Google'))f.push(facts.web?(EN()?'Has a website':'Tiene página web'):(EN()?'No website':'Sin página web'));
   $('b-facts').innerHTML='';f.forEach(t=>{const s=document.createElement('span');s.className='fact';s.textContent=t;$('b-facts').appendChild(s);});
@@ -1019,9 +1030,9 @@ const PK={ink:'#0F1729',muted:'#5B6B82',blue:'#0066FF',blueInk:'#0052CC',line:'#
 function newPage(){const cv=document.createElement('canvas');cv.width=1080;cv.height=1350;const x=cv.getContext('2d');x.fillStyle='#FFFFFF';x.fillRect(0,0,1080,1350);x.textBaseline='alphabetic';return [cv,x];}
 function pkPage(){const [cv,x]=newPage();
   [[250,330,'rgba(124,92,255,.11)'],[760,250,'rgba(0,102,255,.10)']].forEach(([gx,gy,c])=>{const g=x.createRadialGradient(gx,gy,0,gx,gy,620);g.addColorStop(0,c);g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,1080,1000);});
-  x.textAlign='left';x.font=`800 40px ${F}`;x.fillStyle=PK.ink;x.fillText('Sales',80,106);const w=x.measureText('Sales').width;x.fillStyle=PK.blue;x.fillText('Vu',80+w,106);
+  x.textAlign='left';x.font=`800 40px ${F}`;x.fillStyle=PK.ink;x.fillText('Sales',80,106);const w=x.measureText('Sales').width;x.fillStyle='#0066FF';x.fillText('Vu',80+w,106);
   x.font=`600 22px ${F}`;x.fillStyle=PK.muted;x.textAlign='right';x.fillText('MealPool by SalesVu',1000,102);x.textAlign='left';return [cv,x];}
-function pkBadge(x,t,y){x.font=`500 24px ${F}`;const w=Math.min(920,x.measureText(t).width+66);rr(x,80,y,w,50,25);x.fillStyle='rgba(0,102,255,.08)';x.fill();
+function pkBadge(x,t,y){x.font=`500 24px ${F}`;const w=Math.min(920,x.measureText(t).width+66);rr(x,80,y,w,50,25);x.fillStyle=shade(PK.blue,0.92);x.fill();
   x.beginPath();x.arc(108,y+25,6,0,Math.PI*2);x.fillStyle=PK.blue;x.fill();x.fillStyle=PK.blueInk;x.textAlign='left';x.fillText(t,126,y+33,880);}
 /* Headline in two colors; wraps by word and returns the baseline of its last line. */
 function pkHead(x,parts,y,size,maxW,X=80){x.font=`800 ${size}px ${F}`;const ls=-size*0.035;try{x.letterSpacing=ls+'px';}catch(e){}
@@ -1119,7 +1130,7 @@ function drawFood(x,X,Y,W,H){if(!FOOD.complete||!FOOD.naturalWidth){x.fillStyle=
   const s=Math.max(W/FOOD.naturalWidth,H/FOOD.naturalHeight),sw=W/s,sh=H/s;x.drawImage(FOOD,(FOOD.naturalWidth-sw)/2,(FOOD.naturalHeight-sh)/2,sw,sh,X,Y,W,H);}
 /* Office flyer, in the MealPool deck style: food photo, two-tone headline, colored numbered steps, QR. */
 function drawFlyer(o,lang){const [cv,x]=newPage(),R=v('r-name')||'Restaurant',d=fmtMi(o.dist),cut=v('l-cutoff')||'10:30 am',lt=v('l-time')||'12:00 pm',del=lmode()==='deliver';
-  const E=lang!=='es',S=lang!=='en',office=o.name.length>30?o.name.slice(0,29)+'…':o.name,NAVY='#1B2B4B',BLUE='#3D7BF7',MUTED='#55657E';
+  const E=lang!=='es',S=lang!=='en',office=o.name.length>30?o.name.slice(0,29)+'…':o.name,NAVY='#1B2B4B',BLUE=brandColor||'#3D7BF7',MUTED='#55657E';
   drawFood(x,0,0,1080,440);const g=x.createLinearGradient(0,240,0,440);g.addColorStop(0,'rgba(27,43,75,0)');g.addColorStop(1,'rgba(27,43,75,.55)');x.fillStyle=g;x.fillRect(0,0,1080,440);
   x.font=`700 22px ${F}`;try{x.letterSpacing='2px';}catch(e){}const tag='MEALPOOL BY SALESVU',tw=x.measureText(tag).width;
   x.fillStyle='#EEEAFB';rr(x,60,48,tw+56,50,12);x.fill();x.fillStyle='#7656E3';x.textAlign='left';x.fillText(tag,88,82);try{x.letterSpacing='0px';}catch(e){}
@@ -1141,11 +1152,11 @@ function drawFlyer(o,lang){const [cv,x]=newPage(),R=v('r-name')||'Restaurant',d=
   y=Math.max(y,qy+qs+90)+10;x.fillStyle='#EAF5EC';rr(x,60,y,960,84,14);x.fill();x.fillStyle='#1F5A33';x.font=`700 28px ${F}`;
   x.fillText(E&&S?'Each person orders and pays separately · Cada quien paga lo suyo':E?'Each person orders and pays separately.':'Cada persona pide y paga por separado.',540,y+53,900);
   x.fillStyle='#E4E9F2';x.fillRect(60,1262,960,2);x.textAlign='left';x.font=`500 21px ${F}`;x.fillStyle=MUTED;x.fillText('MealPool by SalesVu · Restaurant Growth Solutions for the AI Age',60,1306,700);
-  x.textAlign='right';x.font=`800 34px ${F}`;x.fillStyle=BLUE;x.fillText('Vu',1020,1310);const vw=x.measureText('Vu').width;x.fillStyle=NAVY;x.fillText('Sales',1020-vw,1310);x.textAlign='left';return cv;}
+  x.textAlign='right';x.font=`800 34px ${F}`;x.fillStyle='#3D7BF7';x.fillText('Vu',1020,1310);const vw=x.measureText('Vu').width;x.fillStyle=NAVY;x.fillText('Sales',1020-vw,1310);x.textAlign='left';return cv;}
 
 /* ================= Pack: pages, WhatsApp message, PDF ================= */
 let packPages=[];
-function buildPack(){const sec=$('sec-pack');const any=on('m-offices')||on('m-presence')||on('m-kit');sec.hidden=!any;if(!any){packPages=[];return;}
+function buildPack(){PK.blue=brandColor||'#0066FF';PK.blueInk=brandColor?shade(brandColor,-0.25):'#0052CC';const sec=$('sec-pack');const any=on('m-offices')||on('m-presence')||on('m-kit');sec.hidden=!any;if(!any){packPages=[];return;}
   const es=olang()==='es',kinds=[[pkCover,es?'Portada':'Cover']];
   if(on('m-offices')&&lunch.places.length)kinds.push([pkOffices,es?'Oficinas cerca':'Nearby offices']);
   // Skip the presence page until at least one answer is known: a page of "to check" rows isn't worth sending.
@@ -1214,7 +1225,7 @@ function renderFix(){const lr=lastLookup||{},needArea=(on('m-offices')||on('m-co
 $('b-fix').addEventListener('submit',e=>{e.preventDefault();const n=$('fx-name').value.trim(),a=$('fx-addr').value.trim();
   if(!a&&!n){$('fx-addr').focus();return;}if(n)$('r-name').value=n;if(a)$('r-addr').value=pickLink(a);show('new');generate();});
 $('b-edit').onclick=()=>{show('new');location.hash='nueva';};
-$('bar-new').onclick=()=>{['r-name','r-addr','r-notes','r-owner','r-link'].forEach(i=>$(i).value='');logoImg=null;$('r-logo').value='';updLogoPrev();show('new');location.hash='nueva';$('r-name').focus();};
+$('bar-new').onclick=()=>{['r-name','r-addr','r-notes','r-owner','r-link','brand-site'].forEach(i=>$(i).value='');logoImg=null;brandColor=null;$('brand-color').value='#0066FF';$('r-logo').value='';updLogoPrev();show('new');location.hash='nueva';$('r-name').focus();};
 $('bar-wa').onclick=()=>copyText('wa','bar-st');
 $('bar-pdf').onclick=downloadPDF;
 $('home').onclick=e=>{e.preventDefault();show('new');location.hash='nueva';};
@@ -1243,6 +1254,27 @@ let logoImg=null;
 $('r-logo').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{logoImg=im;updLogoPrev();if($('b-name').textContent)buildPack();};im.src=rd.result;};rd.readAsDataURL(f);});
 function updLogoPrev(){const c=document.createElement('canvas');c.width=c.height=120;drawLogo(c.getContext('2d'),60,60,60);$('logo-prev').innerHTML='';const i=document.createElement('img');i.src=c.toDataURL();i.alt='';$('logo-prev').appendChild(i);}
 $('r-name').addEventListener('input',()=>{clearTimeout(window._lt);window._lt=setTimeout(updLogoPrev,200);});
+
+/* ================= Restaurant's style: their logo and main color on the flyer and the pack ================= */
+let brandColor=null;
+function hexRGB(h){h=String(h||'').trim().replace('#','');if(/^[0-9a-f]{3}$/i.test(h))h=h.replace(/./g,c=>c+c);return /^[0-9a-f]{6}$/i.test(h)?[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)):null;}
+const toHex=rgb=>'#'+rgb.map(n=>Math.max(0,Math.min(255,Math.round(n))).toString(16).padStart(2,'0')).join('');
+function shade(h,k){const c=hexRGB(h);if(!c)return h;return toHex(c.map(n=>k<0?n*(1+k):n+(255-n)*k));}
+function lum(h){const c=hexRGB(h).map(n=>{n/=255;return n<=.03928?n/12.92:Math.pow((n+.055)/1.055,2.4);});return .2126*c[0]+.7152*c[1]+.0722*c[2];}
+/* Keep text readable on white: darken light colors (e.g. a yellow brand) until they pass about 4.5:1 contrast. */
+function readable(h){let c=hexRGB(h)?('#'+String(h).replace('#','')).toLowerCase():null;if(!c)return null;if(c.length===4)c=toHex(hexRGB(c));
+  for(let i=0;i<12&&lum(c)>0.18;i++)c=shade(c,-0.12);return c;}
+function setBrand(h,msg){brandColor=h?readable(h):null;$('brand-color').value=brandColor||'#0066FF';if(msg)brandMsg(msg[0],msg[1]);
+  if($('b-name').textContent){try{renderFlyer();}catch(e){}buildPack();}}
+function brandMsg(es,en,err){const st=$('brand-st');st.className='hint'+(err?' err':'');st.textContent=EN()?en:es;}
+$('brand-color').addEventListener('input',e=>setBrand(e.target.value));
+$('brand-reset').onclick=()=>{logoImg=null;$('r-logo').value='';updLogoPrev();setBrand(null,['Volvimos a los colores de SalesVu.','Back to SalesVu colors.']);};
+$('brand-go').onclick=async()=>{const u=fixLink(v('brand-site'));if(!u){brandMsg('Pegue la página web del restaurante.','Paste the restaurant\'s website.',1);return;}
+  if(!helperURL()){brandMsg('Para leer la página web hace falta el lector de enlaces (lo configura SalesVu). Mientras tanto, escoja el color aquí y suba el logo en Más opciones.','Reading the website needs the link reader (SalesVu sets it up). For now, pick the color here and upload the logo in More options.',1);return;}
+  brandMsg('Leyendo la página…','Reading the website…');const j=await helper('brand',u);
+  if(!j||(!j.color&&!j.logo)){brandMsg('No encontramos su logo ni su color en esa página. Escoja el color aquí y suba el logo en Más opciones.','We couldn\'t find their logo or color on that page. Pick the color here and upload the logo in More options.',1);return;}
+  if(j.logo){await new Promise(res=>{const im=new Image();im.onload=()=>{logoImg=im;updLogoPrev();res();};im.onerror=res;im.src=j.logo;});}
+  setBrand(j.color||brandColor,[`Listo: ${[j.logo&&'su logo',j.color&&'su color'].filter(Boolean).join(' y ')}. Revise el volante y el paquete.`,`Done: ${[j.logo&&'their logo',j.color&&'their color'].filter(Boolean).join(' and ')}. Check the flyer and the pack.`]);};
 
 /* Optional: SalesVu's CRM can open this page pre-filled and it generates on its own:
    index.html?name=…&addr=…(or &maps=<Google Maps link>)&notes=…&owner=…&store=…&rep=… */

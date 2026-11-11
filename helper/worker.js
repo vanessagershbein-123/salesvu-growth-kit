@@ -4,6 +4,7 @@
  * Browsers don't let a web page open other websites, so this small helper does two read-only jobs for the tool:
  *   GET ?resolve=<share link>  → { url }   Opens maps.app.goo.gl / goo.gl / share.google links and returns the full link.
  *   GET ?scan=<website>        → { facebook, instagram, tiktok, whatsapp, ordering, provider, delivery, title }
+ *   GET ?brand=<website>       → { color, logo }  The site's main color and its logo (as a small image), so flyers can match it.
  *                                Reads a restaurant's website (and its homepage) for social, ordering and delivery-app links.
  *
  * It only ever returns a small summary, never the page itself, so it can't be used as an open proxy.
@@ -40,7 +41,8 @@ export default {
     try {
       if (q.get('resolve')) return reply(await resolve(q.get('resolve')), 200, headers);
       if (q.get('scan')) return reply(await scan(q.get('scan')), 200, headers);
-      return reply({ error: 'Use ?resolve=<share link> or ?scan=<website>' }, 400, headers);
+      if (q.get('brand')) return reply(await brand(q.get('brand')), 200, headers);
+      return reply({ error: 'Use ?resolve=<share link>, ?scan=<website> or ?brand=<website>' }, 400, headers);
     } catch (e) {
       return reply({ error: String((e && e.message) || e) }, 400, headers);
     }
@@ -99,4 +101,39 @@ async function scan(raw) {
     if (h) page = page ? Object.fromEntries(Object.keys(h).map(k => [k, page[k] || h[k]])) : h;
   }
   return page ? { ok: true, ...page } : { ok: false };
+}
+
+/* The restaurant's look: its theme color and its logo, returned as a small data: image (max 300 KB)
+   so the tool can draw it on a canvas. Logo order: an <img> marked "logo", then the app icon, then the share image. */
+async function brand(raw) {
+  const u = webURL(raw);
+  const r = await fetch(u.toString(), { redirect: 'follow', headers: { 'User-Agent': UA, 'Accept': 'text/html' } });
+  if (!r.ok) return { ok: false };
+  const html = (await r.text()).slice(0, 1500000);
+  const attr = (tag, name) => ((tag.match(new RegExp(name + '\\s*=\\s*["\']([^"\']+)', 'i')) || [])[1] || '');
+  const metas = [...html.matchAll(/<meta\b[^>]*>/gi)].map(m => m[0]);
+  const meta = n => { const t = metas.find(m => new RegExp('(name|property)\\s*=\\s*["\']' + n + '["\']', 'i').test(m)); return t ? attr(t, 'content') : ''; };
+  let color = meta('theme-color') || meta('msapplication-TileColor');
+  if (!/^#[0-9a-f]{3,6}$/i.test(color)) color = '';
+  const imgs = [...html.matchAll(/<img\b[^>]*>/gi)].map(m => m[0]);
+  const logoImg = imgs.find(t => /logo/i.test(attr(t, 'src') + ' ' + attr(t, 'class') + ' ' + attr(t, 'alt') + ' ' + attr(t, 'id')));
+  const links = [...html.matchAll(/<link\b[^>]*>/gi)].map(m => m[0]);
+  const touch = links.find(t => /apple-touch-icon/i.test(attr(t, 'rel')));
+  const candidates = [logoImg && (attr(logoImg, 'src') || attr(logoImg, 'data-src')), touch && attr(touch, 'href'), meta('og:image')].filter(Boolean);
+  let logo = '';
+  for (const c of candidates) {
+    try {
+      const iu = new URL(c, r.url);
+      if (iu.protocol !== 'https:' && iu.protocol !== 'http:') continue;
+      const ir = await fetch(iu.toString(), { headers: { 'User-Agent': UA } });
+      const type = (ir.headers.get('Content-Type') || '').split(';')[0];
+      if (!ir.ok || !/^image\/(png|jpeg|webp|gif|svg\+xml)$/.test(type)) continue;
+      const buf = await ir.arrayBuffer();
+      if (buf.byteLength > 300000) continue;
+      let bin = ''; const bytes = new Uint8Array(buf);
+      for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      logo = `data:${type};base64,${btoa(bin)}`; break;
+    } catch (e) { /* try the next one */ }
+  }
+  return { ok: !!(color || logo), color, logo };
 }
