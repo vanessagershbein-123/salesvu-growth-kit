@@ -208,15 +208,14 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
       <h1 id="new-h"><span class="es">Prepare su próxima llamada</span><span class="en">Prepare your next call</span></h1>
       <p class="muted"><span class="es">Escriba el restaurante, elija qué necesita y presione Generar.</span><span class="en">Type the restaurant, choose what you need, and press Generate.</span></p>
     </div>
-    <div class="grid2">
-      <div class="field">
-        <label for="r-name"><span class="es">Restaurante</span><span class="en">Restaurant</span></label>
-        <input type="text" id="r-name" value="Taquería Los Compadres">
-      </div>
-      <div class="field">
-        <label for="r-addr"><span class="es">Dirección o enlace de Google Maps</span><span class="en">Address or Google Maps link</span></label>
-        <input type="text" id="r-addr" value="2400 Navigation Blvd, Houston, TX" placeholder="Calle y ciudad, o https://www.google.com/maps/place/…">
-      </div>
+    <div class="field">
+      <label for="r-addr"><span class="es">Enlace o dirección del restaurante</span><span class="en">Restaurant link or address</span></label>
+      <input type="text" id="r-addr" value="2400 Navigation Blvd, Houston, TX" placeholder="Google Maps, su página, DoorDash… o calle y ciudad">
+      <span class="hint"><span class="es">Pegue el enlace de Google Maps (de la barra del navegador), su página web o su página de DoorDash o Uber Eats. O escriba la dirección.</span><span class="en">Paste the Google Maps link (from the browser bar), their website, or their DoorDash or Uber Eats page. Or type the address.</span></span>
+    </div>
+    <div class="field">
+      <label for="r-name"><span class="es">Nombre del restaurante (opcional si pega un enlace)</span><span class="en">Restaurant name (optional if you paste a link)</span></label>
+      <input type="text" id="r-name" value="Taquería Los Compadres">
     </div>
     <div class="field">
       <label for="r-notes"><span class="es">Notas (opcional)</span><span class="en">Notes (optional)</span></label>
@@ -751,24 +750,43 @@ function applyPlace(p){place=p;const S=p.src;facts={};
     if(k==='apps'){setAns('apps','yes',S);setAns('web','no',S);}
     if(k==='none'||k==='facebook'||k==='instagram')setAns('web','no',S);
     facts={rating:p.rating,ratings:p.ratings,web:p.web,phone:p.phone,maps:p.maps,hours:p.hours};}
+  if(!v('r-name')&&p.name)$('r-name').value=p.name;
   if((!v('r-addr')||isURL(v('r-addr')))&&p.addr)$('r-addr').value=p.addr;
   placeKey=v('r-name')+'|'+v('r-addr');}
 let matches=[];
+/* Guess a restaurant name from a pasted website, delivery-app or Facebook link, to search Google with. */
+function guessFromSite(u){let url;try{url=new URL(u);}catch(e){return {q:'',host:''};}
+  const host=url.hostname.replace(/^www\./,''),parts=url.pathname.split('/').filter(Boolean),words=t=>decodeURIComponent(t).replace(/[-_.+]+/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\b\d{3,}\b/g,'').replace(/\s+/g,' ').trim();
+  if(/doordash|ubereats|grubhub|postmates/.test(host)){const i=parts.findIndex(x=>/^(store|restaurant|menu)$/.test(x));return {q:words(parts[i+1]||parts[parts.length-1]||''),host,app:true};}
+  if(/facebook\.com|instagram\.com/.test(host))return {q:words(parts[0]==='pages'?parts[1]||'':parts[0]||''),host};
+  return {q:words(host.replace(/\.(com|net|org|biz|us|co|menu|restaurant|site|online|info)(\.[a-z]{2})?$/,'')),host,domain:host};}
 async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
   const raw=v('r-addr'),link=isURL(raw)?readLink(raw):null;
+  if(!raw)throw new Error(EN()?'Paste the restaurant\'s link or type its address.':'Pegue el enlace del restaurante o escriba la dirección.');
   if(isURL(raw)&&!link)throw new Error(EN()?'That link doesn\'t look right. Copy it again from the browser bar.':'Ese enlace no parece correcto. Cópielo otra vez de la barra del navegador.');
-  if(link&&link.kind==='short')throw new Error(EN()?'Short links (maps.app.goo.gl) can\'t be read. Open the link and copy the full address from the browser bar.':'Los enlaces cortos (maps.app.goo.gl) no se pueden leer. Abra el enlace y copie la dirección completa de la barra del navegador.');
-  if(link&&link.kind==='site')throw new Error(EN()?'That looks like a website, not a Google Maps link. Type the street address.':'Eso parece una página web, no un enlace de Google Maps. Escriba la dirección.');
-  const maps=link&&link.kind==='maps'?link:null,near=maps&&maps.near,addrText=maps?'':raw;
+  if(link&&link.kind==='short')throw new Error(EN()?'Short links (maps.app.goo.gl) can\'t be read. Open it, then copy the full address from the browser bar.':'Los enlaces cortos (maps.app.goo.gl) no se pueden leer. Ábralo y copie la dirección completa de la barra del navegador.');
+  const maps=link&&link.kind==='maps'?link:null,site=link&&link.kind==='site'?link.url:'',near=maps&&maps.near,addrText=link?'':raw;
+  const guess=site?guessFromSite(site):null;
   if(maps&&maps.name&&!v('r-name'))$('r-name').value=maps.name;
-  if(!v('r-name'))throw new Error(EN()?'Type the restaurant name.':'Escriba el nombre del restaurante.');
-  if(!raw)throw new Error(EN()?'Type the address or paste the Google Maps link.':'Escriba la dirección o pegue el enlace de Google Maps.');
+  if(!v('r-name')&&!maps&&!(guess&&(guess.q||guess.domain)))throw new Error(EN()?'Type the restaurant name, or paste its Google Maps link.':'Escriba el nombre del restaurante, o pegue su enlace de Google Maps.');
+  const name=v('r-name')||(guess&&guess.q)||'';
   let list=null,src='';
-  if(gkey()){try{list=maps&&maps.pid?await googleDetails(maps.pid):await googleSearch((v('r-name')+' '+addrText).trim(),near);src='Google';}catch(e){console.warn(e);}}
-  if(!list||!list.length){list=await osmSearch(v('r-name'),addrText,near);src='OpenStreetMap';}
-  if(!list.length&&near)list=[{src:'Google Maps',addrOnly:true,name:v('r-name'),addr:'',lat:near.lat,lon:near.lon}];
-  if(!list.length)return {found:false,src};
+  if(gkey()){try{
+      if(maps&&maps.pid)list=await googleDetails(maps.pid);
+      else if(site&&!v('r-name')&&guess.domain){ // a restaurant's own website: Google usually finds the place by its web address
+        list=await googleSearch(guess.domain);const own=list.filter(p=>(p.web||'').includes(guess.domain));if(own.length)list=own.concat(list.filter(p=>!own.includes(p)));
+        if(!list.length&&guess.q)list=await googleSearch(guess.q);}
+      else list=await googleSearch((name+' '+addrText).trim(),near);
+      src='Google';}catch(e){console.warn(e);}}
+  if((!list||!list.length)&&name){list=await osmSearch(name,addrText,near);src='OpenStreetMap';}
+  if((!list||!list.length)&&near)list=[{src:'Google Maps',addrOnly:true,name,addr:'',lat:near.lat,lon:near.lon}];
+  if(!list||!list.length){if(site){if(!v('r-name')&&guess.q)$('r-name').value=guess.q;
+      throw new Error(gkey()?(EN()?'Couldn\'t find that restaurant from the link. Check the name above and type the street address instead.':'No encontramos el restaurante con ese enlace. Revise el nombre de arriba y escriba la dirección.')
+        :(EN()?`Without the Google key (Settings), a ${guess.app?'delivery-app':'website'} link can't be matched to a restaurant. Paste its Google Maps link, or type the street address.`
+              :`Sin la clave de Google (Ajustes), un enlace de ${guess.app?'app de entrega':'página web'} no se puede usar para encontrar el restaurante. Pegue su enlace de Google Maps, o escriba la dirección.`));}
+    if(!v('r-name')&&name)$('r-name').value=name;return {found:false,src};}
   matches=list.filter(p=>!p.addrOnly);applyPlace(list[0]);
+  if(site){const k=siteKind(site);if(k==='apps')setAns('apps','yes',EN()?'Link':'Enlace');if(k==='ordering')setAns('order','yes',EN()?'Link':'Enlace');if(k==='website'&&!place.addrOnly)setAns('web','yes',EN()?'Link':'Enlace');}
   return {found:!list[0].addrOnly,src};}
 
 /* ================= Area: offices (Google by category) + Mexican competitors ================= */
@@ -1051,7 +1069,7 @@ window.addEventListener('hashchange',()=>{if(location.hash==='#nueva')show('new'
 document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>copyImage($(b.dataset.copy),'bar-st'));
 document.querySelectorAll('[data-copytext]').forEach(b=>b.onclick=()=>copyText(b.dataset.copytext,'bar-st'));
 document.querySelectorAll('input[name=olang]').forEach(e=>e.addEventListener('change',()=>{if($('b-name').textContent){renderSummary();buildPack();}}));
-$('r-addr').addEventListener('paste',()=>setTimeout(()=>{if(isURL(v('r-addr'))&&v('r-name'))generate();},50));
+$('r-addr').addEventListener('paste',()=>setTimeout(()=>{if(isURL(v('r-addr')))generate();},50));
 
 /* Remember what each rep usually prepares, and their name. */
 ['m-offices','m-presence','m-comp','m-kit'].forEach(id=>{const s=store.get('svkit-'+id);if(s!=null)$(id).checked=s==='1';$(id).addEventListener('change',()=>store.set('svkit-'+id,$(id).checked?'1':'0'));});
@@ -1077,7 +1095,7 @@ const P=new URLSearchParams(location.search),FROM_URL=['name','addr','maps'].som
 if(FROM_URL){$('r-name').value=P.get('name')||'';$('r-addr').value=P.get('maps')||P.get('addr')||'';$('r-notes').value=P.get('notes')||'';$('r-owner').value=P.get('owner')||'';$('r-link').value=P.get('store')||'';if(P.get('rep'))$('r-rep').value=P.get('rep');}
 setLang(store.get('svkit-lang')==='en'?'en':'es');show('new');if(location.hash==='#brief')location.hash='nueva';
 (document.fonts&&document.fonts.load?Promise.all(['800','700','600','500'].map(w=>document.fonts.load(`${w} 40px Inter`)).concat([document.fonts.load('500 40px "Noto Emoji"',DOODLES.join(''))])):Promise.resolve()).then(updLogoPrev,updLogoPrev);
-if(FROM_URL&&v('r-name')&&v('r-addr'))generate();
+if(FROM_URL&&v('r-addr'))generate();
 })();
 </script>
 </body>
