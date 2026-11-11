@@ -391,14 +391,14 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
   <form method="dialog" class="dlg">
     <h2 id="settings-h"><span class="es">Ajustes</span><span class="en">Settings</span></h2>
     <div class="field">
-      <label for="gkey"><span class="es">Clave de Google Maps (opcional)</span><span class="en">Google Maps key (optional)</span></label>
+      <label for="gkey"><span class="es">Clave de Google Maps (la da SalesVu)</span><span class="en">Google Maps key (from SalesVu)</span></label>
       <input type="password" id="gkey" autocomplete="off" spellcheck="false">
-      <span class="hint"><span class="es">Se guarda solo en este navegador. Sin clave se usa OpenStreetMap: gratis, pero encuentra menos.</span><span class="en">Saved only in this browser. Without a key, OpenStreetMap is used: free, but it finds less.</span></span>
+      <span class="hint"><span class="es">Solo si SalesVu se la dio. Con ella, la herramienta encuentra más datos: horario, página web, calificación y más oficinas cerca. Sin ella, todo funciona con datos gratis.</span><span class="en">Only if SalesVu gave you one. With it, the tool finds more: hours, website, rating, and more offices nearby. Without it, everything works with free data.</span></span>
     </div>
     <div class="field">
-      <label for="helper"><span class="es">Ayudante de enlaces (opcional)</span><span class="en">Link helper (optional)</span></label>
+      <label for="helper"><span class="es">Dirección del lector de enlaces (la da SalesVu)</span><span class="en">Link reader address (from SalesVu)</span></label>
       <input type="url" id="helper" autocomplete="off" spellcheck="false" placeholder="https://salesvu-links.….workers.dev">
-      <span class="hint"><span class="es">Abre enlaces para compartir (maps.app.goo.gl, share.google) y lee la página del restaurante: Facebook, Instagram, pedidos en línea.</span><span class="en">Opens share links (maps.app.goo.gl, share.google) and reads the restaurant's website: Facebook, Instagram, online ordering.</span></span>
+      <span class="hint"><span class="es">Solo si SalesVu se la dio. Permite pegar enlaces cortos (maps.app.goo.gl) y leer la página del restaurante: Facebook, Instagram y pedidos en línea.</span><span class="en">Only if SalesVu gave you one. Lets you paste short links (maps.app.goo.gl) and reads the restaurant's website: Facebook, Instagram, online ordering.</span></span>
     </div>
     <div class="go-row">
       <button type="submit" value="save" class="btn primary"><span class="es">Guardar</span><span class="en">Save</span></button>
@@ -798,7 +798,7 @@ async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
   if(link&&link.kind==='short'){const j=await helper('resolve',raw);if(j&&j.url){$('r-addr').value=j.url;raw=j.url;link=readLink(raw);}}
   if(!raw)throw new Error(EN()?'Paste the restaurant\'s link or type its address.':'Pegue el enlace del restaurante o escriba la dirección.');
   if(isURL(raw)&&!link)throw new Error(EN()?'That link doesn\'t look right. Copy it again from the browser bar.':'Ese enlace no parece correcto. Cópielo otra vez de la barra del navegador.');
-  if(link&&link.kind==='short')throw new Error(EN()?'Share links (share.google, maps.app.goo.gl) need the link helper (Settings). Open the link, then copy what appears in the browser bar and paste it here.':'Los enlaces para compartir (share.google, maps.app.goo.gl) necesitan el ayudante de enlaces (Ajustes). Abra el enlace, copie lo que aparece en la barra del navegador y péguelo aquí.');
+  if(link&&link.kind==='short')throw new Error(EN()?'This short link can\'t be opened here. Open it, copy the full link from the browser bar, and paste it here.':'Este enlace corto no se puede abrir aquí. Ábralo, copie el enlace completo de la barra del navegador y péguelo aquí.');
   if(link&&link.kind==='gsearch'&&!v('r-name'))$('r-name').value=link.name;
   const maps=link&&link.kind==='maps'?link:null,site=link&&link.kind==='site'?link.url:'',near=maps&&maps.near,addrText=link?'':raw;
   const guess=site?guessFromSite(site):null;
@@ -825,8 +825,8 @@ async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
       return {found:false,src,why:EN()?'We read the website but couldn\'t place the restaurant on a map. Add the street address.':'Leímos la página, pero no ubicamos el restaurante en el mapa. Agregue la dirección.'};}}
   if(!list||!list.length){if(site){if(!v('r-name')&&guess.q)$('r-name').value=guess.q;
       return {found:false,src,why:gkey()?(EN()?'Couldn\'t find that restaurant from the link. Check the name above and type the street address instead.':'No encontramos el restaurante con ese enlace. Revise el nombre de arriba y escriba la dirección.')
-        :(EN()?`Without the Google key (Settings), a ${guess.app?'delivery-app':'website'} link can't be matched to a restaurant. Paste its Google Maps link, or type the street address.`
-              :`Sin la clave de Google (Ajustes), un enlace de ${guess.app?'app de entrega':'página web'} no se puede usar para encontrar el restaurante. Pegue su enlace de Google Maps, o escriba la dirección.`)};}
+        :(EN()?`We couldn't find the restaurant from this ${guess.app?'delivery-app':'website'} link. Paste its Google Maps link, or type the street address.`
+              :`No encontramos el restaurante con este enlace de ${guess.app?'app de entrega':'página web'}. Pegue su enlace de Google Maps, o escriba la dirección.`)};}
     if(!v('r-name')&&name)$('r-name').value=name;return {found:false,src};}
   matches=list.filter(p=>!p.addrOnly);applyPlace(list[0]);
   if(list[0].pin){return {found:false,src,why:EN()?'We have the exact location from the link (the offices search can run). For the online check, paste the restaurant\'s website below and generate again, or answer by hand.':'Tenemos la ubicación exacta del enlace (la búsqueda de oficinas funciona). Para revisar su presencia en línea, pegue la página web del restaurante abajo y vuelva a generar, o conteste a mano.'};}
@@ -867,7 +867,7 @@ nwr${A}["building"~"^(industrial|warehouse)$"]["name"];nwr${A}["landuse"="indust
         else offices.push({name:t.name,cat:osmCat(t),lat,lon,addr:[t['addr:housenumber'],t['addr:street']].filter(Boolean).join(' '),maps});});
       return {offices,mexs};
     }catch(e){console.warn(e);}}
-  throw new Error(EN()?'The free map service is busy right now. Try again in a minute, or add a Google key in Settings.':'El servicio de mapas gratis está ocupado. Intente de nuevo en un minuto, o agregue una clave de Google en Ajustes.');}
+  throw new Error(EN()?'The map search is busy right now. Try again in a minute.':'La búsqueda en el mapa está ocupada. Intente de nuevo en un minuto.');}
 function cleanComps(list,c,mi){const self=(v('r-name')||'').toLowerCase().trim(),seen=new Set();
   return list.map(p=>Object.assign(p,{dist:distMi(c.lat,c.lon,p.lat,p.lon)}))
     .filter(p=>{const k=(p.name||'').toLowerCase().trim();if(!k||k===self||p.dist<0.02||p.dist>mi*1.05||seen.has(k))return false;seen.add(k);return true;})
@@ -1156,7 +1156,7 @@ $('r-link').addEventListener('change',()=>{$('r-link').value=fixLink($('r-link')
 
 /* Language, settings, logo */
 function setLang(l){document.documentElement.setAttribute('data-lang',l);document.documentElement.lang=l;$('lang-es').setAttribute('aria-pressed',l==='es');$('lang-en').setAttribute('aria-pressed',l==='en');store.set('svkit-lang',l);
-  $('datasrc').textContent=gkey()?(l==='en'?'Using Google Maps':'Usando Google Maps'):(l==='en'?'Using OpenStreetMap':'Usando OpenStreetMap');if($('b-name').textContent)renderAll();}
+  $('datasrc').textContent=gkey()?(l==='en'?'Now using: Google Maps':'Ahora usa: Google Maps'):(l==='en'?'Now using: free map data':'Ahora usa: datos de mapa gratis');if($('b-name').textContent)renderAll();}
 $('lang-es').onclick=()=>setLang('es');$('lang-en').onclick=()=>setLang('en');
 $('open-settings').onclick=()=>{$('gkey').value=store.get('svkit-gkey')||'';$('helper').value=store.get('svkit-helper')||'';$('settings').showModal();};
 $('settings').addEventListener('close',()=>{const r=$('settings').returnValue;if(r==='save'){const k=$('gkey').value.trim();if(k)store.set('svkit-gkey',k);else store.del('svkit-gkey');const h=$('helper').value.trim();if(h)store.set('svkit-helper',h);else store.del('svkit-helper');}

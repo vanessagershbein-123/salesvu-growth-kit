@@ -26,4 +26,4 @@ Browsers can't open other websites from a page, so a tiny free Cloudflare Worker
 - **Opens share links** (`maps.app.goo.gl`, `share.google`) so a rep can paste them directly.
 - **Reads the restaurant's website** for Facebook, Instagram, WhatsApp, online ordering (and which provider: Toast, Square…) and delivery-app links.
 
-It only returns a short summary, never whole pages. **To set up (about 10 minutes, free, no card):** Cloudflare dashboard → Workers & Pages → Create → Worker → name it `salesvu-links` → Deploy → Edit code → paste `helper/worker.js` → Deploy. Then copy its address (`https://salesvu-links.<you>.workers.dev`) into *Ajustes* → *Ayudante de enlaces*, or into `LINK_HELPER` in `index.html` so every rep gets it.
+It only returns a short summary, never whole pages. **To set up (about 10 minutes, free, no card):** Cloudflare dashboard → Workers & Pages → Create → Worker → name it `salesvu-links` → Deploy → Edit code → paste `helper/worker.js` → Deploy. Then copy its address (`https://salesvu-links.<you>.workers.dev`) into *Ajustes* → *Dirección del lector de enlaces*, or into `LINK_HELPER` in `index.html` so every rep gets it.
