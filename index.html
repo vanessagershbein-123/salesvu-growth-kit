@@ -554,7 +554,7 @@ function wrap(ctx,text,maxW){const words=String(text).split(' '),lines=[];let li
   words.forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w;}else line=t;});if(line)lines.push(line);return lines;}
 function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 function drawLogo(ctx,cx,cy,r){ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#FFFFFF';ctx.fill();ctx.clip();
-  if(logoImg){const s=Math.max(2*r/logoImg.width,2*r/logoImg.height);const w=logoImg.width*s,h=logoImg.height*s;ctx.drawImage(logoImg,cx-w/2,cy-h/2,w,h);}
+  if(logoImg){const s=Math.min(1.64*r/logoImg.width,1.64*r/logoImg.height);const w=logoImg.width*s,h=logoImg.height*s;ctx.drawImage(logoImg,cx-w/2,cy-h/2,w,h);}
   else genericLogo(ctx,cx,cy,r);
   ctx.restore();}
 /* ---------- Mexican-food doodles ----------
@@ -1251,7 +1251,7 @@ $('open-settings').onclick=()=>{$('gkey').value=store.get('svkit-gkey')||'';$('h
 $('settings').addEventListener('close',()=>{const r=$('settings').returnValue;if(r==='save'){const k=$('gkey').value.trim();if(k)store.set('svkit-gkey',k);else store.del('svkit-gkey');const h=$('helper').value.trim();if(h)store.set('svkit-helper',h);else store.del('svkit-helper');}
   if(r==='clear')store.del('svkit-gkey');$('gkey').value='';setLang(document.documentElement.getAttribute('data-lang')||'es');});
 let logoImg=null;
-$('r-logo').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{logoImg=im;updLogoPrev();if($('b-name').textContent)buildPack();};im.src=rd.result;};rd.readAsDataURL(f);});
+$('r-logo').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{logoImg=im;updLogoPrev();if(!brandColor){const lc=logoColor(im);if(lc){setBrand(lc);return;}}if($('b-name').textContent)buildPack();};im.src=rd.result;};rd.readAsDataURL(f);});
 function updLogoPrev(){const c=document.createElement('canvas');c.width=c.height=120;drawLogo(c.getContext('2d'),60,60,60);$('logo-prev').innerHTML='';const i=document.createElement('img');i.src=c.toDataURL();i.alt='';$('logo-prev').appendChild(i);}
 $('r-name').addEventListener('input',()=>{clearTimeout(window._lt);window._lt=setTimeout(updLogoPrev,200);});
 
@@ -1264,6 +1264,11 @@ function lum(h){const c=hexRGB(h).map(n=>{n/=255;return n<=.03928?n/12.92:Math.p
 /* Keep text readable on white: darken light colors (e.g. a yellow brand) until they pass about 4.5:1 contrast. */
 function readable(h){let c=hexRGB(h)?('#'+String(h).replace('#','')).toLowerCase():null;if(!c)return null;if(c.length===4)c=toHex(hexRGB(c));
   for(let i=0;i<12&&lum(c)>0.18;i++)c=shade(c,-0.12);return c;}
+/* The logo's main color: the most common strong (not white, grey or black) color in the image. */
+function logoColor(im){try{const c=document.createElement('canvas'),n=48;c.width=c.height=n;const x=c.getContext('2d');x.drawImage(im,0,0,n,n);
+  const d=x.getImageData(0,0,n,n).data,bins={};for(let i=0;i<d.length;i+=4){const [r,g,b,a]=[d[i],d[i+1],d[i+2],d[i+3]];if(a<200)continue;
+    const mx=Math.max(r,g,b),mn=Math.min(r,g,b);if(mx-mn<60||mx<60)continue;const k=[r,g,b].map(v=>v>>5).join();(bins[k]=bins[k]||{n:0,r:0,g:0,b:0});bins[k].n++;bins[k].r+=r;bins[k].g+=g;bins[k].b+=b;}
+  const best=Object.values(bins).sort((a,b)=>b.n-a.n)[0];return best&&best.n>20?toHex([best.r/best.n,best.g/best.n,best.b/best.n]):null;}catch(e){return null;}}
 function setBrand(h,msg){brandColor=h?readable(h):null;$('brand-color').value=brandColor||'#0066FF';if(msg)brandMsg(msg[0],msg[1]);
   if($('b-name').textContent){try{renderFlyer();}catch(e){}buildPack();}}
 function brandMsg(es,en,err){const st=$('brand-st');st.className='hint'+(err?' err':'');st.textContent=EN()?en:es;}
@@ -1274,6 +1279,7 @@ $('brand-go').onclick=async()=>{const u=fixLink(v('brand-site'));if(!u){brandMsg
   brandMsg('Leyendo la página…','Reading the website…');const j=await helper('brand',u);
   if(!j||(!j.color&&!j.logo)){brandMsg('No encontramos su logo ni su color en esa página. Escoja el color aquí y suba el logo en Más opciones.','We couldn\'t find their logo or color on that page. Pick the color here and upload the logo in More options.',1);return;}
   if(j.logo){await new Promise(res=>{const im=new Image();im.onload=()=>{logoImg=im;updLogoPrev();res();};im.onerror=res;im.src=j.logo;});}
+  if(!j.color&&logoImg)j.color=logoColor(logoImg);
   setBrand(j.color||brandColor,[`Listo: ${[j.logo&&'su logo',j.color&&'su color'].filter(Boolean).join(' y ')}. Revise el volante y el paquete.`,`Done: ${[j.logo&&'their logo',j.color&&'their color'].filter(Boolean).join(' and ')}. Check the flyer and the pack.`]);};
 
 /* Optional: SalesVu's CRM can open this page pre-filled and it generates on its own:

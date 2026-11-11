@@ -124,6 +124,7 @@ async function brand(raw) {
   for (const c of candidates) {
     try {
       const iu = new URL(c, r.url);
+      if (/squarespace(-cdn)?\.com$/.test(iu.hostname)) iu.searchParams.set('format', '500w'); // smaller copy
       if (iu.protocol !== 'https:' && iu.protocol !== 'http:') continue;
       const ir = await fetch(iu.toString(), { headers: { 'User-Agent': UA } });
       const type = (ir.headers.get('Content-Type') || '').split(';')[0];
