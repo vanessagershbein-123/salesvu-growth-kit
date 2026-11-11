@@ -54,20 +54,15 @@ It sits next to the existing **Kit de ventas** (follow-up generator + call guide
 **Inputs**
 - **With a Google key:** search the restaurant by name + address; the tool **auto-fills** what Google knows: hours listed, website, phone, rating and review count (if the key allows), and a Maps link. The rep confirms or corrects.
 - One-click look-up links that open in a new tab: Google Maps, Google search, Facebook, Instagram, delivery apps
-- 10 yes / no / don't-know questions:
+- **5 yes / no / don't-know questions** (cut from 10 on Nov 10: this is sales collateral, so only questions that lead to SalesVu's pitch):
 
-| Question | Weight |
-|---|---|
-| On Google Maps with correct hours | 20 |
-| Customers can order online directly | 20 |
-| Website with menu | 10 |
-| 10+ food photos | 10 |
-| Rating 4.3+ | 10 |
-| Facebook active in the last 30 days | 10 |
-| Replies to reviews | 5 |
-| Instagram active | 5 |
-| WhatsApp orders | 5 |
-| Pays delivery-app commission (a "yes" counts against) | 5 |
+| Question | Weight | Fix tag |
+|---|---|---|
+| Customers can order online directly | 30 | SalesVu does it |
+| Pays delivery-app commission (a "yes" counts against) | 15 | SalesVu does it |
+| Website with menu | 20 | SalesVu does it |
+| On Google Maps with hours | 20 | Free tip |
+| Facebook active in the last month | 15 | Included in the kit |
 
 - Callback time
 

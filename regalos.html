@@ -250,7 +250,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 
       <div class="panel col">
         <h2 class="step-h"><span class="num">2</span><span class="es">Confirme las respuestas</span><span class="en">Confirm the answers</span></h2>
-        <span class="hint"><span class="es">Las que dicen <span class="pill">Google</span> se llenaron solas. Corríjalas si algo no cuadra.</span><span class="en">Ones marked <span class="pill">Google</span> were filled in automatically. Fix anything that looks wrong.</span></span>
+        <span class="hint"><span class="es">5 preguntas. Las que dicen <span class="pill">Google</span> se llenaron solas.</span><span class="en">5 questions. Ones marked <span class="pill">Google</span> filled in automatically.</span></span>
         <div class="qs" id="qs"></div>
       </div>
 
@@ -372,53 +372,34 @@ $('r-logo').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return
 function initials(n){return (n||'').replace(/[^\p{L}\s]/gu,' ').split(/\s+/).filter(w=>w&&!/^(la|el|los|las|de|del|y)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'R';}
 function updLogoPrev(){const p=$('logo-prev');p.innerHTML='';if(logoImg){const i=document.createElement('img');i.src=logoImg.src;i.alt='';p.appendChild(i);}else p.textContent=initials(v('r-name'));}
 
-/* ---------- Part 1: the 10 questions ----------
+/* ---------- Part 1: 5 quick questions ----------
+   Kept short on purpose: this is sales collateral, so we only ask what leads to SalesVu's pitch.
    w = points toward the score (sums to 100). p = how urgent the fix is (sets the order of the 3 opportunities).
    who: sv = SalesVu does it · kit = included free in this kit · owner = free tip the owner can do. bad:'yes' = a "yes" is the problem. */
 const CHECKS=[
- {id:'gmaps',w:20,p:95,who:'owner',
-  q:{es:'¿Aparece en Google Maps con su horario?',en:'On Google Maps with its hours?'},
-  good:{es:'Aparece en Google Maps con su horario',en:'Shows up on Google Maps with its hours'},
-  fix:{es:'Revise su perfil de Google: horario, teléfono y dirección. Es lo primero que ven los clientes nuevos.',en:'Check the Google profile: hours, phone and address. It is the first thing new customers see.'}},
- {id:'order',w:20,p:100,who:'sv',
+ {id:'order',w:30,p:100,who:'sv',
   q:{es:'¿Sus clientes pueden pedir en línea directo, sin apps?',en:'Can customers order online directly, without apps?'},
   good:{es:'Recibe pedidos en línea directos',en:'Takes direct online orders'},
   fix:{es:'Tenga su propio enlace de pedidos: sus clientes piden directo y usted no paga comisión por cada pedido.',en:'Get its own ordering link: customers order directly and there is no commission on each order.'}},
- {id:'apps',w:5,p:85,who:'sv',bad:'yes',
+ {id:'apps',w:15,p:90,who:'sv',bad:'yes',
   q:{es:'¿Paga comisión a DoorDash, Uber Eats o Grubhub?',en:'Pays commission to DoorDash, Uber Eats or Grubhub?'},
   good:{es:'No paga comisiones a apps de entrega',en:'Pays no delivery-app commissions'},
   fix:{es:'Las apps de entrega cobran entre 15% y 30% por pedido. Invite a sus clientes de siempre a pedir por su propio enlace.',en:'Delivery apps charge 15–30% per order. Invite regulars to order through the restaurant\'s own link.'}},
- {id:'web',w:10,p:80,who:'sv',
+ {id:'web',w:20,p:80,who:'sv',
   q:{es:'¿Tiene página web con su menú?',en:'Website with its menu?'},
   good:{es:'Tiene su menú en internet',en:'Has its menu online'},
   fix:{es:'Le preparamos una página con su menú y sus precios. Usted solo la revisa.',en:'We prepare a page with the menu and prices. The owner just reviews it.'}},
- {id:'fb',w:10,p:70,who:'kit',
-  q:{es:'¿Publicó en Facebook en los últimos 30 días?',en:'Posted on Facebook in the last 30 days?'},
+ {id:'gmaps',w:20,p:75,who:'owner',
+  q:{es:'¿Aparece en Google Maps con su horario?',en:'On Google Maps with its hours?'},
+  good:{es:'Aparece en Google Maps con su horario',en:'Shows up on Google Maps with its hours'},
+  fix:{es:'Revise su perfil de Google: horario, teléfono y dirección. Es lo primero que ven los clientes nuevos.',en:'Check the Google profile: hours, phone and address. It is the first thing new customers see.'}},
+ {id:'fb',w:15,p:70,who:'kit',
+  q:{es:'¿Publicó en Facebook en el último mes?',en:'Posted on Facebook in the last month?'},
   good:{es:'Está activo en Facebook',en:'Active on Facebook'},
-  fix:{es:'Publique 2 veces por semana: el platillo del día o fotos de sus clientes. Le damos imágenes listas con su logo.',en:'Post twice a week: the dish of the day or customer photos. We provide ready images with the logo.'}},
- {id:'photos',w:10,p:65,who:'owner',
-  q:{es:'¿Tiene 10 fotos o más de sus platillos en Google?',en:'10+ food photos on Google?'},
-  good:{es:'Tiene fotos de sus platillos en Google',en:'Has food photos on Google'},
-  fix:{es:'Suba 10 fotos de sus platillos más vendidos a Google. Con buenas fotos, más gente se anima a pedir.',en:'Upload 10 photos of best-selling dishes to Google. Good photos get more people to order.'}},
- {id:'rating',w:10,p:60,who:'kit',
-  q:{es:'¿Tiene 4.3 estrellas o más en Google?',en:'4.3 stars or more on Google?'},
-  good:{es:'Tiene buena calificación en Google',en:'Has a strong Google rating'},
-  fix:{es:'Pida reseñas a sus clientes contentos. Una tarjeta con código QR en la mesa ayuda; se la preparamos.',en:'Ask happy customers for reviews. A QR card on the table helps; we prepare it.'}},
- {id:'replies',w:5,p:40,who:'owner',
-  q:{es:'¿Contesta las reseñas?',en:'Replies to reviews?'},
-  good:{es:'Contesta sus reseñas',en:'Replies to its reviews'},
-  fix:{es:'Conteste sus últimas 5 reseñas, aunque sea con un "¡Gracias por visitarnos!". Los clientes nuevos lo notan.',en:'Reply to the last 5 reviews, even just "Thanks for visiting!". New customers notice.'}},
- {id:'wa',w:5,p:35,who:'owner',
-  q:{es:'¿Toma pedidos o preguntas por WhatsApp?',en:'Takes orders or questions on WhatsApp?'},
-  good:{es:'Atiende por WhatsApp',en:'Answers on WhatsApp'},
-  fix:{es:'Ponga su número de WhatsApp en Google y en Facebook. Muchos clientes prefieren escribir que llamar.',en:'Add the WhatsApp number to Google and Facebook. Many customers would rather text than call.'}},
- {id:'ig',w:5,p:30,who:'kit',
-  q:{es:'¿Tiene Instagram activo?',en:'Active Instagram?'},
-  good:{es:'Está activo en Instagram',en:'Active on Instagram'},
-  fix:{es:'Use las mismas imágenes de Facebook en Instagram. No tiene que hacer nada extra.',en:'Reuse the Facebook images on Instagram. Nothing extra to make.'}}
+  fix:{es:'Publique 2 veces por semana: el platillo del día o fotos de sus clientes. Le damos imágenes listas con su logo.',en:'Post twice a week: the dish of the day or customer photos. We provide ready images with the logo.'}}
 ];
 const TAGS={sv:{es:'Nosotros lo hacemos',en:'SalesVu does it',cls:''},kit:{es:'Incluido gratis en este kit',en:'Included free in this kit',cls:'ok'},owner:{es:'Consejo gratis',en:'Free tip',cls:'warn'}};
-const EXAMPLE={gmaps:'yes',order:'no',apps:'yes',web:'no',fb:'no',photos:'no',rating:'yes',replies:'no',wa:'yes',ig:'unk'};
+const EXAMPLE={order:'no',apps:'yes',web:'no',gmaps:'yes',fb:'yes'};
 const ANS_LBL={yes:['Sí','Yes'],no:['No','No'],unk:['No sé','Not sure']};
 
 CHECKS.forEach(c=>{const row=document.createElement('div');row.className='q';
@@ -508,8 +489,6 @@ function applyPlace(p){place=p;const S=p.src;
   if(k==='ordering')setAns('order','yes',S);
   if(k==='apps'){setAns('apps','yes',S);setAns('web','no',S);}
   if(k==='none'||k==='facebook'||k==='instagram')setAns('web','no',S);
-  if(p.rating!=null)setAns('rating',p.rating>=4.3?'yes':'no',S);
-  if(p.photos!=null)setAns('photos',p.photos>=10?'yes':'no',S); // Google returns at most 10 photos
   if(!v('r-addr')&&p.addr)$('r-addr').value=p.addr;
   render();}
 
