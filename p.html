@@ -10,154 +10,234 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Emoji:wght@500&display=swap">
 <style>
 /* A personalized page a rep sends to one restaurant owner. Everything on it comes from the link itself
-   (the part after #), made by the Call Prep tool. Style follows salesvu.com and the MealPool deck. */
+   (the part after #), made by the Call Prep tool. Look and wording follow the "MealPool by SalesVu" deck (Oct 2026). */
 :root{
-  --bg:#FFFFFF; --soft:#F5F8FF; --fg:#0F1729; --muted:#5B6B82; --line:#E3E8EF;
-  --blue:#0066FF; --blue-ink:#0052CC; --blue-soft:rgba(0,102,255,.08);
-  --navy:#132F52; --green:#16BD77; --green-soft:#EAF7F0; --green-ink:#0E5C3A; --lav:#EEEAFB; --lav-ink:#6D4FD8;
+  --bg:#FFFFFF; --card:#F6F8FC; --card-line:#E4E9F2; --ink:#1B2B4B; --muted:#55657E; --line:#E4E9F2;
+  --blue:#3D7BF7; --blue-ink:#2F62D6; --blue-soft:#EAF1FE; --sky:#8DB2FF;
+  --navy:#1B2B4B; --navy-2:#24365A; --navy-line:rgba(255,255,255,.12);
+  --green:#4CB872; --green-btn:#56B979; --green-soft:#EAF5EC; --green-ink:#1F5A33;
+  --purple:#7656E3; --lav:#EEEAFB; --teal:#4DB6A8; --orange:#E07B39; --gold:#F5C14B;
   --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   color-scheme:light;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
 ::selection{background:var(--blue);color:#fff}
 [hidden]{display:none!important}
 a{color:var(--blue-ink);text-underline-offset:3px}
-.wrap{max-width:1040px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
-header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
-.head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
-.wordmark{font-weight:800;font-size:22px;letter-spacing:-.02em;color:var(--fg);text-decoration:none}
-.wordmark b{color:var(--blue)}
-.btn{font:inherit;font-size:15px;font-weight:600;border-radius:999px;padding:11px 22px;border:1px solid var(--line);background:#fff;color:var(--blue-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer}
-.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
-.btn:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-.btn.small{font-size:14px;padding:8px 16px;box-shadow:none}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
 
-.hero{position:relative;isolation:isolate;padding-block:64px 56px;text-align:center}
-.hero::before{content:"";position:absolute;inset:0 -20% auto;height:560px;z-index:-1;pointer-events:none;
-  background:radial-gradient(40% 55% at 32% 40%,rgba(124,92,255,.18),transparent 70%),radial-gradient(40% 55% at 64% 34%,rgba(0,102,255,.16),transparent 70%)}
-.logo{width:120px;height:120px;border-radius:50%;margin:0 auto 22px;display:block;box-shadow:0 10px 30px rgba(15,23,41,.10)}
-.badge{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--blue-ink);background:var(--blue-soft);padding:6px 14px;border-radius:999px}
-.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue)}
-h1{font-size:clamp(34px,6vw,60px);line-height:1.04;letter-spacing:-.04em;margin:18px auto 16px;max-width:16ch;text-wrap:balance}
-.hl{color:var(--blue)}
-.lede{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:56ch;margin:0 auto 28px}
-.ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.fine{font-size:13px;color:var(--muted);margin-top:14px}
+/* Header: MealPool wordmark, like the deck */
+header{position:sticky;top:0;z-index:10;background:rgba(27,43,75,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--navy-line)}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px}
+.wordmark{font-weight:800;font-size:21px;letter-spacing:-.02em;color:#fff;text-decoration:none;white-space:nowrap}
+.wordmark .pool{color:var(--green)}
+.wordmark small{font-weight:600;font-size:13px;color:#B9C6DD;margin-left:8px;letter-spacing:0}
+.btn{font:inherit;font-size:15px;font-weight:700;border-radius:12px;padding:12px 20px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn.go{background:var(--green-btn);color:#0F2A19}
+.btn.go:hover{background:#62C485}
+.btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.28)}
+.btn.ghost:hover{border-color:#fff}
+.btn.small{font-size:14px;padding:9px 16px}
+.btn:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
 
-section.block{padding-block:56px;border-top:1px solid var(--line)}
-h2{font-size:clamp(26px,3.6vw,38px);line-height:1.12;letter-spacing:-.03em;margin:0 0 10px;text-wrap:balance}
-.sub{color:var(--muted);margin:0 0 28px;max-width:60ch}
-.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+/* Hero: navy band, two-tone headline, a MealPool order card with real food */
+.hero{background:var(--navy);color:#fff;padding-block:56px 64px;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:48px;align-items:center}
+@media (max-width:880px){.hero-grid{grid-template-columns:minmax(0,1fr);gap:36px}}
+.pill{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purple);background:var(--lav);padding:6px 14px;border-radius:8px}
+h1{font-size:clamp(34px,4.6vw,56px);line-height:1.04;letter-spacing:-.035em;margin:20px 0 0;text-wrap:balance}
+h1 .l2{display:block;color:var(--sky)}
+.rule{width:44px;height:4px;border-radius:2px;background:var(--green);margin:22px 0}
+.lede{font-size:clamp(18px,2.1vw,22px);color:#C9D4E6;max-width:34ch;margin:0 0 24px;line-height:1.45}
+.control{display:inline-block;background:var(--green-soft);color:var(--green-ink);font-weight:700;border-radius:10px;padding:12px 18px;font-size:16px}
+.ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.fine{font-size:13px;color:#9FB0CC;margin:18px 0 0}
+
+.order{position:relative;background:#111A2C;border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:14px 14px 20px;box-shadow:0 30px 60px rgba(0,0,0,.35);max-width:440px;justify-self:end;width:100%}
+@media (max-width:880px){.order{justify-self:start}}
+.order .photo{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:1181/400;background:#2A2016}
+.order .photo img{width:100%;height:100%;object-fit:cover;display:block}
+.order .tag{position:absolute;top:10px;font-size:11px;font-weight:700;border-radius:999px;padding:4px 10px}
+.order .tag.live{left:10px;background:#E5487D;color:#fff}
+.order .tag.ill{right:10px;background:rgba(17,26,44,.85);color:#E6ECF5}
+.order .pw{position:relative}
+.order .logo{position:absolute;left:18px;bottom:-30px;width:68px;height:68px;border-radius:50%;border:3px solid #111A2C;background:#fff}
+.order .body{padding:40px 8px 0}
+.order h3{margin:0;font-size:20px;letter-spacing:-.01em}
+.order .big{font-size:30px;font-weight:800;color:var(--gold);margin:10px 0 0;letter-spacing:-.02em}
+.order .sky{color:#7FD3E6;font-weight:600;font-size:15px}
+.bar{height:8px;border-radius:4px;background:#2A3550;margin:14px 0 8px;overflow:hidden}
+.bar i{display:block;height:100%;width:76%;background:var(--teal);border-radius:4px}
+.order .row{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:#C9D4E6}
+.order .meta{font-weight:700;font-size:14px;margin-top:10px}
+.order .join{display:block;margin-top:16px;background:var(--green-btn);color:#0F2A19;font-weight:800;text-align:center;border-radius:12px;padding:12px}
+.order .small{font-size:11px;color:#8C9BB5;text-align:center;margin-top:8px}
+
+/* Sections */
+section.block{padding-block:64px}
+section.block.tint{background:var(--card)}
+h2{font-size:clamp(28px,3.8vw,42px);line-height:1.1;letter-spacing:-.03em;margin:0 0 12px;text-wrap:balance}
+h2 .b{color:var(--blue);display:block}
+.sub{color:var(--muted);margin:0 0 32px;max-width:62ch;font-size:17px}
+.card{background:#fff;border:1px solid var(--card-line);border-radius:18px;padding:24px;box-shadow:0 1px 2px rgba(27,43,75,.04),0 10px 30px rgba(27,43,75,.05)}
+.tint .card{background:#fff}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px}
+.stat .top{display:flex;align-items:center;gap:12px;font-weight:700;font-size:17px}
+.ico{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;color:#fff;flex:none}
+.ico svg{width:20px;height:20px}
+.stat .num{font-size:clamp(46px,6vw,60px);font-weight:800;letter-spacing:-.04em;line-height:1;margin:18px 0 6px;font-variant-numeric:tabular-nums}
+.stat p{margin:0;color:var(--muted);font-size:15px}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px;align-items:stretch}
 @media (max-width:820px){.split{grid-template-columns:minmax(0,1fr)}}
-.big{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.big strong{font-size:clamp(56px,9vw,88px);line-height:1;letter-spacing:-.05em;color:var(--navy);font-variant-numeric:tabular-nums}
-.big span{font-size:18px;font-weight:600}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-.chip{font-size:14px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--soft);border:1px solid var(--line)}
-.places{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.places li{display:flex;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.label{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.places{list-style:none;margin:0;padding:0;display:grid}
+.places li{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.places li:first-child{border-top:0;padding-top:0}
 .places li span{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.callout{margin-top:22px;background:var(--green-soft);color:var(--green-ink);border-radius:16px;padding:18px 20px;font-weight:700;font-size:18px}
-.callout small{display:block;font-weight:500;font-size:13px;margin-top:4px;opacity:.85}
+.est{background:var(--green-soft);border:0;box-shadow:none;color:var(--green-ink);display:grid;align-content:center;gap:8px}
+.est strong{font-size:clamp(22px,2.6vw,28px);line-height:1.2;letter-spacing:-.02em}
+.est small{font-size:14px;opacity:.85}
+.greenbar{margin-top:20px;background:var(--green-soft);color:var(--green-ink);border-radius:12px;padding:16px 20px;font-weight:700;text-align:center;font-size:17px}
 
-.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;counter-reset:s}
-@media (max-width:820px){.steps{grid-template-columns:minmax(0,1fr)}}
-.step{padding:22px;border:1px solid var(--line);border-radius:18px;background:#fff}
-.step::before{counter-increment:s;content:counter(s);display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;margin-bottom:12px}
-.step h3{margin:0 0 6px;font-size:18px;letter-spacing:-.01em}
-.step p{margin:0;color:var(--muted);font-size:15px}
-.control{margin-top:18px;display:inline-block;background:var(--green-soft);color:var(--green-ink);font-weight:700;border-radius:12px;padding:12px 18px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.steps{grid-template-columns:minmax(0,1fr)}}
+.step h3{margin:0 0 14px;font-size:20px;display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.step h3::before{content:"";width:5px;height:24px;border-radius:2px;background:var(--c,var(--blue))}
+.step ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.step li{position:relative;padding-left:20px;color:var(--ink);font-size:15.5px}
+.step li::before{content:"";position:absolute;left:4px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c,var(--blue))}
+.diners{margin-top:20px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.diners{grid-template-columns:minmax(0,1fr)}}
+.diner{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:start}
+.diner svg{width:20px;height:20px;color:var(--purple);margin-top:3px;grid-row:span 2}
+.diner strong{font-size:16px}
+.diner span{color:var(--muted);font-size:14.5px}
+
+.free{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:640px){.free{grid-template-columns:minmax(0,1fr)}}
+.free .card{text-align:center;position:relative;background:var(--blue-soft);border-color:#DCE6FB}
+.free .card::before{content:"";position:absolute;top:-1px;left:24px;width:40px;height:4px;border-radius:2px;background:var(--blue)}
+.free h3{margin:0 0 16px;padding-bottom:14px;border-bottom:1px solid #D3DEF5;font-size:18px;letter-spacing:.02em;text-transform:uppercase}
+.free .money{font-size:clamp(52px,7vw,72px);font-weight:800;letter-spacing:-.04em;line-height:1}
+.free .money small{font-size:20px;font-weight:700;letter-spacing:0;margin-left:8px}
 
 .checks{display:grid;gap:10px}
-.check{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:var(--soft)}
-.check b{font-size:13px;font-weight:700;white-space:nowrap}
-.check b.ok{color:#0E7A4E}.check b.fix{color:#C2410C}.check b.unk{color:var(--muted)}
-.help{display:grid;gap:12px}
-.help div{padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:#fff}
-.help strong{display:block;margin-bottom:4px}
+.check{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.check:first-child{border-top:0;padding-top:0}
+.check b{font-size:13px;font-weight:700;white-space:nowrap;padding:3px 10px;border-radius:999px}
+.check b.ok{color:var(--green-ink);background:var(--green-soft)}.check b.fix{color:#9A3F0C;background:#FDEEE3}.check b.unk{color:var(--muted);background:var(--card)}
+.help{display:grid;gap:18px;counter-reset:h}
+.help div{display:grid;grid-template-columns:auto 1fr;gap:2px 14px}
+.help div::before{counter-increment:h;content:counter(h);grid-row:span 2;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:#fff;font-weight:800;font-size:14px;background:var(--teal)}
+.help div:nth-child(2)::before{background:var(--purple)}.help div:nth-child(3)::before{background:var(--green)}
+.help strong{font-size:17px}
 .help p{margin:0;color:var(--muted);font-size:15px}
 
 .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 @media (max-width:900px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:520px){.cards{grid-template-columns:minmax(0,1fr)}}
-.card{padding:22px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 1px 2px rgba(15,23,41,.04),0 8px 24px rgba(15,23,41,.04)}
-.card .ico{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--blue-soft);color:var(--blue);margin-bottom:12px}
-.card .ico svg{width:22px;height:22px}
-.card h3{margin:0 0 6px;font-size:17px}
-.card p{margin:0;color:var(--muted);font-size:15px}
+.cards .card h3{margin:14px 0 6px;font-size:17px}
+.cards .card p{margin:0;color:var(--muted);font-size:15px}
 
-.formwrap{background:var(--navy);color:#fff;border-radius:24px;padding:clamp(24px,4vw,44px)}
-.formwrap h2{color:#fff}
-.formwrap .sub{color:#C7D3E6}
-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px}
+/* Closing band: navy like the deck's last slide */
+.close{background:var(--navy);color:#fff;padding-block:64px}
+.close h2{color:#fff}
+.close h2 .b{color:var(--sky)}
+.close .sub{color:#C9D4E6}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px;background:var(--navy-2);border:1px solid var(--navy-line);border-radius:20px;padding:clamp(20px,3vw,32px)}
 .field{display:grid;gap:6px}
 label{font-size:14px;font-weight:600;color:#E6EDF7}
 input,select{font:inherit;font-size:16px;width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff}
 input::placeholder{color:#9FB3CC}
-select option{color:#0F1729}
+select option{color:#1B2B4B}
 .form-go{grid-column:1/-1;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.thanks{grid-column:1/-1;background:rgba(22,189,119,.16);border-radius:12px;padding:14px 16px;color:#D1FAE5}
-footer{padding-block:36px 48px;color:var(--muted);font-size:13px;text-align:center}
+.thanks{grid-column:1/-1;background:rgba(76,184,114,.18);border-radius:12px;padding:14px 16px;color:#D9F5E2}
+footer{background:var(--navy);border-top:1px solid var(--navy-line);color:#9FB0CC;font-size:13px}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-block:22px 30px}
+.foot .wordmark{font-size:20px}
+.foot .wordmark .vu{color:var(--blue)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 html{scroll-behavior:smooth}
 </style>
 </head>
 <body>
 <header><div class="wrap head">
-  <a class="wordmark" href="#top">Sales<b>Vu</b></a>
-  <a class="btn primary small" href="#empezar" id="h-cta"></a>
+  <a class="wordmark" href="#top">Meal<span class="pool">Pool</span><small>by SalesVu</small></a>
+  <a class="btn go small" href="#empezar" id="h-cta"></a>
 </div></header>
 
 <main id="top">
-  <section class="hero wrap">
-    <canvas class="logo" id="logo" width="240" height="240" aria-hidden="true"></canvas>
-    <span class="badge" id="badge"></span>
-    <h1 id="h1"></h1>
-    <p class="lede" id="lede"></p>
-    <div class="ctas"><a class="btn primary" href="#empezar" id="cta1"></a><a class="btn" href="#oficinas" id="cta2"></a></div>
-    <p class="fine" id="fine"></p>
-  </section>
-
-  <section class="block wrap" id="oficinas">
-    <h2 id="o-h"></h2><p class="sub" id="o-sub"></p>
-    <div class="split">
-      <div><div class="big"><strong id="o-n"></strong><span id="o-n-lbl"></span></div><div class="chips" id="o-chips"></div><div class="callout" id="o-est"></div></div>
-      <ul class="places" id="o-list"></ul>
+  <section class="hero"><div class="wrap hero-grid">
+    <div>
+      <span class="pill" id="badge"></span>
+      <h1 id="h1"></h1>
+      <div class="rule" aria-hidden="true"></div>
+      <p class="lede" id="lede"></p>
+      <div class="control" id="control"></div>
+      <div class="ctas"><a class="btn go" href="#empezar" id="cta1"></a><a class="btn ghost" href="#oficinas" id="cta2"></a></div>
+      <p class="fine" id="fine"></p>
     </div>
-  </section>
+    <div class="order" aria-label="Example group lunch order">
+      <div class="pw"><div class="photo"><img src="assets/tacos.jpg" alt="" width="1181" height="315"><span class="tag live" id="o-live"></span><span class="tag ill" id="o-ill"></span></div>
+      <canvas class="logo" id="logo" width="240" height="240" aria-hidden="true"></canvas></div>
+      <div class="body">
+        <h3 id="o-title"></h3>
+        <div class="big" id="o-big"></div>
+        <div class="sky" id="o-sky"></div>
+        <div class="bar"><i></i></div>
+        <div class="row"><span id="o-count"></span><span id="o-cut"></span></div>
+        <div class="join" id="o-join"></div>
+        <div class="small" id="o-small"></div>
+      </div>
+    </div>
+  </div></section>
 
-  <section class="block wrap" id="como">
+  <section class="block" id="oficinas"><div class="wrap">
+    <h2 id="o-h"></h2><p class="sub" id="o-sub"></p>
+    <div class="stats" id="o-stats"></div>
+    <div class="split">
+      <div class="card"><p class="label" id="o-list-h"></p><ul class="places" id="o-list"></ul></div>
+      <div class="card est" id="o-est"></div>
+    </div>
+  </div></section>
+
+  <section class="block tint" id="como"><div class="wrap">
     <h2 id="c-h"></h2><p class="sub" id="c-sub"></p>
     <div class="steps" id="c-steps"></div>
-    <div class="control" id="c-control"></div>
-  </section>
+    <div class="card diners" id="c-diners"></div>
+  </div></section>
 
-  <section class="block wrap" id="presencia">
+  <section class="block" id="gratis"><div class="wrap">
+    <h2 id="g-h"></h2>
+    <div class="free" id="g-cards"></div>
+    <div class="greenbar" id="g-bar"></div>
+  </div></section>
+
+  <section class="block tint" id="presencia"><div class="wrap">
     <h2 id="p-h"></h2><p class="sub" id="p-sub"></p>
-    <div class="split"><div class="checks" id="p-checks"></div><div class="help" id="p-help"></div></div>
-  </section>
+    <div class="split"><div class="card"><div class="checks" id="p-checks"></div></div><div class="card"><div class="help" id="p-help"></div></div></div>
+  </div></section>
 
-  <section class="block wrap" id="salesvu">
+  <section class="block" id="salesvu"><div class="wrap">
     <h2 id="s-h"></h2><p class="sub" id="s-sub"></p>
     <div class="cards" id="s-cards"></div>
-  </section>
+  </div></section>
 
-  <section class="block wrap" id="empezar">
-    <div class="formwrap">
-      <h2 id="f-h"></h2><p class="sub" id="f-sub"></p>
-      <form id="f" autocomplete="on">
-        <div class="field"><label for="f-name" id="l-name"></label><input id="f-name" name="name" type="text" autocomplete="name"></div>
-        <div class="field"><label for="f-phone" id="l-phone"></label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
-        <div class="field"><label for="f-meals" id="l-meals"></label><select id="f-meals" name="meals"></select></div>
-        <div class="field"><label for="f-time" id="l-time"></label><select id="f-time" name="time"></select></div>
-        <div class="form-go"><button type="submit" class="btn primary" id="f-go"></button><span id="f-note" style="font-size:13px;color:#C7D3E6"></span></div>
-        <div class="thanks" id="f-thanks" hidden></div>
-      </form>
-    </div>
-  </section>
+  <section class="close" id="empezar"><div class="wrap">
+    <h2 id="f-h"></h2><p class="sub" id="f-sub"></p>
+    <form id="f" autocomplete="on">
+      <div class="field"><label for="f-name" id="l-name"></label><input id="f-name" name="name" type="text" autocomplete="name"></div>
+      <div class="field"><label for="f-phone" id="l-phone"></label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
+      <div class="field"><label for="f-meals" id="l-meals"></label><select id="f-meals" name="meals"></select></div>
+      <div class="field"><label for="f-time" id="l-time"></label><select id="f-time" name="time"></select></div>
+      <div class="form-go"><button type="submit" class="btn go" id="f-go"></button><span id="f-note" style="font-size:13px;color:#C9D4E6"></span></div>
+      <div class="thanks" id="f-thanks" hidden></div>
+    </form>
+  </div></section>
 </main>
-<footer class="wrap" id="foot"></footer>
+<footer><div class="wrap foot"><span id="foot"></span><span class="wordmark">Sales<span class="vu">Vu</span></span></div></footer>
 
 <script>
 (function(){
@@ -171,36 +251,64 @@ const EXAMPLE={n:'Taquería Los Compadres',c:'Houston, TX',r:'Andrea',lg:'es',de
 const D=readData()||EXAMPLE,es=D.lg!=='en',T=(a,b)=>es?a:b;
 document.documentElement.lang=es?'es':'en';
 const R=D.n||T('su restaurante','your restaurant'),rep=D.r||'SalesVu';
-const CAT={office:['oficinas','offices'],health:['salud','health'],school:['escuelas','schools'],gov:['gobierno','government'],cars:['agencias y talleres','dealers & shops'],industry:['industria y bodegas','industry & warehouses']};
+const SVG=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const I={office:'<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1"/>',
+  health:'<path d="M12 5v14M5 12h14"/>',school:'<path d="m3 9 9-5 9 5-9 5-9-5Z"/><path d="M7 11v5c3 2 7 2 10 0v-5"/>',
+  gov:'<path d="M4 20h16M5 10h14M12 4l8 5H4l8-5Z"/><path d="M7 10v8M12 10v8M17 10v8"/>',cars:'<path d="M5 16h14M6 16l1.5-5h9L18 16"/><circle cx="8" cy="17.5" r="1.5"/><circle cx="16" cy="17.5" r="1.5"/>',
+  industry:'<path d="M3 20V10l5 3V10l5 3V6h4v14H3Z"/>',cart:'<path d="M4 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L20 8H7"/><circle cx="10" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/>',
+  pct:'<path d="M19 5 5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',people:'<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M14 19a4 4 0 0 1 7-2.6"/>',
+  mega:'<path d="M4 10v4a1 1 0 0 0 1 1h2l6 4V5L7 9H5a1 1 0 0 0-1 1Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/>',check:'<path d="m5 12 5 5 9-10"/>'};
+const CAT={office:['Oficinas','Offices','var(--blue)'],health:['Salud','Health','var(--green)'],school:['Escuelas','Schools','var(--teal)'],gov:['Gobierno','Government','var(--purple)'],cars:['Agencias y talleres','Dealers & shops','var(--orange)'],industry:['Industria y bodegas','Industry & warehouses','#64748B']};
 const radL=mi=>es?(mi===0.5?'media milla':mi===1?'1 milla':mi+' millas'):(mi===0.5?'half a mile':mi===1?'1 mile':mi+' miles');
 const txt=(id,t)=>{$(id).textContent=t;};
+const two=(id,a,b)=>{const h=$(id);h.textContent='';h.append(a);const s=document.createElement('span');s.className='b';s.textContent=b;h.appendChild(s);};
+const el=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html)e.innerHTML=html;return e;};
 
 document.title=`${R} · MealPool by SalesVu`;
 txt('h-cta',T('Quiero empezar','Get started'));
-txt('badge',T(`Preparado para ${R}`,`Prepared for ${R}`));
-$('h1').innerHTML='';$('h1').append(T('Más pedidos para ','More orders for '));const hl=document.createElement('span');hl.className='hl';hl.textContent=R;$('h1').append(hl);
+txt('badge',T(`MealPool by SalesVu · Para ${R}`,`MealPool by SalesVu · For ${R}`));
+$('h1').textContent='';$('h1').append(T('Llene su cocina antes de abrir.','Book your kitchen before you open.'));const l2=el('span','l2');l2.textContent=T(`Más pedidos para ${R}.`,`More orders for ${R}.`);$('h1').appendChild(l2);
 txt('lede',T('Almuerzos de oficina, pedidos por adelantado. Empiece el día con pedidos, no con suposiciones.','Office lunches, pre-ordered. Start the day with orders, not guesswork.'));
+txt('control',T('Su capacidad. Sus horarios. Su control.','Your capacity. Your cutoffs. Your control.'));
 txt('cta1',T('Quiero probar MealPool','Try MealPool'));txt('cta2',T('Ver las oficinas cerca','See the offices nearby'));
-txt('fine',D.demo?T('Ejemplo de página. Su representante le prepara una con los datos de su restaurante.','Example page. Your rep prepares one with your restaurant\'s details.'):T(`Preparado por ${rep}, de SalesVu${D.c?' · '+D.c:''}.`,`Prepared by ${rep} from SalesVu${D.c?' · '+D.c:''}.`));
+txt('fine',D.demo?T('Página de ejemplo. Su representante le prepara una con los datos de su restaurante.','Example page. Your rep prepares one with your restaurant\'s details.'):T(`Preparado por ${rep}, de SalesVu${D.c?' · '+D.c:''}.`,`Prepared by ${rep} from SalesVu${D.c?' · '+D.c:''}.`));
+
+/* The order card: what a group order for this restaurant looks like (illustrative, like the deck) */
+const O=D.ofs,first=O&&O.top&&O.top[0]?O.top[0][0]:'';
+txt('o-live',T('EN VIVO','LIVE'));txt('o-ill',T('Ejemplo','Illustrative'));
+txt('o-title',T(`${R} · Almuerzo en equipo`,`${R} · Team lunch`));
+txt('o-big',T('24 almuerzos','24 lunches'));
+txt('o-sky',first?T(`Pedido en grupo de ${first}`,`Group order from ${first}`):T('Pedido en grupo de una oficina cercana','Group order from a nearby office'));
+txt('o-count',T('24 / 30 lugares','24 / 30 spots'));txt('o-cut',T('Cierra 10:30 am · Entrega 12:00','Closes 10:30 am · Lunch at 12:00'));
+txt('o-join',T('Unirse al pedido','Join the order'));txt('o-small',T('Cada persona pide y paga por separado.','Each person orders and pays separately.'));
 
 /* Offices nearby */
-const O=D.ofs;
-if(O&&O.n){txt('o-h',T('Sus próximos clientes de la comida están a la vuelta de la esquina','Your next lunch customers are right around the corner'));
-  txt('o-sub',T(`Estos lugares de trabajo están a menos de ${radL(O.r)} de ${R}. Su gente almuerza todos los días.`,`These workplaces are within ${radL(O.r)} of ${R}. Their people eat lunch every day.`));
-  txt('o-n',O.n);txt('o-n-lbl',T(`lugares de trabajo a menos de ${radL(O.r)}`,`workplaces within ${radL(O.r)}`));
-  (O.cats||[]).slice(0,4).forEach(([k,n])=>{const c=document.createElement('span');c.className='chip';c.textContent=`${n} ${(CAT[k]||[k,k])[es?0:1]}`;$('o-chips').appendChild(c);});
-  (O.top||[]).slice(0,5).forEach(([name,d])=>{const li=document.createElement('li');li.innerHTML='<strong></strong><span></span>';li.children[0].textContent=name;li.children[1].textContent=`${d<0.1?'0.1':d.toFixed(1)} mi`;$('o-list').appendChild(li);});
-  if(O.n>=3){$('o-est').innerHTML='';$('o-est').append(T('3 oficinas × 10 almuerzos = 30 pedidos más por semana','3 offices × 10 lunches = 30 more orders a week'));const sm=document.createElement('small');sm.textContent=T('Ejemplo: si 3 oficinas piden para 10 personas una vez por semana.','Example: if 3 offices order for 10 people once a week.');$('o-est').appendChild(sm);}else $('o-est').hidden=true;
+if(O&&O.n){two('o-h',T(`${O.n} lugares de trabajo`,`${O.n} workplaces`),T(`a menos de ${radL(O.r)} de ${R}`,`within ${radL(O.r)} of ${R}`));
+  txt('o-sub',T('Su gente almuerza todos los días. Con MealPool, cada oficina puede pedirle en grupo, por adelantado.','Their people eat lunch every day. With MealPool, each office can order from you as a group, ahead of time.'));
+  (O.cats||[]).slice(0,4).forEach(([k,n])=>{const c=CAT[k]||[k,k,'var(--blue)'];const d=el('div','card stat',`<div class="top"><span class="ico" style="background:${c[2]}">${SVG(I[k]||I.office)}</span><span></span></div><div class="num" style="color:${c[2]}"></div><p></p>`);
+    d.querySelector('.top span:last-child').textContent=c[es?0:1];d.querySelector('.num').textContent=n;d.querySelector('p').textContent=T(`a menos de ${radL(O.r)}`,`within ${radL(O.r)}`);$('o-stats').appendChild(d);});
+  txt('o-list-h',T('Los más cercanos','Closest to you'));
+  (O.top||[]).slice(0,5).forEach(([name,d])=>{const li=el('li','','<strong></strong><span></span>');li.children[0].textContent=name;li.children[1].textContent=`${d<0.1?'0.1':d.toFixed(1)} mi`;$('o-list').appendChild(li);});
+  if(O.n>=3){$('o-est').innerHTML='<strong></strong><small></small>';$('o-est').children[0].textContent=T('3 oficinas × 10 almuerzos = 30 pedidos más por semana','3 offices × 10 lunches = 30 more orders a week');$('o-est').children[1].textContent=T('Ejemplo: si 3 oficinas piden para 10 personas una vez por semana.','Example: if 3 offices order for 10 people once a week.');}else $('o-est').hidden=true;
 }else $('oficinas').hidden=true;
 
 /* How MealPool works (wording from the MealPool deck) */
-txt('c-h',T('Cómo funciona MealPool','How MealPool works'));
-txt('c-sub',T('Pedidos de almuerzo en grupo de las oficinas cercanas, sin pagar comisión por pedido.','Group lunch orders from nearby offices, with no per-order commission.'));
-[[T('Las oficinas piden juntas','Offices order together'),T('Los compañeros de una oficina arman un pedido en grupo, por adelantado.','Coworkers build one group order, ahead of time.')],
- [T('Usted ve los pedidos temprano','You see orders early'),T('Sabe cuánto cocinar antes de abrir. Sin sorpresas en la hora pico.','You know how much to cook before you open. No surprises at rush hour.')],
- [T('Usted cocina todo junto','You cook it all at once'),T('Prepara y entrega (o tienen listo para recoger) a la hora que usted elija.','Prepare and deliver, or have it ready for pickup, at the time you choose.')]]
- .forEach(([h,p])=>{const d=document.createElement('div');d.className='step';d.innerHTML='<h3></h3><p></p>';d.children[0].textContent=h;d.children[1].textContent=p;$('c-steps').appendChild(d);});
-txt('c-control',T('Su capacidad. Sus horarios. Su control.','Your capacity. Your cutoffs. Your control.'));
+two('c-h',T('Usted vende su capacidad extra','You book your extra capacity'),T('sin saturar a su equipo en las horas pico','without overwhelming your staff at rush hour'));
+txt('c-sub',T('Pedidos de almuerzo en grupo de las oficinas cercanas, sin comisión por pedido.','Group lunch orders from nearby offices, with no per-order commission.'));
+[['var(--green)',T('Configure su oferta','Set up your offer'),[T('Elija los platillos','Pick the menu items'),T('Ponga su límite de pedidos','Set your capacity limit'),T('Descuentos por volumen','Set volume discounts'),T('Hora límite para pedir','Set the order cutoff time')]],
+ ['var(--blue)',T('Reciba los pedidos','Receive the orders'),[T('Su plan de producción completo antes de empezar','Your full prep plan before you start'),T('Cada platillo va a su estación de cocina','Each item goes to the right kitchen station'),T('Pedidos ordenados por hora de recogida','Orders sorted by pickup time')]],
+ ['var(--teal)',T('Empaque y entregue','Pack and deliver'),[T('Lo recogen o se entrega con DoorDash, Uber Eats o Grubhub','Picked up, or delivered by DoorDash, Uber Eats or Grubhub'),T('Sin cobrarle comisión al restaurante','With no fee charged to the restaurant')]]]
+ .forEach(([c,h,items])=>{const d=el('div','card step');d.style.setProperty('--c',c);const h3=el('h3');h3.textContent=h;d.appendChild(h3);const ul=el('ul');items.forEach(t=>{const li=el('li');li.textContent=t;ul.appendChild(li);});d.appendChild(ul);$('c-steps').appendChild(d);});
+[[T('Piden con sus compañeros, pagan por separado','Order with coworkers, pay separately'),T('Un enlace; cada quien pide y paga en su celular.','One link; everyone orders and pays on their own phone.')],
+ [T('Descuentos de grupo','Group discounts'),T('El precio baja cuando más compañeros se unen.','Prices drop as more coworkers join.')],
+ [T('Sin filas, sin perder el almuerzo','No lines, no lost lunch break'),T('Los pedidos cierran antes de su hora pico y llegan listos.','Orders close before your rush and arrive ready to eat.')]]
+ .forEach(([h,p])=>{const d=el('div','diner',SVG(I.check)+'<strong></strong><span></span>');d.children[1].textContent=h;d.children[2].textContent=p;$('c-diners').appendChild(d);});
+
+/* Free for restaurants (deck slide 9). Only the two numbers that apply to every restaurant. */
+two('g-h',T('MealPool es gratis','MealPool is free'),T('para su restaurante','for your restaurant'));
+[[T('Sin comisiones','No commissions'),'0%',T('por pedido','per order')],[T('Sin mensualidad','No monthly fee'),'$0',T('al mes','per month')]]
+ .forEach(([h,n,s])=>{const d=el('div','card','<h3></h3><div class="money"></div>');d.children[0].textContent=h;d.children[1].textContent=n;const sm=el('small');sm.textContent=s;d.children[1].appendChild(sm);$('g-cards').appendChild(d);});
+txt('g-bar',T('Cada empleado paga su propio almuerzo. Usted solo paga el procesamiento normal de tarjetas.','Each employee pays for their own lunch. You only pay standard card processing.'));
 
 /* Online presence */
 const LBL={order:['Pedidos en línea directos','Direct online orders'],apps:['Sin comisiones de apps de entrega','No delivery-app commissions'],web:['Página web con menú','Website with menu'],gmaps:['Google Maps con horario','Google Maps with hours'],fb:['Facebook activo','Active on Facebook']};
@@ -210,29 +318,28 @@ const HELP={order:[T('Más pedidos directos','More direct orders'),T('Sus client
   gmaps:[T('No pierda clientes que lo buscan','Don\'t lose customers looking for you'),T('Ponga su horario, teléfono y dirección correctos en Google.','Put your correct hours, phone and address on Google.')],
   fb:[T('Más clientes que regresan','More repeat customers'),T('Publique 2 veces por semana. Le damos las imágenes listas con su logo.','Post twice a week. We give you ready-made images with your logo.')]};
 const P=D.pr;
-if(P&&((P.good||[]).length||(P.bad||[]).length)){txt('p-h',T(`${R} en internet`,`${R} online`));txt('p-sub',T('Lo que ya funciona, y lo que le ayudamos a mejorar para recibir más pedidos.','What already works, and what we help you improve to get more orders.'));
-  Object.keys(LBL).forEach(k=>{const st=(P.good||[]).includes(k)?'ok':(P.bad||[]).includes(k)?'fix':'unk';const d=document.createElement('div');d.className='check';d.innerHTML='<span></span><b></b>';
+if(P&&((P.good||[]).length||(P.bad||[]).length)){two('p-h',T('Lo que encontramos de','What we found about'),R);txt('p-sub',T('Lo que ya funciona, y lo que le ayudamos a mejorar para recibir más pedidos.','What already works, and what we help you improve to get more orders.'));
+  Object.keys(LBL).forEach(k=>{const st=(P.good||[]).includes(k)?'ok':(P.bad||[]).includes(k)?'fix':'unk';const d=el('div','check','<span></span><b></b>');
     d.children[0].textContent=LBL[k][es?0:1];d.children[1].className=st;d.children[1].textContent=st==='ok'?T('Bien','Good'):st==='fix'?T('Le ayudamos','We can help'):T('Por revisar','To check');$('p-checks').appendChild(d);});
-  (P.bad||[]).slice(0,3).forEach(k=>{if(!HELP[k])return;const d=document.createElement('div');d.innerHTML='<strong></strong><p></p>';d.children[0].textContent=HELP[k][0];d.children[1].textContent=HELP[k][1];$('p-help').appendChild(d);});
-  if(!$('p-help').children.length){const d=document.createElement('div');d.innerHTML='<strong></strong><p></p>';d.children[0].textContent=T('Ya va muy bien','You\'re in great shape');d.children[1].textContent=T('El siguiente paso: pedidos de almuerzo en grupo de las oficinas cercanas, con MealPool.','Next step: group lunch orders from nearby offices, with MealPool.');$('p-help').appendChild(d);}
+  (P.bad||[]).slice(0,3).forEach(k=>{if(!HELP[k])return;const d=el('div','','<strong></strong><p></p>');d.children[0].textContent=HELP[k][0];d.children[1].textContent=HELP[k][1];$('p-help').appendChild(d);});
+  if(!$('p-help').children.length){const d=el('div','','<strong></strong><p></p>');d.children[0].textContent=T('Ya va muy bien','You\'re in great shape');d.children[1].textContent=T('El siguiente paso: pedidos de almuerzo en grupo de las oficinas cercanas, con MealPool.','Next step: group lunch orders from nearby offices, with MealPool.');$('p-help').appendChild(d);}
 }else $('presencia').hidden=true;
 
-/* What SalesVu does (features from salesvu.com and the MealPool deck) */
-const ICONS={"🛒": '<path d="M4 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L20 8H7"/><circle cx="10" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/>', "💵": '<path d="M19 5 5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>', "🌮": '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M14 19a4 4 0 0 1 7-2.6"/>', "📣": '<path d="M4 10v4a1 1 0 0 0 1 1h2l6 4V5L7 9H5a1 1 0 0 0-1 1Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/>'};
-txt('s-h',T('SalesVu trabaja para usted','SalesVu works for you'));txt('s-sub',T('Le dejamos todo listo. Usted se enfoca en su cocina y sus clientes.','We set everything up. You focus on your kitchen and your customers.'));
-[['🛒',T('Su tienda en línea','Your online store'),T('Con su menú y sus precios. La armamos nosotros.','With your menu and prices. We build it.')],
- ['💵',T('Sin comisión por pedido','No per-order commission'),T('Sus clientes piden directo con usted.','Customers order directly from you.')],
- ['🌮',T('Almuerzos en grupo','Group lunches'),T('MealPool trae pedidos de las oficinas cercanas.','MealPool brings orders from nearby offices.')],
- ['📣',T('Marketing con su logo','Marketing with your logo'),T('Calcomanía con QR, publicaciones para Facebook y WhatsApp.','A QR sticker, posts for Facebook and WhatsApp.')]]
- .forEach(([i,h,p])=>{const d=document.createElement('div');d.className='card';d.innerHTML=`<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[i]}</svg></span><h3></h3><p></p>`;d.children[1].textContent=h;d.children[2].textContent=p;$('s-cards').appendChild(d);});
+/* What SalesVu does (from salesvu.com and the MealPool deck) */
+two('s-h',T('¿Le gusta MealPool?','Love MealPool?'),T('SalesVu trabaja para usted','SalesVu works for you'));txt('s-sub',T('Le dejamos todo listo. Usted se enfoca en su cocina y sus clientes.','We set everything up. You focus on your kitchen and your customers.'));
+[['cart','var(--blue)',T('Su tienda en línea','Your online store'),T('Con su menú y sus precios. La armamos nosotros.','With your menu and prices. We build it.')],
+ ['pct','var(--green)',T('Sin comisión por pedido','No per-order commission'),T('Sus clientes piden directo con usted.','Customers order directly from you.')],
+ ['people','var(--purple)',T('Almuerzos en grupo','Group lunches'),T('MealPool trae pedidos de las oficinas cercanas.','MealPool brings orders from nearby offices.')],
+ ['mega','var(--teal)',T('Marketing con su logo','Marketing with your logo'),T('Calcomanía con QR, publicaciones para Facebook y WhatsApp.','A QR sticker, posts for Facebook and WhatsApp.')]]
+ .forEach(([i,c,h,p])=>{const d=el('div','card',`<span class="ico" style="background:${c}" aria-hidden="true">${SVG(I[i])}</span><h3></h3><p></p>`);d.children[1].textContent=h;d.children[2].textContent=p;$('s-cards').appendChild(d);});
 
 /* Form: sends the owner's answers to the rep on WhatsApp (nothing is stored on a server). */
-txt('f-h',T('¿Le interesa? Empecemos','Interested? Let\'s start'));
+two('f-h',T('Venda su capacidad extra','Let\'s sell your extra capacity'),T('antes del próximo servicio','before the next service'));
 txt('f-sub',T(`Déjenos sus datos y ${rep} le contacta para dejar todo listo.`,`Leave your details and ${rep} will contact you to set everything up.`));
 txt('l-name',T('Su nombre','Your name'));txt('l-phone',T('Su WhatsApp o teléfono','Your WhatsApp or phone'));
 txt('l-meals',T('¿Cuántos almuerzos extra puede preparar al día?','How many extra lunches can you make a day?'));txt('l-time',T('Mejor hora para hablar','Best time to talk'));
-[['10–20','10–20'],['20–50','20–50'],['50+','50+'],[T('No sé todavía','Not sure yet'),T('No sé todavía','Not sure yet')]].forEach(([a])=>{const o=document.createElement('option');o.textContent=a;$('f-meals').appendChild(o);});
-[T('En la mañana','Morning'),T('Después de la comida (3–5 pm)','After lunch (3–5 pm)'),T('En la noche','Evening')].forEach(t=>{const o=document.createElement('option');o.textContent=t;$('f-time').appendChild(o);});
+['10–20','20–50','50+',T('No sé todavía','Not sure yet')].forEach(a=>{const o=el('option');o.textContent=a;$('f-meals').appendChild(o);});
+[T('En la mañana','Morning'),T('Después de la comida (3–5 pm)','After lunch (3–5 pm)'),T('En la noche','Evening')].forEach(t=>{const o=el('option');o.textContent=t;$('f-time').appendChild(o);});
 txt('f-go',T('Enviar por WhatsApp','Send on WhatsApp'));
 const wa=(D.w||'').replace(/[^\d]/g,'');
 txt('f-note',wa?T(`Se abre WhatsApp con un mensaje para ${rep}.`,`WhatsApp opens with a message to ${rep}.`):T(`O responda directamente al WhatsApp de ${rep}.`,`Or reply directly to ${rep}'s WhatsApp.`));
@@ -243,16 +350,16 @@ $('f').addEventListener('submit',e=>{e.preventDefault();
   if(wa){t.textContent=T('¡Gracias! Se abrió WhatsApp con su mensaje. Si no se abrió, copie este texto y mándelo: ','Thanks! WhatsApp opened with your message. If it didn\'t, copy this text and send it: ')+msg;window.location.href=`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;}
   else t.textContent=T('¡Gracias! Copie este texto y respóndalo en el WhatsApp de su representante: ','Thanks! Copy this text and send it in your rep\'s WhatsApp: ')+msg;});
 
-$('foot').textContent=T('MealPool by SalesVu · Restaurant Growth Solutions for the AI Age','MealPool by SalesVu · Restaurant Growth Solutions for the AI Age');
+txt('foot','MealPool by SalesVu · Restaurant Growth Solutions for the AI Age');
 
 /* Logo: the restaurant's name in the MealPool collateral style, with Mexican-food icons (Noto Emoji). */
 function drawLogo(){const c=$('logo'),x=c.getContext('2d'),r=120;x.clearRect(0,0,240,240);x.save();x.beginPath();x.arc(r,r,r,0,Math.PI*2);x.clip();
-  x.fillStyle='#EEF4FF';x.fillRect(0,0,240,240);x.globalAlpha=.55;x.fillStyle='#2D7CFF';x.font='500 30px "Noto Emoji",sans-serif';x.textAlign='center';x.textBaseline='middle';
+  x.fillStyle='#EEF4FF';x.fillRect(0,0,240,240);x.globalAlpha=.55;x.fillStyle='#3D7BF7';x.font='500 30px "Noto Emoji",sans-serif';x.textAlign='center';x.textBaseline='middle';
   const F=['🌮','🌶','🥑','🌯','🌽','🌮','🌵','🍋'];let k=0;for(let y=10;y<250;y+=54){for(let xx=(k%2?37:10);xx<250;xx+=56){x.save();x.translate(xx,y);x.rotate(((k*47)%40-20)*Math.PI/180);x.fillText(F[k%F.length],0,0);x.restore();k++;}}
   x.globalAlpha=1;x.beginPath();x.arc(r,r,84,0,Math.PI*2);x.fillStyle='#fff';x.fill();
   const words=R.split(' '),lines=[];let line='';x.font='800 26px Inter, sans-serif';words.forEach(w=>{const t=line?line+' '+w:w;if(x.measureText(t).width>130&&line){lines.push(line);line=w;}else line=t;});if(line)lines.push(line);
-  const L=lines.slice(0,3),lh=28;let yy=r-((L.length-1)*lh)/2-6;x.fillStyle='#132F52';L.forEach(l=>{x.fillText(l,r,yy);yy+=lh;});
-  x.fillStyle='#16BD77';x.fillRect(r-20,yy-8,40,5);x.restore();}
+  const L=lines.slice(0,3),lh=28;let yy=r-((L.length-1)*lh)/2-6;x.fillStyle='#1B2B4B';L.forEach(l=>{x.fillText(l,r,yy);yy+=lh;});
+  x.fillStyle='#4CB872';x.fillRect(r-20,yy-8,40,5);x.restore();}
 drawLogo();if(document.fonts&&document.fonts.load)Promise.all([document.fonts.load('500 30px "Noto Emoji"','🌮🌶🥑'),document.fonts.load('800 26px Inter')]).then(drawLogo,()=>{});
 })();
 </script>

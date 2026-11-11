@@ -47,6 +47,7 @@ a{color:var(--blue-ink);text-underline-offset:3px}
 .badge{display:inline-flex;align-items:center;gap:8px;justify-self:start;font-size:13px;font-weight:500;color:var(--blue-ink);background:var(--blue-soft);padding:6px 14px;border-radius:999px}
 .badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue)}
 .glow{position:relative;isolation:isolate}
+html,body{overflow-x:clip}
 .glow::before{content:"";position:absolute;inset:-60px -10% auto;height:520px;z-index:-1;pointer-events:none;
   background:radial-gradient(45% 55% at 30% 35%,rgba(124,92,255,.16),transparent 70%),radial-gradient(45% 55% at 60% 30%,rgba(0,102,255,.14),transparent 70%)}
 /* Header */
@@ -1096,23 +1097,35 @@ function pkKit(n,total){const [cv,x]=pkPage(),es=olang()==='es',T=(a,b)=>es?a:b;
   pkFooter(x,n,total);return cv;}
 
 /* Office flyer (MealPool style), English, Spanish or both. */
+/* Real food photo from the MealPool deck. Drawn once loaded; the flyer redraws when it arrives. */
+const FOOD=new Image();FOOD.onload=()=>{try{if(lunch.places.length)renderFlyer();}catch(e){}};FOOD.src='assets/tacos.jpg';
+function drawFood(x,X,Y,W,H){if(!FOOD.complete||!FOOD.naturalWidth){x.fillStyle='#2A2016';x.fillRect(X,Y,W,H);return;}
+  const s=Math.max(W/FOOD.naturalWidth,H/FOOD.naturalHeight),sw=W/s,sh=H/s;x.drawImage(FOOD,(FOOD.naturalWidth-sw)/2,(FOOD.naturalHeight-sh)/2,sw,sh,X,Y,W,H);}
+/* Office flyer, in the MealPool deck style: food photo, two-tone headline, colored numbered steps, QR. */
 function drawFlyer(o,lang){const [cv,x]=newPage(),R=v('r-name')||'Restaurant',d=fmtMi(o.dist),cut=v('l-cutoff')||'10:30 am',lt=v('l-time')||'12:00 pm',del=lmode()==='deliver';
-  const E=lang!=='es',S=lang!=='en',office=o.name.length>30?o.name.slice(0,29)+'…':o.name;
-  x.fillStyle=MP.tint;x.fillRect(0,0,1080,330);doodlePattern(x,0,0,1080,330,MP.blue,120,.22);
-  drawLogo(x,540,170,110);x.lineWidth=6;x.strokeStyle='#FFFFFF';x.beginPath();x.arc(540,170,110,0,Math.PI*2);x.stroke();
-  x.textAlign='center';let y=420;x.font=`600 30px ${F}`;x.fillStyle=MP.blue;x.fillText(E?`${R} · ${d} mi from ${office}`:`${R} · a ${d} mi de ${office}`,540,y,960);
-  y+=86;x.fillStyle=MP.navy;x.font=`800 64px ${F}`;wrap(x,E?`Team lunch for ${office}`:`Almuerzo en equipo para ${office}`,940).slice(0,2).forEach(l=>{x.fillText(l,540,y);y+=74;});
-  if(E&&S){x.font=`600 30px ${F}`;x.fillStyle='#5B6B82';x.fillText(`Almuerzo en equipo para ${office}`,540,y-14,940);y+=30;}
-  x.fillStyle=MP.green;rr(x,495,y-20,90,9,4);x.fill();y+=50;
+  const E=lang!=='es',S=lang!=='en',office=o.name.length>30?o.name.slice(0,29)+'…':o.name,NAVY='#1B2B4B',BLUE='#3D7BF7',MUTED='#55657E';
+  drawFood(x,0,0,1080,440);const g=x.createLinearGradient(0,240,0,440);g.addColorStop(0,'rgba(27,43,75,0)');g.addColorStop(1,'rgba(27,43,75,.55)');x.fillStyle=g;x.fillRect(0,0,1080,440);
+  x.font=`700 22px ${F}`;try{x.letterSpacing='2px';}catch(e){}const tag='MEALPOOL BY SALESVU',tw=x.measureText(tag).width;
+  x.fillStyle='#EEEAFB';rr(x,60,48,tw+56,50,12);x.fill();x.fillStyle='#7656E3';x.textAlign='left';x.fillText(tag,88,82);try{x.letterSpacing='0px';}catch(e){}
+  drawLogo(x,170,440,100);x.lineWidth=8;x.strokeStyle='#FFFFFF';x.beginPath();x.arc(170,440,100,0,Math.PI*2);x.stroke();
+  let y=530;x.textAlign='left';x.font=`600 28px ${F}`;x.fillStyle=BLUE;x.fillText(E?`${R} · ${d} mi from ${office}`:`${R} · a ${d} mi de ${office}`,300,y-36,720);
+  y=630;x.font=`800 66px ${F}`;try{x.letterSpacing='-2px';}catch(e){}x.fillStyle=NAVY;x.fillText(E?'Team lunch for':'Almuerzo en equipo para',60,y,960);y+=74;
+  x.fillStyle=BLUE;wrap(x,office,960).slice(0,2).forEach(l=>{x.fillText(l,60,y);y+=74;});try{x.letterSpacing='0px';}catch(e){}
+  if(E&&S){x.font=`500 28px ${F}`;x.fillStyle=MUTED;x.fillText(`Almuerzo en equipo para ${office}`,60,y-24,960);y+=24;}
+  x.fillStyle='#4CB872';rr(x,60,y-18,64,8,4);x.fill();y+=46;
   const steps=[[`Order together by ${cut}`,`Pidan juntos antes de las ${cut}`],[`${R} makes it fresh`,`${R} lo prepara al momento`],
-    [del?`Delivered to your office at ${lt}`:`Ready for pickup at ${lt}`,del?`Llega a su oficina a las ${lt}`:`Listo para recoger a las ${lt}`]];
-  x.textAlign='left';steps.forEach((s,i)=>{x.beginPath();x.arc(150,y-12,26,0,Math.PI*2);x.fillStyle=MP.blue;x.fill();x.fillStyle='#FFFFFF';x.font=`800 26px ${F}`;x.textAlign='center';x.fillText(String(i+1),150,y-3);x.textAlign='left';
-    x.fillStyle=MP.navy;x.font=`600 34px ${F}`;x.fillText(E?s[0]:s[1],198,y,800);if(E&&S){x.font=`500 26px ${F}`;x.fillStyle='#5B6B82';x.fillText(s[1],198,y+36,800);y+=94;}else y+=74;});
-  const link=v('r-link'),qs=Math.min(240,1350-130-(y+20));x.textAlign='center';
-  const q=link?qrCanvas(tracked(link,'regalo-almuerzo'),qs,MP.navy):null;
-  if(q)x.drawImage(q,540-qs/2,y+10,qs,qs);else{x.fillStyle='#F1F4F8';rr(x,540-qs/2,y+10,qs,qs,16);x.fill();x.fillStyle='#8A97AB';x.font=`600 24px ${F}`;x.fillText('QR',540,y+10+qs/2+8);}
-  x.font=`600 28px ${F}`;x.fillStyle=MP.blue;x.fillText(E&&S?'Scan for the menu & to order · Escanee para pedir':E?'Scan for the menu and to order':'Escanee para ver el menú y pedir',540,y+qs+54,980);
-  x.font=`600 22px ${F}`;x.fillStyle='#5B6B82';x.fillText('MealPool by SalesVu',540,1310);return cv;}
+    [del?`Delivered to your office at ${lt}`:`Ready for pickup at ${lt}`,del?`Llega a su oficina a las ${lt}`:`Listo para recoger a las ${lt}`]],cols=['#4DB6A8','#7656E3','#4CB872'];
+  const qs=230,qx=1080-60-qs,colW=qx-60-40-60;
+  const y0=y;steps.forEach((s,i)=>{x.beginPath();x.arc(84,y-12,24,0,Math.PI*2);x.fillStyle=cols[i];x.fill();x.fillStyle='#FFFFFF';x.font=`800 24px ${F}`;x.textAlign='center';x.fillText(String(i+1),84,y-3);x.textAlign='left';
+    x.fillStyle=NAVY;x.font=`700 32px ${F}`;x.fillText(E?s[0]:s[1],128,y,colW);if(E&&S){x.font=`500 24px ${F}`;x.fillStyle=MUTED;x.fillText(s[1],128,y+34,colW);y+=100;}else y+=78;});
+  const link=v('r-link'),q=link?qrCanvas(tracked(link,'regalo-almuerzo'),qs-28,NAVY):null,qy=y0-46;
+  x.fillStyle='#F6F8FC';rr(x,qx,qy,qs,qs,20);x.fill();x.strokeStyle='#E4E9F2';x.lineWidth=2;x.stroke();
+  if(q)x.drawImage(q,qx+14,qy+14,qs-28,qs-28);else{x.fillStyle='#8A97AB';x.font=`600 24px ${F}`;x.textAlign='center';x.fillText('QR',qx+qs/2,qy+qs/2+8);}
+  x.textAlign='center';x.font=`700 22px ${F}`;x.fillStyle=BLUE;x.fillText(E?'Scan to order':'Escanee para pedir',qx+qs/2,qy+qs+36,qs+20);if(E&&S){x.font=`500 20px ${F}`;x.fillStyle=MUTED;x.fillText('Escanee para pedir',qx+qs/2,qy+qs+64,qs+20);}
+  y=Math.max(y,qy+qs+90)+10;x.fillStyle='#EAF5EC';rr(x,60,y,960,84,14);x.fill();x.fillStyle='#1F5A33';x.font=`700 28px ${F}`;
+  x.fillText(E&&S?'Each person orders and pays separately · Cada quien paga lo suyo':E?'Each person orders and pays separately.':'Cada persona pide y paga por separado.',540,y+53,900);
+  x.fillStyle='#E4E9F2';x.fillRect(60,1262,960,2);x.textAlign='left';x.font=`500 21px ${F}`;x.fillStyle=MUTED;x.fillText('MealPool by SalesVu · Restaurant Growth Solutions for the AI Age',60,1306,700);
+  x.textAlign='right';x.font=`800 34px ${F}`;x.fillStyle=BLUE;x.fillText('Vu',1020,1310);const vw=x.measureText('Vu').width;x.fillStyle=NAVY;x.fillText('Sales',1020-vw,1310);x.textAlign='left';return cv;}
 
 /* ================= Pack: pages, WhatsApp message, PDF ================= */
 let packPages=[];
