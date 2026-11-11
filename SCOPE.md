@@ -173,3 +173,13 @@ It sits next to the existing **Kit de ventas** (follow-up generator + call guide
 - [ ] Sophia: does this fit as Vanessa's demo inside the customer-journey section?
 - [ ] Pascal: OK for a **public** repo (needed for free GitHub Pages)? If not, keep it private and share by screen-sharing in the demo.
 - [ ] Sebastian: MealPool wording, delivery vs. pickup, cutoff time; can reps spend 2 minutes per lead on the health check?
+
+---
+
+## Rep workflow (added Nov 10): as few steps as possible
+1. **Fastest:** a "Regalo" button in SalesVu's CRM opens `regalos.html?name=…&addr=…&maps=…&store=…` with the restaurant already filled in, and the look-up runs on its own. The CRM already has Google Places data for its restaurant list, so SalesVu's developer can add this button in an afternoon.
+2. **Without the CRM button:** the rep pastes the restaurant's Google Maps link (or its website) and the look-up starts on paste. A Maps link alone fills in the name and exact location.
+3. The rep confirms the yes/no answers marked "Google" and checks Facebook/Instagram with one click each.
+4. Copy image → copy message → paste in WhatsApp.
+
+Can't be done from a static page: reading the content of other websites (browsers block it, and scraping Google breaks its terms). Short links (`maps.app.goo.gl`) must be opened first and the full link copied.

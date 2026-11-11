@@ -232,6 +232,11 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
     <div class="col">
       <div class="panel col">
         <h2 class="step-h"><span class="num">1</span><span class="es">Busque el restaurante</span><span class="en">Look up the restaurant</span></h2>
+        <div class="field">
+          <label for="r-url"><span class="es">Enlace de Google Maps o página del restaurante (opcional)</span><span class="en">Google Maps link or restaurant website (optional)</span></label>
+          <input type="url" id="r-url" placeholder="https://www.google.com/maps/place/…">
+          <span class="hint"><span class="es">Con el enlace de Google Maps se encuentra el restaurante exacto. Con su página web, la herramienta ve si ya vende en línea o en apps.</span><span class="en">A Google Maps link finds the exact restaurant. A website link shows whether it already sells online or through apps.</span></span>
+        </div>
         <div class="btns">
           <button type="button" class="btn primary" id="lookup"><span class="es">Buscar y llenar automáticamente</span><span class="en">Look up and auto-fill</span></button>
         </div>
@@ -441,27 +446,51 @@ function renderLinks(){const name=v('r-name'),both=(name+' '+v('r-addr')).trim()
 
 /* ---------- Auto-fill: Google Places (with a key) or OpenStreetMap (free backup) ---------- */
 let place=null; // the chosen restaurant; Part 3 will reuse its location
-async function googleSearch(q){const key=gkey();
-  const basic='places.id,places.displayName,places.formattedAddress,places.location,places.googleMapsUri,places.websiteUri,places.nationalPhoneNumber,places.regularOpeningHours';
-  const full=basic+',places.rating,places.userRatingCount,places.photos';
-  let lastErr='';
-  for(const mask of [full,basic]){ // the free Demo Key may refuse ratings/photos, so retry with the basic fields
+const G_BASIC=['id','displayName','formattedAddress','location','googleMapsUri','websiteUri','nationalPhoneNumber','regularOpeningHours'];
+const G_FULL=G_BASIC.concat(['rating','userRatingCount','photos']);
+function fromGoogle(p){return {src:'Google',name:(p.displayName&&p.displayName.text)||'',addr:p.formattedAddress||'',
+  lat:p.location&&p.location.latitude,lon:p.location&&p.location.longitude,maps:p.googleMapsUri||'',web:p.websiteUri||'',phone:p.nationalPhoneNumber||'',
+  hours:!!(p.regularOpeningHours&&(p.regularOpeningHours.weekdayDescriptions||p.regularOpeningHours.periods)),
+  rating:typeof p.rating==='number'?p.rating:null,ratings:p.userRatingCount||null,photos:Array.isArray(p.photos)?p.photos.length:null};}
+/* near = {lat,lon} from a pasted Google Maps link: the search then prefers places within ~300 m of that spot. */
+async function googleSearch(q,near){const key=gkey();let lastErr='';
+  for(const f of [G_FULL,G_BASIC]){ // the free Demo Key may refuse ratings/photos, so retry with the basic fields
+    const body={textQuery:q,pageSize:5,regionCode:'US',languageCode:'es'};
+    if(near)body.locationBias={circle:{center:{latitude:near.lat,longitude:near.lon},radius:300}};
     const r=await fetch('https://places.googleapis.com/v1/places:searchText',{method:'POST',
-      headers:{'Content-Type':'application/json','X-Goog-Api-Key':key,'X-Goog-FieldMask':mask},
-      body:JSON.stringify({textQuery:q,pageSize:5,regionCode:'US',languageCode:'es'})});
-    if(r.ok){const j=await r.json();return (j.places||[]).map(p=>({src:'Google',name:(p.displayName&&p.displayName.text)||'',addr:p.formattedAddress||'',
-      lat:p.location&&p.location.latitude,lon:p.location&&p.location.longitude,maps:p.googleMapsUri||'',web:p.websiteUri||'',phone:p.nationalPhoneNumber||'',
-      hours:!!(p.regularOpeningHours&&(p.regularOpeningHours.weekdayDescriptions||p.regularOpeningHours.periods)),
-      rating:typeof p.rating==='number'?p.rating:null,ratings:p.userRatingCount||null,photos:Array.isArray(p.photos)?p.photos.length:null}));}
+      headers:{'Content-Type':'application/json','X-Goog-Api-Key':key,'X-Goog-FieldMask':f.map(x=>'places.'+x).join(',')},body:JSON.stringify(body)});
+    if(r.ok){const j=await r.json();return (j.places||[]).map(fromGoogle);}
     lastErr=r.status+' '+(await r.text()).slice(0,160);}
   throw new Error('Google '+lastErr);}
-async function osmQuery(q){const u='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=us&extratags=1&q='+encodeURIComponent(q);
+async function googleDetails(pid){const key=gkey();let lastErr='';
+  for(const f of [G_FULL,G_BASIC]){
+    const r=await fetch('https://places.googleapis.com/v1/places/'+encodeURIComponent(pid)+'?languageCode=es',{headers:{'X-Goog-Api-Key':key,'X-Goog-FieldMask':f.join(',')}});
+    if(r.ok)return [fromGoogle(await r.json())];
+    lastErr=r.status+' '+(await r.text()).slice(0,160);}
+  throw new Error('Google '+lastErr);}
+
+/* Read what a pasted link already tells us. Google Maps links carry the place name, its coordinates
+   (!3d…!4d… is the pin; @lat,lng is the map view) and sometimes a place ID. Short links (maps.app.goo.gl)
+   can't be opened from here, so the rep is asked for the full link. Anything else is treated as the restaurant's own site. */
+function readLink(raw){let url;try{url=new URL(raw);}catch(e){return null;}const h=url.hostname.replace(/^www\./,'');
+  if(/(^|\.)goo\.gl$/.test(h))return {kind:'short'};
+  const isMaps=(/^google\.[a-z.]+$/.test(h)&&url.pathname.startsWith('/maps'))||/^maps\.google\./.test(h);
+  if(!isMaps)return {kind:'site',url:raw};
+  const out={kind:'maps'};const m=url.pathname.match(/\/place\/([^/]+)/);
+  if(m)out.name=decodeURIComponent(m[1].replace(/\+/g,' '));
+  const pin=raw.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/),view=raw.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if(pin)out.near={lat:+pin[1],lon:+pin[2]};else if(view)out.near={lat:+view[1],lon:+view[2]};
+  const pid=url.searchParams.get('query_place_id')||(raw.match(/place_id:([A-Za-z0-9_-]+)/)||[])[1];if(pid)out.pid=pid;
+  const q=url.searchParams.get('q')||url.searchParams.get('query');if(q&&!out.name)out.name=q;
+  return out;}
+async function osmQuery(q,near){let u='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=us&extratags=1&q='+encodeURIComponent(q);
+  if(near){const d=0.004;u+=`&bounded=1&viewbox=${near.lon-d},${near.lat+d},${near.lon+d},${near.lat-d}`;}
   const r=await fetch(u,{headers:{'Accept-Language':'es,en'}});if(!r.ok)throw new Error('OpenStreetMap '+r.status);return r.json();}
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 /* OpenStreetMap's search is strict, so try simpler searches in turn (max 1 per second, per its usage policy).
    If only the street address matches, keep the location for the lunch map but don't auto-fill any answers. */
-async function osmSearch(name,addr){const tries=[[name+' '+addr,false],[name+' '+city(),false],[addr,true]].filter(([q])=>q.trim());
-  for(let i=0;i<tries.length;i++){if(i)await pause(1100);const [q,addrOnly]=tries[i];const j=await osmQuery(q);
+async function osmSearch(name,addr,near){const tries=(near?[[name,false,near]]:[]).concat([[name+' '+addr,false],[name+' '+city(),false],[addr,true]]).filter(([q])=>q.trim());
+  for(let i=0;i<tries.length;i++){if(i)await pause(1100);const [q,addrOnly,box]=tries[i];const j=await osmQuery(q,box);
     if(j.length)return j.map(p=>{const t=p.extratags||{};return {src:'OpenStreetMap',addrOnly,name:addrOnly?name:(p.name||p.display_name.split(',')[0]),addr:p.display_name,lat:+p.lat,lon:+p.lon,
       maps:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.lat+','+p.lon)}`,web:addrOnly?'':(t.website||t['contact:website']||''),phone:addrOnly?'':(t.phone||t['contact:phone']||''),
       hours:!addrOnly&&!!t.opening_hours,rating:null,ratings:null,photos:null};});}
@@ -490,12 +519,19 @@ function showFound(list){const f=$('found');f.innerHTML='';
     b.innerHTML=`<strong></strong><small></small><small></small>`;b.children[0].textContent=p.name;b.children[1].textContent=p.addr;b.children[2].textContent=`${p.src}${bits?' · '+bits:''}`;
     b.onclick=()=>{f.querySelectorAll('.place').forEach(x=>x.setAttribute('aria-pressed',x===b));applyPlace(p);};f.appendChild(b);});}
 
-$('lookup').onclick=async()=>{const q=(v('r-name')+' '+v('r-addr')).trim();const st=$('lookup-st');
+$('lookup').onclick=async()=>{const st=$('lookup-st');const link=v('r-url')?readLink(v('r-url')):null;
+  if(v('r-url')&&!link){st.className='status err';st.textContent=EN()?'That link doesn\'t look right. Copy it again from the browser bar.':'Ese enlace no parece correcto. Cópielo otra vez de la barra del navegador.';return;}
+  if(link&&link.kind==='short'){st.className='status err';st.textContent=EN()?'Short links (maps.app.goo.gl) can\'t be read. Open the link, then copy the full address from the browser bar.':'Los enlaces cortos (maps.app.goo.gl) no se pueden leer. Abra el enlace y copie la dirección completa de la barra del navegador.';return;}
+  const maps=link&&link.kind==='maps'?link:null,site=link&&link.kind==='site'?link.url:'';
+  if(maps&&maps.name&&!v('r-name')){$('r-name').value=maps.name;}
   if(!v('r-name')){st.className='status err';st.textContent=EN()?'Type the restaurant name first.':'Escriba primero el nombre del restaurante.';return;}
+  const q=(v('r-name')+' '+(maps&&maps.near?'':v('r-addr'))).trim(),near=maps&&maps.near;
   $('lookup').disabled=true;st.className='status';st.textContent=EN()?'Searching…':'Buscando…';$('found').innerHTML='';
   try{let list,src;
-    if(gkey()){try{list=await googleSearch(q);src='Google';}catch(e){st.className='status err';st.textContent=(EN()?'Google didn\'t answer (check the key in Settings). Trying OpenStreetMap… ':'Google no respondió (revise la clave en Ajustes). Probando con OpenStreetMap… ')+e.message;console.warn(e);}}
-    if(!list){list=await osmSearch(v('r-name'),v('r-addr'));src='OpenStreetMap';}
+    if(gkey()){try{list=maps&&maps.pid?await googleDetails(maps.pid):await googleSearch(q,near);src='Google';}catch(e){st.className='status err';st.textContent=(EN()?'Google didn\'t answer (check the key in Settings). Trying OpenStreetMap… ':'Google no respondió (revise la clave en Ajustes). Probando con OpenStreetMap… ')+e.message;console.warn(e);}}
+    if(!list){list=await osmSearch(v('r-name'),v('r-addr'),near);src='OpenStreetMap';}
+    if(site)list.forEach(p=>{if(!p.addrOnly)p.web=site;}); // the rep's pasted website beats what the map service knows
+    if(site&&list.length&&list[0].addrOnly){const k=siteKind(site);if(k!=='none'){list[0]=Object.assign({},list[0],{addrOnly:false,web:site,name:v('r-name')});}}
     if(!list.length){st.className='status err';st.textContent=EN()?`No match on ${src}. Check the name and address, or answer the questions by hand.`:`No se encontró en ${src}. Revise el nombre y la dirección, o conteste las preguntas a mano.`;return;}
     if(list[0].addrOnly){st.className='status';st.textContent=EN()?'OpenStreetMap found the address but not the restaurant. Answer the questions with the links below (a Google key in Settings finds much more).':'OpenStreetMap encontró la dirección, pero no el restaurante. Conteste las preguntas con los enlaces de abajo (con una clave de Google en Ajustes encuentra mucho más).';applyPlace(list[0]);return;}
     st.className='status okc';st.textContent=EN()?`Found on ${src}. Pick the right one if there are several.`:`Encontrado en ${src}. Elija el correcto si hay varios.`+(src==='OpenStreetMap'?(EN()?' (Fewer details than Google.)':' (Menos datos que Google.)'):'');
@@ -603,9 +639,21 @@ $('qs').addEventListener('change',e=>{const id=e.target.name&&e.target.name.slic
 $('r-next').addEventListener('input',later);$('show-score').addEventListener('change',render);
 $('wa').addEventListener('input',e=>e.stopPropagation());
 
-setAll(EXAMPLE);
+/* ---------- Shortcuts for reps ----------
+   1) Pasting a link starts the look-up right away.
+   2) The page can open pre-filled from its own address, e.g. from a button in SalesVu's CRM:
+      regalos.html?name=Taqueria%20X&addr=123%20Main%20St%2C%20Houston%2C%20TX&maps=<Google Maps link>&store=<store link>&owner=Ana&rep=Luis
+      With any of these, the example is cleared and the look-up runs on its own.
+   3) The rep's name is remembered on this device. */
+$('r-url').addEventListener('paste',()=>setTimeout(()=>{if(v('r-url'))$('lookup').click();},50));
+$('r-rep').addEventListener('change',()=>store.set('svkit-rep',v('r-rep')));
+const P=new URLSearchParams(location.search),FROM_URL=['name','addr','maps','store','owner','rep'].some(k=>P.get(k));
+if(FROM_URL){[['name','r-name'],['addr','r-addr'],['owner','r-owner'],['rep','r-rep'],['store','r-link'],['maps','r-url']].forEach(([k,id])=>{$(id).value=P.get(k)||'';});
+  if(!P.get('rep'))$('r-rep').value=store.get('svkit-rep')||'';$('r-next').value='mañana';setAll({});}
+else{setAll(EXAMPLE);if(store.get('svkit-rep'))$('r-rep').value=store.get('svkit-rep');}
 setLang(store.get('svkit-lang')==='en'?'en':'es');
 route();render();
+if(FROM_URL&&(v('r-name')||v('r-url')))$('lookup').click();
 (document.fonts&&document.fonts.load?Promise.all(['800','700','600','500'].map(w=>document.fonts.load(`${w} 40px Inter`))):Promise.resolve()).then(render,render);
 })();
 </script>
