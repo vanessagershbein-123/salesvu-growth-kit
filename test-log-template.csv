@@ -1,2 +1,0 @@
-date,rep,restaurant,city,group (A gift / B standard),reached owner? (owner / staff gave callback),follow-up sent same day? (Y/N),gift sent? (Y/N),minutes for gift,replied within 48h? (Y/N),hours to reply,callback or demo booked? (Y/N),setup paid? (fill in 2 weeks later),notes
-2026-11-23,Andrea,Taquería Ejemplo,Houston TX,A,owner,Y,Y,3,Y,5,Y,,Example row: delete before starting
