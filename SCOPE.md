@@ -17,8 +17,13 @@ One website, one link, used on a laptop or phone by the reps:
 
 It sits next to the existing **Kit de ventas** (follow-up generator + call guide). The two are linked from each other's menus.
 
+## Decisions (Nov 10)
+- **Treat MealPool as live.** The materials are a sales tool: they **show the owner our research and the content they'll get**, so they want to try SalesVu and MealPool. They're labeled as a preview for the restaurant ("Ejemplo para su restaurante").
+- **Use Google Maps data** (Places API) for the lunch search and to auto-fill the health check. **OpenStreetMap is the free backup** when no Google key is entered.
+
 ## Rules for all parts
-- **Static site:** no login, no server, no API keys, no cost. Hosted on GitHub Pages.
+- **Static site:** no login, no server, no cost. Hosted on GitHub Pages.
+- **Google key:** never saved in the code or the repo. Each user pastes a key once in ⚙️ Ajustes (settings) and it stays in that browser only. Vanessa uses a free **Google Maps Demo Key** (personal Gmail, no credit card, daily limit, no charges) for building and the demo. SalesVu plugs in **its own key** later; Pascal already uses Google Places for the CRM. The key is restricted to the site's address and to the Places API.
 - **Spanish first** with an English toggle. Owner-facing text uses "usted" and Spanish natural to Mexican-American owners (the reps are Colombian).
 - **The rep reviews and sends.** The tool never sends anything itself.
 - **Only confirmed claims.** No prices, fees or setup costs until Sebastian confirms the offer. MealPool wording is marked "to confirm."
@@ -46,6 +51,7 @@ It sits next to the existing **Kit de ventas** (follow-up generator + call guide
 **User story:** As a rep, in about 2 minutes I check how a restaurant shows up online and send the owner a personal report with 3 fixes, so I have a useful reason for a second conversation.
 
 **Inputs**
+- **With a Google key:** search the restaurant by name + address; the tool **auto-fills** what Google knows: hours listed, website, phone, rating and review count (if the key allows), and a Maps link. The rep confirms or corrects.
 - One-click look-up links that open in a new tab: Google Maps, Google search, Facebook, Instagram, delivery apps
 - 10 yes / no / don't-know questions:
 
@@ -73,7 +79,7 @@ It sits next to the existing **Kit de ventas** (follow-up generator + call guide
 3. **Report image** (1080×1350, for WhatsApp): logo, score, 3 fixes, rep name, QR to the demo store
 4. **WhatsApp message** in Spanish, with an English version for team review
 
-**Out of scope:** automatic scraping of Google, Yelp or Facebook (needs paid APIs and raises terms-of-service issues), star-rating lookups, competitor comparison.
+**Out of scope:** scraping Facebook, Instagram or Yelp (those stay manual checks), reading review text, competitor comparison.
 
 **Success metric:** share of owners who reply after receiving the report (logged by reps).
 
@@ -115,11 +121,12 @@ It sits next to the existing **Kit de ventas** (follow-up generator + call guide
 ## Part 3: Almuerzos cerca (lunch customers near you) + MealPool content
 **User story:** As a rep, I type the restaurant's address and see the workplaces around it. The owner gets proof that lunch customers are nearby, plus ready-made outreach to each office for MealPool group lunches.
 
-**How it works (free, no API key)**
-1. **Address to map location:** OpenStreetMap Nominatim (free; maximum 1 search per second)
-2. **Nearby workplaces:** OpenStreetMap Overpass, within 0.5, 1 or 2 miles. Categories: offices, hospitals and clinics, schools and universities, government, car dealerships, industry and warehouses. Named places only.
-3. **Map:** Leaflet with OpenStreetMap tiles, plus a list sorted by distance (miles and walking minutes)
-4. Reps can **add places by hand** (OpenStreetMap misses some offices)
+**How it works**
+1. **Find the restaurant:** Google Places Text Search turns the name + address into a map location (backup: OpenStreetMap Nominatim).
+2. **Nearby workplaces:** Google Places **Nearby Search** within 0.5, 1 or 2 miles. One search per category, up to 20 places each: offices (corporate offices, law, accounting, insurance, real estate, banks), health (hospitals, clinics, dentists), schools and universities, government (city hall, courthouse, police, fire, post office), car dealerships, industry and warehouses. Backup: OpenStreetMap Overpass.
+3. **Map:** Leaflet map with markers, plus a list sorted by distance (miles and walking minutes). Each place links to Google Maps.
+4. Reps can **add places by hand** for anything the search misses.
+5. **Usage:** about 6 Google calls per search. Google's free monthly cap for Nearby Search (Pro) is 5,000 calls (~800 searches a month) before charges start, and the Demo Key just pauses at its daily limit.
 
 **Inputs:** radius, order cutoff time (default 10:30 am), lunch time (default 12:00 pm), delivery or pickup, program name (default "MealPool"), language of the office materials (English default; Spanish or bilingual)
 
@@ -131,15 +138,14 @@ It sits next to the existing **Kit de ventas** (follow-up generator + call guide
    - An email to the office manager (subject and body)
 
 **Out of scope**
-- Employee counts or contact names (needs paid data)
+- Employee counts or contact names (not in Google Places)
 - Sending emails
-- Google Places data, possible later with Pascal's API key
 - Consumer sign-up flows
 
-**Risks / to confirm**
-- OpenStreetMap office coverage varies by area. Test real Houston and San Antonio addresses, and keep manual add as the backup.
-- Confirm with Sebastian that MealPool can be mentioned, whether it offers delivery or pickup, and the cutoff times.
-- Public OpenStreetMap services are for light use. If reps use this heavily, switch to a paid provider.
+**Risks**
+- The Demo Key is for prototyping and leaves out reviews and photos. Fine for the demo; SalesVu needs its own key with billing for daily rep use.
+- A browser key is visible to anyone who opens the page, so it must be restricted to the site's address and the Places API in Google Cloud.
+- Test real Houston and San Antonio addresses before the demo.
 
 **Success metric:** offices contacted per restaurant; restaurants that agree to a MealPool trial.
 
