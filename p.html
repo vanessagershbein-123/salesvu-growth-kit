@@ -281,7 +281,7 @@ $('h1').textContent='';$('h1').append(T('Llene su cocina antes de abrir.','Book 
 txt('lede',T('Almuerzos de oficina, pedidos por adelantado. Empiece el día con pedidos, no con suposiciones.','Office lunches, pre-ordered. Start the day with orders, not guesswork.'));
 txt('control',T('Su capacidad. Sus horarios. Su control.','Your capacity. Your cutoffs. Your control.'));
 txt('cta1',T('Quiero probar MealPool','Try MealPool'));txt('cta2',T('Ver las oficinas cerca','See the offices nearby'));
-txt('fine',D.demo?T('Página de ejemplo. Su representante le prepara una con los datos de su restaurante.','Example page. Your rep prepares one with your restaurant\'s details.'):T(`Preparado por ${rep}, de SalesVu${D.c?' · '+D.c:''}.`,`Prepared by ${rep} from SalesVu${D.c?' · '+D.c:''}.`));
+if(D.demo)$('fine').hidden=true;else txt('fine',T(`Preparado por ${rep}, de SalesVu${D.c?' · '+D.c:''}.`,`Prepared by ${rep} from SalesVu${D.c?' · '+D.c:''}.`));
 
 /* The order card: what a group order for this restaurant looks like (illustrative, like the deck) */
 const O=D.ofs,first=O&&O.top&&O.top[0]?O.top[0][0]:'';
@@ -294,7 +294,7 @@ txt('o-join',T('Unirse al pedido','Join the order'));txt('o-small',T('Cada perso
 
 /* Offices nearby */
 if(O&&O.n){two('o-h',T(`${O.n} lugares de trabajo`,`${O.n} workplaces`),T(`a menos de ${radL(O.r)} de ${R}`,`within ${radL(O.r)} of ${R}`));
-  txt('o-sub',T('Su gente almuerza todos los días. Con MealPool, cada oficina puede pedirle en grupo, por adelantado.','Their people eat lunch every day. With MealPool, each office can order from you as a group, ahead of time.'));
+  txt('o-sub',T('Su gente almuerza todos los días. Con MealPool, cada oficina puede pedirle en grupo, por adelantado, o suscribirse a un almuerzo semanal para simplificarse la vida.','Their people eat lunch every day. With MealPool, each office can order from you as a group, ahead of time, or subscribe to a weekly lunch order to make their lives easier.'));
   (O.cats||[]).slice(0,4).forEach(([k,n])=>{const c=CAT[k]||[k,k,'var(--blue)'];const d=el('div','card stat',`<div class="top"><span class="ico" style="background:${c[2]}">${SVG(I[k]||I.office)}</span><span></span></div><div class="num" style="color:${c[2]}"></div><p></p>`);
     d.querySelector('.top span:last-child').textContent=c[es?0:1];d.querySelector('.num').textContent=n;d.querySelector('p').textContent=T(`a menos de ${radL(O.r)}`,`within ${radL(O.r)}`);$('o-stats').appendChild(d);});
   txt('o-list-h',T('Los más cercanos','Closest to you'));
