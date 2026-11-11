@@ -19,7 +19,7 @@ It sits next to the existing **Kit de ventas** (follow-up generator + call guide
 
 ## Decisions (Nov 10)
 - **Public repo in Vanessa's GitHub account** (portfolio piece). Pascal gets the link, and can be added as a collaborator or receive a transfer later if he wants it.
-- **Treat MealPool as live.** The materials are a sales tool: they **show the owner our research and the content they'll get**, so they want to try SalesVu and MealPool. They're labeled as a preview for the restaurant ("Ejemplo para su restaurante").
+- **MealPool is live** (confirmed Nov 10). The materials are a sales tool: they **show the owner our research and the content they'll get**, so they want to try SalesVu and MealPool. They're labeled as a preview for the restaurant ("Ejemplo para su restaurante").
 - **Use Google Maps data** (Places API) for the lunch search and to auto-fill the health check. **OpenStreetMap is the free backup** when no Google key is entered.
 
 ## Rules for all parts
@@ -27,7 +27,7 @@ It sits next to the existing **Kit de ventas** (follow-up generator + call guide
 - **Google key:** never saved in the code or the repo. Each user pastes a key once in ⚙️ Ajustes (settings) and it stays in that browser only. Vanessa uses a free **Google Maps Demo Key** (personal Gmail, no credit card, daily limit, no charges) for building and the demo. SalesVu plugs in **its own key** later; Pascal already uses Google Places for the CRM. The key is restricted to the site's address and to the Places API.
 - **Spanish first** with an English toggle. Owner-facing text uses "usted" and Spanish natural to Mexican-American owners (the reps are Colombian).
 - **The rep reviews and sends.** The tool never sends anything itself.
-- **Only confirmed claims.** No prices, fees or setup costs until Sebastian confirms the offer. MealPool wording is marked "to confirm."
+- **Only confirmed claims.** No prices, fees or setup costs until Sebastian confirms the offer.
 - **Nothing private in the repo:** no CRM data, call transcripts, or real owner names and phone numbers. Sample data is invented.
 - **Brand:** salesvu.com style (Inter, #0066FF blue, navy #0A1A2E). Works on a 375px phone screen, light and dark mode.
 
@@ -167,7 +167,7 @@ It sits next to the existing **Kit de ventas** (follow-up generator + call guide
 ## Open decisions
 - [ ] Sophia: does this fit as Vanessa's demo inside the customer-journey section?
 - [ ] Pascal: OK for a **public** repo (needed for free GitHub Pages)? If not, keep it private and share by screen-sharing in the demo.
-- [ ] Sebastian: MealPool wording, delivery vs. pickup, cutoff time; can reps spend 2 minutes per lead on the health check?
+- [ ] Sebastian: MealPool delivery vs. pickup, typical cutoff time; can reps spend 2 minutes per lead on the health check?
 
 ---
 

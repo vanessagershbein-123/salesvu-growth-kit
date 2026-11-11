@@ -395,7 +395,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
           <li><span class="es">“Le mandamos pedidos de nuestros clientes corporativos”, sin un ejemplo real.</span><span class="en">"We'll send you orders from our corporate clients," without a real example.</span></li>
           <li><span class="es">“Va a aparecer en Google o ChatGPT”: no está comprobado.</span><span class="en">"You'll show up on Google or ChatGPT": not verified.</span></li>
           <li><span class="es">“No tiene que cambiar su sistema”: por confirmar con Pascal.</span><span class="en">"You don't have to switch your system": to confirm with Pascal.</span></li>
-          <li><span class="es">Pedidos en grupo (Meal Pool), descuentos por volumen o proveedores: no prometa funciones que aún se están desarrollando.</span><span class="en">Group orders (Meal Pool), volume discounts or suppliers: don't promise features still in development.</span></li>
+          <li><span class="es">Descuentos por volumen o proveedores: no prometa funciones que aún se están desarrollando. MealPool (pedidos en grupo) sí está disponible.</span><span class="en">Volume discounts or suppliers: don't promise features still in development. MealPool (group orders) is live.</span></li>
           <li><span class="es">Un precio o “es gratis”, hasta que se confirme la oferta.</span><span class="en">A price or "it's free," until the offer is confirmed.</span></li>
         </ul>
       </div>
@@ -459,6 +459,16 @@ const PAINS=[
   shortEn:'we want to help you get more online orders, directly from your customers and with no per-order commission',
   head:'Más pedidos en línea, directo de sus clientes',
   bullets:['Sus clientes ordenan en línea directo con usted','Comparta su enlace por WhatsApp, Facebook y en su local','Usted no paga comisión por pedido']},
+ {id:'comida',es:'Quiere más clientes en la comida (pedidos en grupo)',en:'Wants more lunch customers (group orders)',tag:'ok',
+  evEs:'MealPool ya está disponible: pedidos de almuerzo en grupo, por adelantado, de oficinas y negocios cercanos. Es el mensaje que mejor funciona: pedidos que se repiten, de gente que trabaja cerca.',
+  evEn:'MealPool is live: group lunch pre-orders from nearby offices and businesses. It\'s the pitch that lands best: repeat orders from people who work nearby.',
+  quoteEs:'«Sus próximos clientes de la comida están a la vuelta de la esquina.»',quoteEn:'"Your next lunch customers could be right around the corner."',
+  hookEs:R=>`Como le comenté, con MealPool le ayudamos a llenar la hora de la comida en ${R} con pedidos en grupo de oficinas y negocios cercanos. Los pedidos llegan por adelantado y usted decide cuántos acepta.`,
+  hookEn:R=>`As I mentioned, with MealPool we help fill lunchtime at ${R} with group orders from nearby offices and businesses. Orders come in ahead of time and you decide how many to accept.`,
+  shortEs:'con MealPool puede recibir pedidos de almuerzo en grupo, por adelantado, de oficinas y negocios cercanos',
+  shortEn:'with MealPool you can get group lunch pre-orders from nearby offices and businesses',
+  head:'Sus próximos clientes de la comida están a la vuelta de la esquina',
+  bullets:['Pedidos en grupo de oficinas cercanas, con MealPool','Llegan por adelantado y usted decide cuántos acepta','Usted no paga comisión por pedido']},
  {id:'personal',es:'Le falta personal o tiempo',en:'Short on staff or time',tag:'ok',
   evEs:'El dueño estaba atendiendo él mismo porque le faltaba personal. Le gustó que el representante le armara todo.',
   evEn:'The owner was working the floor because they were short-staffed. He liked that the rep would build everything.',
@@ -488,17 +498,8 @@ const PAINS=[
   shortEs:'podemos agregar pedidos en línea usando el menú que ya tiene, sin empezar de cero',
   shortEn:'we can add online ordering using the menu you already have, without starting over',
   head:'Usamos el menú que ya tiene',
-  bullets:['Usamos su menú y sus precios actuales','Sus clientes ordenan desde un solo enlace','Usted no paga comisión por pedido']},
- {id:'comida',es:'Quiere más clientes a la hora de la comida',en:'Wants more lunch customers',tag:'warn',
-  evEs:'Enfoque del equipo (Meal Pool). Aún no se ha probado en llamadas y la función está en desarrollo. Confírmelo con Sebastian antes de usarlo.',
-  evEn:'Team focus (Meal Pool). Not yet tested on calls, and the feature is still being built. Confirm with Sebastian before using.',
-  quoteEs:'«Sus próximos clientes de la comida están a la vuelta de la esquina.»',quoteEn:'"Your next lunch customers could be right around the corner."',
-  hookEs:R=>`Como le comenté, queremos ayudarle a llenar la hora de la comida en ${R} con pedidos en grupo de oficinas y negocios cercanos. Los pedidos llegan por adelantado y usted decide cuántos acepta.`,
-  hookEn:R=>`As I mentioned, we want to help fill lunchtime at ${R} with group orders from nearby offices and businesses. Orders come in ahead of time and you decide how many to accept.`,
-  shortEs:'queremos ayudarle a recibir pedidos en grupo para la hora de la comida, de oficinas y negocios cercanos',
-  shortEn:'we want to help you get group lunch orders from nearby offices and businesses',
-  head:'Sus próximos clientes de la comida están a la vuelta de la esquina',
-  bullets:['Pedidos en grupo, por adelantado','Usted decide cuántos pedidos acepta','Usted no paga comisión por pedido']}
+  bullets:['Usamos su menú y sus precios actuales','Sus clientes ordenan desde un solo enlace','Usted no paga comisión por pedido']}
+
 ];
 const pwrap=$('pains');
 PAINS.forEach((p,i)=>{const l=document.createElement('label');l.className='pain';
