@@ -254,7 +254,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
         <div class="field"><span class="lbl"><span class="es">Idioma del dueño</span><span class="en">Owner's language</span></span>
           <div class="seg" role="radiogroup" aria-label="Idioma del dueño"><label><input type="radio" name="olang" value="es" checked><span>Español</span></label><label><input type="radio" name="olang" value="en"><span>English</span></label></div></div>
         <div class="field"><span class="lbl"><span class="es">Distancia</span><span class="en">Distance</span></span>
-          <div class="seg" role="radiogroup" aria-label="Distancia"><label><input type="radio" name="radius" value="0.5"><span>½ mi</span></label><label><input type="radio" name="radius" value="1" checked><span>1 mi</span></label><label><input type="radio" name="radius" value="2"><span>2 mi</span></label></div></div>
+          <div class="seg" role="radiogroup" aria-label="Distancia"><label><input type="radio" name="radius" value="1"><span>1 mi</span></label><label><input type="radio" name="radius" value="2"><span>2 mi</span></label><label><input type="radio" name="radius" value="5"><span>5 mi</span></label><label><input type="radio" name="radius" value="10" checked><span>10 mi</span></label></div></div>
       </div>
     </details>
 
@@ -576,8 +576,8 @@ const CATS={
  industry:{es:'Industria y bodegas',en:'Industry & warehouses',color:'#64748B',g:null}
 };
 const MI=1609.34;
-const lunch={center:null,places:[],sel:new Set(),radius:1,map:null,layer:null};
-const radiusMi=()=>+((document.querySelector('input[name=radius]:checked')||{}).value||1);
+const lunch={center:null,places:[],sel:new Set(),radius:10,map:null,layer:null};
+const radiusMi=()=>+((document.querySelector('input[name=radius]:checked')||{}).value||10);
 const lmode=()=>((document.querySelector('input[name=l-mode]:checked')||{}).value)||'deliver';
 const llang=()=>((document.querySelector('input[name=l-lang]:checked')||{}).value)||'en';
 function distMi(a,b,c,d){const R=3958.8,t=x=>x*Math.PI/180,dLat=t(c-a),dLon=t(d-b);
@@ -850,24 +850,25 @@ async function googleCompetitors(c,mi){const r=await fetch('https://places.googl
   if(!r.ok)throw new Error('Google '+r.status);
   return ((await r.json()).places||[]).map(p=>({name:(p.displayName&&p.displayName.text)||'',lat:p.location.latitude,lon:p.location.longitude,rating:typeof p.rating==='number'?p.rating:null,ratings:p.userRatingCount||null,web:p.websiteUri||'',maps:p.googleMapsUri||''}));}
 /* OpenStreetMap: one Overpass request for both offices and Mexican restaurants (named places only). */
-async function osmArea(c,mi,wantOffices,wantComps){const A=`(around:${Math.round(mi*MI)},${c.lat},${c.lon})`;
-  const off=`nwr${A}["office"]["name"];nwr${A}["building"~"^(office|commercial)$"]["name"];
-nwr${A}["amenity"~"^(hospital|clinic|doctors|dentist|school|college|university|townhall|courthouse|police|fire_station|post_office|bank)$"]["name"];
-nwr${A}["healthcare"]["name"];nwr${A}["shop"~"^(car|car_repair)$"]["name"];nwr${A}["man_made"="works"]["name"];
-nwr${A}["building"~"^(industrial|warehouse)$"]["name"];nwr${A}["landuse"="industrial"]["name"];`;
-  const mex=`nwr${A}["amenity"~"^(restaurant|fast_food)$"]["cuisine"~"mexican|tex-mex|taco|burrito",i]["name"];`;
-  const q=`[out:json][timeout:25];(${wantOffices?off:''}${wantComps?mex:''});out center tags 300;`;
-  for(const ep of ['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter']){
-    try{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000); // a busy server shouldn't hang the rep
-      const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q),signal:ac.signal});clearTimeout(tm);if(!r.ok)continue;
-      const offices=[],mexs=[];
-      ((await r.json()).elements||[]).forEach(e=>{const t=e.tags||{},lat=e.lat!=null?e.lat:e.center&&e.center.lat,lon=e.lon!=null?e.lon:e.center&&e.center.lon;if(lat==null)return;
-        const maps=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(t.name+' '+lat+','+lon)}`;
-        if(/restaurant|fast_food/.test(t.amenity||'')&&/mexican|tex-mex|taco|burrito/i.test(t.cuisine||''))mexs.push({name:t.name,lat,lon,rating:null,ratings:null,web:t.website||t['contact:website']||'',maps});
-        else offices.push({name:t.name,cat:osmCat(t),lat,lon,addr:[t['addr:housenumber'],t['addr:street']].filter(Boolean).join(' '),maps});});
-      return {offices,mexs};
-    }catch(e){console.warn(e);}}
-  throw new Error(EN()?'The map search is busy right now. Try again in a minute.':'La búsqueda en el mapa está ocupada. Intente de nuevo en un minuto.');}
+async function osmArea(c,mi,wantOffices,wantComps){
+  // A box search is much faster than a circle on the free servers; cleanPlaces/cleanComps trim it back to the circle.
+  const dLat=mi/69.0,dLon=mi/(69.17*Math.cos(c.lat*Math.PI/180)),B=[c.lat-dLat,c.lon-dLon,c.lat+dLat,c.lon+dLon].map(n=>n.toFixed(5)).join(',');
+  const off=`nwr["office"]["name"];nwr["amenity"~"^(hospital|clinic|school|college|university|townhall|courthouse|police|fire_station|post_office)$"]["name"];
+nwr["healthcare"="hospital"]["name"];nwr["shop"="car"]["name"];nwr["man_made"="works"]["name"];nwr["building"~"^(office|industrial|warehouse)$"]["name"];`;
+  const mex=`nwr["amenity"~"^(restaurant|fast_food)$"]["cuisine"~"mexican|tex-mex|taco|burrito",i]["name"];`;
+  const q=`[out:json][timeout:45][bbox:${B}];(${wantOffices?off:''}${wantComps?mex:''});out center tags 800;`;
+  const ask=ep=>{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),50000);
+    return fetch(ep,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q),signal:ac.signal})
+      .then(r=>{clearTimeout(tm);if(!r.ok)throw new Error('Overpass '+r.status);return r.json();}).then(j=>{if(!j.elements)throw new Error('Overpass empty');return j;});};
+  let j;
+  try{j=await Promise.any(['https://overpass-api.de/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter','https://overpass.private.coffee/api/interpreter'].map(ask));} // first server to answer wins
+  catch(e){console.warn(e);throw new Error(EN()?'The free map search is busy right now. Try again in a minute, or add the Google Maps key in Settings for faster results.':'La búsqueda gratis del mapa está ocupada. Intente en un minuto, o agregue la clave de Google Maps en Ajustes para resultados más rápidos.');}
+  const offices=[],mexs=[];
+  j.elements.forEach(e=>{const t=e.tags||{},lat=e.lat!=null?e.lat:e.center&&e.center.lat,lon=e.lon!=null?e.lon:e.center&&e.center.lon;if(lat==null)return;
+    const maps=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(t.name+' '+lat+','+lon)}`;
+    if(/restaurant|fast_food/.test(t.amenity||'')&&/mexican|tex-mex|taco|burrito/i.test(t.cuisine||''))mexs.push({name:t.name,lat,lon,rating:null,ratings:null,web:t.website||t['contact:website']||'',maps});
+    else offices.push({name:t.name,cat:osmCat(t),lat,lon,addr:[t['addr:housenumber'],t['addr:street']].filter(Boolean).join(' '),maps});});
+  return {offices,mexs};}
 function cleanComps(list,c,mi){const self=(v('r-name')||'').toLowerCase().trim(),seen=new Set();
   return list.map(p=>Object.assign(p,{dist:distMi(c.lat,c.lon,p.lat,p.lon)}))
     .filter(p=>{const k=(p.name||'').toLowerCase().trim();if(!k||k===self||p.dist<0.02||p.dist>mi*1.05||seen.has(k))return false;seen.add(k);return true;})
@@ -928,7 +929,7 @@ function renderHead(){$('b-name').textContent=v('r-name');$('b-where').textConte
 $('b-match').onchange=()=>{const p=matches[+$('b-match').value];if(!p)return;clearAns();applyPlace(p);renderAll();};
 
 function renderOffices(){const sec=$('sec-offices');sec.hidden=!on('m-offices');if(sec.hidden)return;
-  const ok=lunch.places.length>0;$('off-err').hidden=!areaErr&&ok;$('off-err').textContent=(areaErr?areaErr+(EN()?' Add it in the box at the top.':' Agréguelo en el cuadro de arriba.'):'')||(EN()?'No workplaces found. Try 2 miles in More options.':'No se encontraron lugares de trabajo. Pruebe 2 millas en Más opciones.');
+  const ok=lunch.places.length>0;$('off-err').hidden=!areaErr&&ok;$('off-err').textContent=(areaErr?areaErr+(EN()?' Add it in the box at the top.':' Agréguelo en el cuadro de arriba.'):'')||(EN()?'No workplaces found near this address. Check the pin on the map.':'No se encontraron lugares de trabajo cerca de esta dirección. Revise el punto en el mapa.');
   $('off-body').hidden=!ok;$('off-flyers').hidden=!ok;$('off-src').textContent=ok?areaSrc:'';if(!ok)return;
   $('off-n').textContent=lunch.places.length;$('off-n-lbl').textContent=EN()?`workplaces within ${radLabel('en',lunch.radius)}`:`lugares de trabajo a menos de ${radLabel('es',lunch.radius)}`;
   $('off-chips').innerHTML=catCounts(lunch.places).map(([k,n])=>`<span class="chip"><span class="dot" style="background:${CATS[k].color}"></span>${L(CATS[k])} · ${n}</span>`).join('');
@@ -1043,7 +1044,7 @@ function pkCover(n,total){const [cv,x]=pkPage(),es=olang()==='es',T=(a,b)=>es?a:
 
 function pkOffices(n,total){const [cv,x]=pkPage(),es=olang()==='es',T=(a,b)=>es?a:b,R=v('r-name')||T('su restaurante','your restaurant'),c=lunch.center,mi=lunch.radius,N=lunch.places.length;
   pkBadge(x,T('Oficinas cerca de ','Offices near ')+R,178);
-  pkHead(x,[[T('Sus próximos clientes de la comida están','Your next lunch customers are'),PK.ink],[T('a la vuelta de la esquina','right around the corner'),PK.blue]],310,62,920);
+  pkHead(x,[[T('Sus próximos clientes de la comida están','Your next lunch customers are'),PK.ink],[mi<=2?T('a la vuelta de la esquina','right around the corner'):T('muy cerca de usted','close to you'),PK.blue]],310,62,920);
   const y0=480,h0=460;pkCard(x,80,y0,920,h0);
   const cx=300,cyy=y0+h0/2,rad=180,cos=Math.cos(c.lat*Math.PI/180),inner=52;
   [1,.5].forEach(k=>{x.beginPath();x.arc(cx,cyy,rad*k,0,Math.PI*2);x.fillStyle=k===1?PK.soft:'#EEF3FF';x.fill();x.setLineDash([8,8]);x.strokeStyle='rgba(15,23,41,.14)';x.lineWidth=2;x.stroke();x.setLineDash([]);
@@ -1167,7 +1168,7 @@ async function generate(e){if(e)e.preventDefault();const st=$('go-st'),btn=$('go
   if(!on('m-offices')&&!on('m-presence')&&!on('m-comp')&&!on('m-kit')){st.className='status err';st.textContent=EN()?'Tick at least one thing to prepare.':'Marque al menos una opción.';return;}
   btn.disabled=true;st.className='status';
   try{st.textContent=EN()?'Looking up the restaurant…':'Buscando el restaurante…';const lr=await lookupRestaurant();lastLookup=lr;
-    if(on('m-offices')||on('m-comp')){st.textContent=EN()?'Looking at the area…':'Revisando la zona…';
+    if(on('m-offices')||on('m-comp')){st.textContent=EN()?'Looking at the area (up to 30 seconds)…':'Revisando la zona (hasta 30 segundos)…';
       try{await loadArea(on('m-offices'),on('m-comp'));}catch(err){areaErr=err.message;console.warn(err);}}
     await (document.fonts&&document.fonts.ready||Promise.resolve());
     renderAll();renderFix();st.textContent='';show('brief');location.hash='brief';
