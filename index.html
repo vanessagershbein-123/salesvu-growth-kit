@@ -227,10 +227,6 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
           <label for="r-rep"><span class="es">Su nombre</span><span class="en">Your name</span></label>
           <input type="text" id="r-rep" value="Andrea">
         </div>
-        <div class="field">
-          <span class="lbl"><span class="es">Color de la tarjeta</span><span class="en">Card color</span></span>
-          <div class="swatches" id="swatches"></div>
-        </div>
       </div>
       <button type="button" class="btn small" id="reset" style="justify-self:start"><span class="es">Borrar el ejemplo</span><span class="en">Clear the example</span></button>
     </form>
@@ -264,17 +260,6 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
         <div class="status" id="st-owner" role="status"></div>
       </article>
 
-      <article class="out">
-        <div class="out-head">
-          <div>
-            <h2><span class="num">3</span><span class="es">Tarjeta para sus clientes (un regalo)</span><span class="en">Card for their customers (a free extra)</span></h2>
-            <p><span class="es">El primer dueño que dijo que sí pidió tarjetas así para dárselas a sus clientes. Ofrézcala como un regalo: tamaño 4×6 pulgadas, lista para imprimir o publicar en Facebook.</span><span class="en">The first owner who said yes asked for cards like this to hand to customers. Offer it as a free extra: 4×6 in., ready to print or post on Facebook.</span></p>
-          </div>
-          <button type="button" class="btn small" id="copy-card"><span class="es">Copiar imagen</span><span class="en">Copy image</span></button>
-        </div>
-        <div class="shot"><img id="img-card" alt="Tarjeta para clientes del restaurante"></div>
-        <div class="status" id="st-card" role="status"></div>
-      </article>
 
       <div class="warnbox"><strong><span class="es">Antes de enviar:</span><span class="en">Before sending:</span></strong> <span class="es">usted revisa y envía; la herramienta no manda nada. No agregue precios ni cuotas hasta que Sebastian confirme la oferta.</span><span class="en">you review and send; the tool sends nothing. Don't add prices or fees until Sebastian confirms the offer.</span></div>
     </div>
@@ -338,7 +323,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
         <ul>
           <li><span class="es">Ofrezca enseñarle la tienda en ese momento o mandarle el enlace.</span><span class="en">Offer to show the store right then or send the link.</span></li>
           <li><span class="es">Si ya tiene página o menú, use lo que ya tiene: no le pida empezar de cero.</span><span class="en">If they already have a website or menu, build on it; don't ask them to start over.</span></li>
-          <li><span class="es">Ofrezca la tarjeta para sus clientes como regalo (pestaña Generador).</span><span class="en">Offer the customer card as a free extra (Generator tab).</span></li>
+          <li><span class="es">Ofrezca un regalo: las oficinas cerca de su restaurante que pueden pedir con MealPool (<a href="regalos.html#almuerzos">Regalos → Almuerzos cerca</a>).</span><span class="en">Offer a gift: the offices near their restaurant that could order with MealPool (<a href="regalos.html#almuerzos">Gifts → Lunch nearby</a>).</span></li>
         </ul>
       </div>
 
@@ -407,7 +392,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
           <li><span class="es">Enséñele su propio menú y sus precios en la tienda.</span><span class="en">Show them their own menu and prices in the store.</span></li>
           <li><span class="es">Enséñele cómo ordena un cliente, paso a paso, desde el celular.</span><span class="en">Show how a customer orders, step by step, on a phone.</span></li>
           <li><span class="es">Conteste “¿qué porcentaje cobran?” con una sola frase.</span><span class="en">Answer "what percentage do you charge?" in one sentence.</span></li>
-          <li><span class="es">Ofrezca la tarjeta para sus clientes.</span><span class="en">Offer the customer card.</span></li>
+          <li><span class="es">Enséñele las oficinas cercanas que pueden pedir almuerzo con MealPool.</span><span class="en">Show the nearby offices that could order lunch with MealPool.</span></li>
           <li><span class="es">Acuerde el siguiente paso y la fecha.</span><span class="en">Agree on the next step and a date.</span></li>
           <li><span class="es">Mande el enlace por WhatsApp al terminar.</span><span class="en">WhatsApp the link when you finish.</span></li>
         </ul>
@@ -506,11 +491,6 @@ PAINS.forEach((p,i)=>{const l=document.createElement('label');l.className='pain'
   l.innerHTML=`<input type="radio" name="pain" id="pain-${p.id}" value="${p.id}" ${i===0?'checked':''}><span><strong><span class="es">${p.es}</span><span class="en">${p.en}</span>${p.tag==='warn'?' <span class="pill warn" style="margin-left:4px"><span class="es">Por confirmar</span><span class="en">To confirm</span></span>':''}</strong><small><span class="es">${p.evEs}</span><span class="en">${p.evEn}</span></small></span>`;
   pwrap.appendChild(l);});
 
-/* ---------- Card colors ---------- */
-const COLORS=[{n:'Rojo',c:'#B4122B'},{n:'Verde',c:'#00694A'},{n:'Naranja',c:'#D9600F'},{n:'Azul',c:'#0066FF'},{n:'Negro',c:'#1C1C1E'}];
-let cardColor=COLORS[0].c;
-COLORS.forEach((o,i)=>{const b=document.createElement('button');b.type='button';b.className='sw';b.style.background=o.c;b.setAttribute('aria-label',o.n);b.setAttribute('aria-pressed',i===0);
-  b.onclick=()=>{cardColor=o.c;document.querySelectorAll('.sw').forEach(s=>s.setAttribute('aria-pressed',s===b));render();};$('swatches').appendChild(b);});
 
 /* ---------- Logo ---------- */
 let logoImg=null;
@@ -579,26 +559,8 @@ function drawOwner(){const W=1080,H=1350,c=document.createElement('canvas');c.wi
   x.font=`500 26px ${F}`;x.fillStyle=mut;x.fillText(`${rep} · SalesVu · Le atendemos en español`,80,H-70);
   return c.toDataURL('image/png');}
 
-function drawCard(){const W=1200,H=1800,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
-  const col=cardColor,ink='#1A1A1A',p=pain(),R=v('r-name')||'Su restaurante',city=v('r-city'),link=v('r-link');const lunch=p.id==='comida';
-  x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);
-  x.fillStyle=col;x.fillRect(0,0,W,760);
-  // papel picado-style scalloped edge
-  x.fillStyle='#FFFFFF';for(let i=0;i<=W/60;i++){x.beginPath();x.arc(i*60+30,760,30,Math.PI,0);x.fill();}
-  drawLogo(x,W/2,250,150,'#FFFFFF',col);
-  x.textAlign='center';x.fillStyle='#FFFFFF';x.font=`800 68px ${F}`;let y=500;const rl=wrap(x,R,1000);rl.slice(0,2).forEach(l=>{x.fillText(l,W/2,y);y+=80;});
-  if(city){x.font=`500 34px ${F}`;x.fillStyle='rgba(255,255,255,.85)';x.fillText(city,W/2,Math.min(y+10,700));}
-  x.fillStyle=ink;x.font=`800 84px ${F}`;y=900;wrap(x,lunch?'¿Comida para su equipo?':'¡Ya puede ordenar en línea!',1040).forEach(l=>{x.fillText(l,W/2,y);y+=96;});
-  x.font=`500 40px ${F}`;x.fillStyle='#4A4A4A';wrap(x,lunch?'Haga su pedido en grupo por adelantado. Escanee el código.':'Pida directo con nosotros. Escanee el código para ver el menú y ordenar.',960).forEach(l=>{x.fillText(l,W/2,y+6);y+=54;});
-  const qs=380,qy=y+50;rr(x,W/2-qs/2-30,qy-30,qs+60,qs+60,28);x.fillStyle='#FFFFFF';x.fill();x.lineWidth=4;x.strokeStyle=col;x.stroke();
-  const q=link?qrCanvas(link,qs,'#111111'):null;
-  if(q)x.drawImage(q,W/2-qs/2,qy,qs,qs);
-  else{x.fillStyle='#F2F2F2';x.fillRect(W/2-qs/2,qy,qs,qs);x.fillStyle='#777';x.font=`600 30px ${F}`;wrap(x,'Aquí va el código QR: agregue el enlace',300).forEach((l,i)=>x.fillText(l,W/2,qy+qs/2+i*40-10));}
-  x.font=`600 34px ${F}`;x.fillStyle=col;x.fillText(link?wrap(x,link.replace(/^https?:\/\//,''),1040)[0]:'',W/2,qy+qs+100);
-  x.font=`500 24px ${F}`;x.fillStyle='#8A8A8A';x.fillText('Pedidos en línea con SalesVu',W/2,H-50);
-  return c.toDataURL('image/png');}
 
-function render(){updLogoPrev();buildWA();renderWhy();$('img-owner').src=drawOwner();$('img-card').src=drawCard();}
+function render(){updLogoPrev();buildWA();renderWhy();$('img-owner').src=drawOwner();}
 
 /* ---------- Copy ---------- */
 function flash(id,msg){const s=$(id);s.textContent=msg;setTimeout(()=>{s.textContent='';},2500);}
@@ -609,7 +571,6 @@ $('copy-wa').onclick=()=>{const t=$('wa').value;const ok=()=>flash('st-wa',EN()?
 function copyImg(imgId,st){const src=$(imgId).src;const fail=()=>flash(st,EN()?'Your browser blocked copying. Long-press or right-click the image to save it.':'Su navegador no permitió copiar. Mantenga presionada la imagen o use clic derecho para guardarla.');
   try{fetch(src).then(r=>r.blob()).then(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})])).then(()=>flash(st,EN()?'Image copied. Paste it in WhatsApp.':'Imagen copiada. Péguela en WhatsApp.'),fail);}catch(e){fail();}}
 $('copy-owner').onclick=()=>copyImg('img-owner','st-owner');
-$('copy-card').onclick=()=>copyImg('img-card','st-card');
 
 $('reset').onclick=()=>{['r-name','r-owner','r-city','r-link'].forEach(i=>$(i).value='');$('r-next').value='mañana';logoImg=null;$('r-logo').value='';render();$('r-name').focus();};
 
