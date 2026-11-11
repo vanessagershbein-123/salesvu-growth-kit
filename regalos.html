@@ -108,7 +108,7 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline
 .q-text{font-size:14px}
 .q-text .pill{margin-left:6px;font-size:11px;padding:1px 8px}
 @media (max-width:520px){.q{grid-template-columns:1fr}}
-.tri{display:inline-grid;grid-template-columns:repeat(3,auto);gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px}
+.tri{display:inline-grid;grid-auto-flow:column;justify-content:start;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px}
 .tri label{display:block;text-align:center;font-size:13px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;color:var(--muted);white-space:nowrap}
 .tri input{position:absolute;opacity:0;pointer-events:none}
 .tri label:has(input:checked){background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);color:var(--fg)}
@@ -261,6 +261,13 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
           <input type="text" id="r-next" value="mañana a las 3 de la tarde">
           <span class="hint"><span class="es">Escríbalo en español: "hoy a las 4".</span><span class="en">Type it in Spanish, e.g. "hoy a las 4".</span></span>
         </div>
+        <div class="field">
+          <span class="lbl"><span class="es">Idioma para el dueño (imagen y mensaje)</span><span class="en">Owner's language (image and message)</span></span>
+          <div class="tri" role="radiogroup" aria-label="Idioma para el dueño">
+            <label><input type="radio" name="olang" value="es" checked><span>Español</span></label>
+            <label><input type="radio" name="olang" value="en"><span>English</span></label>
+          </div>
+        </div>
         <label class="check"><input type="checkbox" id="show-score" checked><span><span class="es">Mostrar el puntaje en la imagen para el dueño</span><span class="en">Show the score on the owner's image</span></span></label>
       </div>
     </div>
@@ -287,7 +294,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
         </div>
         <textarea id="wa" aria-label="Mensaje de WhatsApp"></textarea>
         <div class="status" id="st-wa" role="status"></div>
-        <details><summary><span class="es">Ver en inglés (para revisión del equipo)</span><span class="en">English version (for team review)</span></summary><pre id="wa-en"></pre></details>
+        <details><summary><span class="es">Ver en el otro idioma</span><span class="en">Other-language version</span></summary><pre id="wa-en"></pre></details>
       </article>
 
       <div class="warnbox"><strong><span class="es">Usted revisa y envía.</span><span class="en">You review and send.</span></strong> <span class="es">La herramienta no manda nada. No agregue precios ni cuotas en el mensaje.</span><span class="en">The tool never sends anything. Don't add prices or fees to the message.</span></div>
@@ -379,26 +386,26 @@ function updLogoPrev(){const p=$('logo-prev');p.innerHTML='';if(logoImg){const i
 const CHECKS=[
  {id:'order',w:30,p:100,who:'sv',
   q:{es:'¿Sus clientes pueden pedir en línea directo, sin apps?',en:'Can customers order online directly, without apps?'},
-  good:{es:'Recibe pedidos en línea directos',en:'Takes direct online orders'},
-  fix:{es:'Más pedidos directos: sus clientes piden en línea con usted, sin pasar por las apps. Nosotros le armamos su enlace de pedidos.',en:'More direct orders: customers order online straight from the restaurant, not through the apps. We set up the ordering link.'}},
+  good:{es:'Recibe pedidos en línea directos',en:'You take direct online orders'},
+  fix:{es:'Más pedidos directos: sus clientes piden en línea con usted, sin pasar por las apps. Nosotros le armamos su enlace de pedidos.',en:'More direct orders: your customers order online straight from you, not through the apps. We set up your ordering link.'}},
  {id:'apps',w:15,p:90,who:'sv',bad:'yes',
   q:{es:'¿Paga comisión a DoorDash, Uber Eats o Grubhub?',en:'Pays commission to DoorDash, Uber Eats or Grubhub?'},
-  good:{es:'No paga comisiones a apps de entrega',en:'Pays no delivery-app commissions'},
-  fix:{es:'Más ganancia en cada pedido: las apps cobran entre 15% y 30%. Con su propio enlace, sus clientes de siempre piden sin esa comisión.',en:'More profit on every order: the apps charge 15–30%. With its own link, regulars order without that commission.'}},
+  good:{es:'No paga comisiones a apps de entrega',en:'You don\'t pay delivery-app commissions'},
+  fix:{es:'Más ganancia en cada pedido: las apps cobran entre 15% y 30%. Con su propio enlace, sus clientes de siempre piden sin esa comisión.',en:'More profit on every order: the apps charge 15–30%. With your own link, your regulars order without that commission.'}},
  {id:'web',w:20,p:80,who:'sv',
   q:{es:'¿Tiene página web con su menú?',en:'Website with its menu?'},
-  good:{es:'Tiene su menú en internet',en:'Has its menu online'},
-  fix:{es:'Más clientes nuevos: que encuentren su menú y sus precios en internet. Nosotros le preparamos la página.',en:'More new customers: people find the menu and prices online. We prepare the page.'}},
+  good:{es:'Tiene su menú en internet',en:'Your menu is online'},
+  fix:{es:'Más clientes nuevos: que encuentren su menú y sus precios en internet. Nosotros le preparamos la página.',en:'More new customers: people find your menu and prices online. We build the page for you.'}},
  {id:'gmaps',w:20,p:75,who:'owner',
   q:{es:'¿Aparece en Google Maps con su horario?',en:'On Google Maps with its hours?'},
-  good:{es:'Aparece en Google Maps con su horario',en:'Shows up on Google Maps with its hours'},
-  fix:{es:'No pierda a los clientes que lo buscan: ponga su horario, teléfono y dirección correctos en Google.',en:'Don\'t lose customers who are looking for it: correct hours, phone and address on Google.'}},
+  good:{es:'Aparece en Google Maps con su horario',en:'You show up on Google Maps with your hours'},
+  fix:{es:'No pierda a los clientes que lo buscan: ponga su horario, teléfono y dirección correctos en Google.',en:'Don\'t lose customers who are looking for you: put your correct hours, phone and address on Google.'}},
  {id:'fb',w:15,p:70,who:'kit',
   q:{es:'¿Publicó en Facebook en el último mes?',en:'Posted on Facebook in the last month?'},
-  good:{es:'Está activo en Facebook',en:'Active on Facebook'},
-  fix:{es:'Más clientes que regresan: publique 2 veces por semana. Le damos las imágenes listas con su logo.',en:'More repeat customers: post twice a week. We provide ready images with the logo.'}}
+  good:{es:'Está activo en Facebook',en:'You\'re active on Facebook'},
+  fix:{es:'Más clientes que regresan: publique 2 veces por semana. Le damos las imágenes listas con su logo.',en:'More repeat customers: post twice a week. We give you ready-made images with your logo.'}}
 ];
-const TAGS={sv:{es:'Nosotros lo hacemos',en:'SalesVu does it',cls:''},kit:{es:'Incluido gratis en este kit',en:'Included free in this kit',cls:'ok'},owner:{es:'Consejo gratis',en:'Free tip',cls:'warn'}};
+const TAGS={sv:{es:'Nosotros lo hacemos',en:'We do it for you',cls:''},kit:{es:'Incluido gratis en este kit',en:'Included free',cls:'ok'},owner:{es:'Consejo gratis',en:'Free tip',cls:'warn'}};
 const EXAMPLE={order:'no',apps:'yes',web:'no',gmaps:'yes',fb:'yes'};
 const ANS_LBL={yes:['Sí','Yes'],no:['No','No'],unk:['No sé','Not sure']};
 
@@ -521,7 +528,7 @@ $('lookup').onclick=async()=>{const st=$('lookup-st');const link=v('r-url')?read
 /* MealPool closes every pitch: it's SalesVu's lead offer ("recurring orders from nearby corporate workers"),
    and it leads into Part 3, which finds those offices. */
 const MEALPOOL={id:'mealpool',who:'sv',
-  fix:{es:'Más ventas a la hora de la comida: las oficinas y negocios cerca de usted pueden pedir almuerzo en grupo, por adelantado, con MealPool. Le muestro cuáles.',en:'More lunchtime sales: offices and businesses nearby can pre-order group lunch with MealPool. I\'ll show which ones.'}};
+  fix:{es:'Más ventas a la hora de la comida: las oficinas y negocios cerca de usted pueden pedir almuerzo en grupo, por adelantado, con MealPool. Le muestro cuáles.',en:'More lunchtime sales: offices and businesses near you can pre-order group lunch with MealPool. I\'ll show you which ones.'}};
 const pitch=r=>r.top.concat([MEALPOOL]);
 /* Tag store links so SalesVu can count visits that came from a gift (e.g. ?ref=regalo-chequeo). */
 function tracked(link,ref){try{const u=new URL(link);u.searchParams.set('ref',ref);return u.toString();}catch(e){return link;}}
@@ -556,7 +563,8 @@ function buildMsg(lang){const es=lang==='es',r=evaluate(),R=v('r-name')||(es?'su
   m.push(es?`Saludos,\n${rep} · SalesVu`:`Best,\n${rep} · SalesVu`);
   return m.join('\n\n');}
 
-/* ---------- Report image (always Spanish: it goes to the owner) ---------- */
+/* ---------- Report image (in the owner's language) ---------- */
+const olang=()=>((document.querySelector('input[name=olang]:checked')||{}).value)||'es';
 const F='Inter, system-ui, sans-serif';
 function wrap(ctx,text,maxW){const words=String(text).split(' '),lines=[];let line='';
   words.forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w;}else line=t;});if(line)lines.push(line);return lines;}
@@ -568,41 +576,42 @@ function drawLogo(ctx,cx,cy,r,bg,fg){ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,
 function qrCanvas(text,size,fg){try{if(!window.QRious)return null;const c=document.createElement('canvas');new QRious({element:c,value:text,size:size,level:'M',background:'#FFFFFF',foreground:fg,padding:0});return c;}catch(e){return null;}}
 
 function drawReport(){const W=1080,c=document.createElement('canvas');c.width=W;c.height=2200;const x=c.getContext('2d');
-  const navy='#0A1A2E',blue='#0066FF',ink='#0F1B33',mut='#5B6B82',green='#15803D',r=evaluate(),R=v('r-name')||'Su restaurante',rep=v('r-rep')||'SalesVu',link=v('r-link');
+  const es=olang()==='es',T=(a,b)=>es?a:b,O=o=>es?o.es:o.en;
+  const navy='#0A1A2E',blue='#0066FF',ink='#0F1B33',mut='#5B6B82',green='#15803D',r=evaluate(),R=v('r-name')||T('Su restaurante','Your restaurant'),rep=v('r-rep')||'SalesVu',link=v('r-link');
   x.fillStyle='#FFFFFF';x.fillRect(0,0,W,c.height);
   // header band with the salesvu.com blue glow
   x.fillStyle=navy;x.fillRect(0,0,W,320);
   const g=x.createRadialGradient(W,0,40,W,0,620);g.addColorStop(0,'rgba(0,102,255,.55)');g.addColorStop(1,'rgba(0,102,255,0)');x.fillStyle=g;x.fillRect(0,0,W,320);
   x.textAlign='left';x.textBaseline='alphabetic';
   x.font=`800 44px ${F}`;x.fillStyle='#FFFFFF';x.fillText('Sales',80,104);const sw=x.measureText('Sales').width;x.fillStyle='#4B93FF';x.fillText('Vu',80+sw,104);
-  x.font=`600 26px ${F}`;x.fillStyle='#BFD7FF';x.fillText('Chequeo gratis · Más ventas para',80,180);
+  x.font=`600 26px ${F}`;x.fillStyle='#BFD7FF';x.fillText(T('Chequeo gratis · Más ventas para','Free check-up · More sales for'),80,180);
   x.font=`800 52px ${F}`;x.fillStyle='#FFFFFF';const nl=wrap(x,R,700);x.fillText(nl[0]+(nl.length>1?'…':''),80,244);
   drawLogo(x,W-170,320,100,'#FFFFFF',brandColor);x.lineWidth=8;x.strokeStyle='#FFFFFF';x.beginPath();x.arc(W-170,320,100,0,Math.PI*2);x.stroke();
   let y=476;
   if($('show-score').checked&&r.score!=null){const col=r.score<50?'#C2410C':r.score<75?blue:green;
-    x.font=`600 28px ${F}`;x.fillStyle=mut;x.fillText('Su restaurante en internet',80,y);
+    x.font=`600 28px ${F}`;x.fillStyle=mut;x.fillText(T('Su restaurante en internet','Your restaurant online'),80,y);
     x.font=`800 44px ${F}`;x.fillStyle=col;x.textAlign='right';x.fillText(`${r.score}/100`,W-80,y+4);x.textAlign='left';
     rr(x,80,y+30,W-160,22,11);x.fillStyle='#E8EEF7';x.fill();if(r.score>0){rr(x,80,y+30,Math.max(22,(W-160)*r.score/100),22,11);x.fillStyle=col;x.fill();}
     y+=120;}
-  if(r.good.length){x.font=`700 28px ${F}`;x.fillStyle=green;x.fillText('Lo que ya hace bien',80,y);y+=46;
+  if(r.good.length){x.font=`700 28px ${F}`;x.fillStyle=green;x.fillText(T('Lo que ya hace bien','What you already do well'),80,y);y+=46;
     x.font=`500 28px ${F}`;r.good.slice(0,3).forEach(gd=>{x.strokeStyle=green;x.lineWidth=5;x.lineCap='round';x.lineJoin='round';x.beginPath();x.moveTo(84,y-10);x.lineTo(94,y);x.lineTo(112,y-22);x.stroke();
-      x.fillStyle=ink;x.fillText(gd.good.es,130,y);y+=44;});y+=30;}
+      x.fillStyle=ink;x.fillText(O(gd.good),130,y);y+=44;});y+=30;}
   x.font=`800 44px ${F}`;x.fillStyle=ink;
-  const P=pitch(r),title=`${P.length} formas de vender más`;
+  const P=pitch(r),title=T(`${P.length} formas de vender más`,`${P.length} ways to sell more`);
   wrap(x,title,W-160).forEach(l=>{x.fillText(l,80,y+10);y+=56;});y+=24;
   const tagCol={sv:['#E6F0FF',blue],kit:['#E7F5EC',green],owner:['#FDF1DE','#9A5B00']};
-  {P.forEach((cki,i)=>{x.font=`500 30px ${F}`;const lines=wrap(x,cki.fix.es,W-160-130);const h=40+lines.length*42+56;
+  {P.forEach((cki,i)=>{x.font=`500 30px ${F}`;const lines=wrap(x,O(cki.fix),W-160-130);const h=40+lines.length*42+56;
       rr(x,80,y,W-160,h,24);x.fillStyle='#F5F8FF';x.fill();
       x.beginPath();x.arc(132,y+52,26,0,Math.PI*2);x.fillStyle=blue;x.fill();x.fillStyle='#FFFFFF';x.font=`800 28px ${F}`;x.textAlign='center';x.fillText(String(i+1),132,y+62);x.textAlign='left';
       x.font=`500 30px ${F}`;x.fillStyle=ink;lines.forEach((l,j)=>x.fillText(l,180,y+62+j*42));
-      const tg=TAGS[cki.who].es;x.font=`700 22px ${F}`;const tw=x.measureText(tg).width+32,ty=y+62+lines.length*42-8;
+      const tg=O(TAGS[cki.who]);x.font=`700 22px ${F}`;const tw=x.measureText(tg).width+32,ty=y+62+lines.length*42-8;
       rr(x,180,ty,tw,38,19);x.fillStyle=tagCol[cki.who][0];x.fill();x.fillStyle=tagCol[cki.who][1];x.fillText(tg,196,ty+27);
       y+=h+18;});}
   // footer: who made it, plus a QR to the store
   y+=30;const fh=170;x.fillStyle='#E2E8F0';x.fillRect(80,y,W-160,2);
   const q=link?qrCanvas(tracked(link,'regalo-chequeo'),130,'#0A1A2E'):null;
-  x.font=`600 26px ${F}`;x.fillStyle=ink;x.fillText(`Preparado por ${rep} · SalesVu`,80,y+64);
-  x.font=`500 24px ${F}`;x.fillStyle=mut;x.fillText(q?'Escanee para ver su tienda en línea':'Le atendemos en español',80,y+104);
+  x.font=`600 26px ${F}`;x.fillStyle=ink;x.fillText(T(`Preparado por ${rep} · SalesVu`,`Prepared by ${rep} · SalesVu`),80,y+64);
+  x.font=`500 24px ${F}`;x.fillStyle=mut;x.fillText(q?T('Escanee para ver su tienda en línea','Scan to see your online store'):T('Le atendemos en español','Questions? Just reply on WhatsApp'),80,y+104);
   if(q)x.drawImage(q,W-80-130,y+22,130,130);
   const H=y+fh;const out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);
   return out.toDataURL('image/png');}
@@ -610,7 +619,7 @@ function drawReport(){const W=1080,c=document.createElement('canvas');c.width=W;
 /* ---------- Render + copy ---------- */
 function slug(s){return (s||'restaurante').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'restaurante';}
 function render(){updLogoPrev();renderLinks();renderSummary();
-  $('wa').value=buildMsg('es');$('wa-en').textContent=buildMsg('en');
+  $('wa').value=buildMsg(olang());$('wa-en').textContent=buildMsg(olang()==='es'?'en':'es');
   const img=drawReport();$('img-report').src=img;$('dl-report').href=img;$('dl-report').download=`chequeo-${slug(v('r-name'))}.png`;}
 function flash(id,msg){const s=$(id);s.className='status okc';s.textContent=msg;setTimeout(()=>{s.textContent='';},2500);}
 $('copy-wa').onclick=()=>{const t=$('wa').value;const ok=()=>flash('st-wa',EN()?'Copied. Paste it in WhatsApp.':'Copiado. Péguelo en WhatsApp.');
@@ -627,6 +636,7 @@ let t;const later=()=>{clearTimeout(t);t=setTimeout(render,150);};
 $('shared').addEventListener('input',later);$('shared').addEventListener('submit',e=>e.preventDefault());
 $('qs').addEventListener('change',e=>{const id=e.target.name&&e.target.name.slice(2);if(id&&$('src-'+id))$('src-'+id).hidden=true;render();});
 $('r-next').addEventListener('input',later);$('show-score').addEventListener('change',render);
+document.querySelectorAll('input[name=olang]').forEach(e=>e.addEventListener('change',render));
 $('wa').addEventListener('input',e=>e.stopPropagation());
 
 /* ---------- Shortcuts for reps ----------
