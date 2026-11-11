@@ -33,6 +33,12 @@ header{position:sticky;top:0;z-index:10;background:rgba(27,43,75,.96);backdrop-f
 .wordmark{font-weight:800;font-size:21px;letter-spacing:-.02em;color:#fff;text-decoration:none;white-space:nowrap}
 .wordmark .pool{color:var(--green)}
 .wordmark small{font-weight:600;font-size:13px;color:#B9C6DD;margin-left:8px;letter-spacing:0}
+.hr{display:flex;align-items:center;gap:10px}
+.lang{display:inline-flex;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:3px}
+.lang button{all:unset;cursor:pointer;font-size:13px;font-weight:700;padding:5px 11px;border-radius:999px;color:#B9C6DD}
+.lang button[aria-pressed="true"]{background:#fff;color:var(--navy)}
+.lang button:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+@media (max-width:420px){.wordmark small{display:none}}
 .btn{font:inherit;font-size:15px;font-weight:700;border-radius:12px;padding:12px 20px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer;white-space:nowrap}
 .btn.go{background:var(--green-btn);color:#0F2A19}
 .btn.go:hover{background:#62C485}
@@ -165,7 +171,8 @@ html{scroll-behavior:smooth}
 <body>
 <header><div class="wrap head">
   <a class="wordmark" href="#top">Meal<span class="pool">Pool</span><small>by SalesVu</small></a>
-  <a class="btn go small" href="#empezar" id="h-cta"></a>
+  <div class="hr"><div class="lang" role="group" aria-label="Idioma / Language"><button type="button" data-l="es">ES</button><button type="button" data-l="en">EN</button></div>
+  <a class="btn go small" href="#empezar" id="h-cta"></a></div>
 </div></header>
 
 <main id="top">
@@ -248,7 +255,10 @@ function readData(){try{const h=new URLSearchParams(location.hash.slice(1)).get(
 const EXAMPLE={n:'Taquería Los Compadres',c:'Houston, TX',r:'Andrea',lg:'es',demo:1,
   ofs:{n:43,r:1,top:[['Frost Bank',0.1,'office'],['EaDo Family Dental',0.1,'health'],['Urban Office',0.2,'office'],['Houston International Brokers',0.2,'office'],['Iridium Pharmacy',0.2,'health']],cats:[['office',21],['gov',8],['school',6],['health',5]]},
   pr:{good:['gmaps','fb'],bad:['order','apps','web']},kit:1};
-const D=readData()||EXAMPLE,es=D.lg!=='en',T=(a,b)=>es?a:b;
+const D=readData()||EXAMPLE,HP=new URLSearchParams(location.hash.slice(1)),es=(HP.get('lang')||D.lg)!=='en',T=(a,b)=>es?a:b;
+/* ES / EN switch: keeps the restaurant's data in the link and redraws the page in the other language. */
+document.querySelectorAll('.lang button').forEach(b=>{b.setAttribute('aria-pressed',String((b.dataset.l==='es')===es));
+  b.onclick=()=>{const h=new URLSearchParams(location.hash.slice(1));h.set('lang',b.dataset.l);location.hash=h.toString();location.reload();};});
 document.documentElement.lang=es?'es':'en';
 const R=D.n||T('su restaurante','your restaurant'),rep=D.r||'SalesVu';
 const SVG=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
