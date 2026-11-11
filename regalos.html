@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 /* Same tokens as the Kit de ventas (index.html), so both pages feel like one product. */
 :root{
@@ -62,7 +64,7 @@ main{padding:24px 16px 64px}
 .field{display:grid;gap:6px;min-width:0}
 .field label,.field .lbl{font-size:13px;font-weight:600}
 .hint{font-size:12px;color:var(--muted)}
-input[type=text],input[type=url],input[type=password]{font:inherit;font-size:15px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+input[type=text],input[type=url],input[type=password],select{font:inherit;font-size:15px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
 input:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-color:transparent}
 .btn{font:inherit;font-size:14px;font-weight:600;border-radius:10px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;gap:6px;text-decoration:none}
 .btn.primary{background:var(--btn);border-color:var(--btn);color:#fff}
@@ -143,6 +145,24 @@ details pre{white-space:pre-wrap;font-family:var(--font);font-size:13px;backgrou
 .soon{display:grid;gap:10px;justify-items:start;max-width:62ch}
 .soon h2{margin:0;font-size:22px;letter-spacing:-.015em}
 
+/* Part 3: lunch nearby */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:420px){.row2{grid-template-columns:1fr}}
+.map{height:360px;border-radius:12px;border:1px solid var(--line);z-index:0;background:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line);display:inline-flex;gap:6px;align-items:center;background:var(--bg)}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.plist{display:grid;max-height:440px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.prow{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+.prow:last-child{border-bottom:0}
+.prow input{accent-color:var(--blue);width:16px;height:16px}
+.prow strong{font-size:14px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow small{display:block;color:var(--muted);font-size:12px}
+.prow a{font-size:12px;color:var(--blue-ink);text-decoration:none;white-space:nowrap}
+.prow:has(input:checked){background:var(--blue-soft)}
+.addrow{display:grid;grid-template-columns:minmax(0,1fr) auto 76px auto;gap:6px;margin-top:10px}
+@media (max-width:520px){.addrow{grid-template-columns:1fr 1fr}}
+.empty{color:var(--muted);font-size:14px;margin:0}
 dialog{border:1px solid var(--line);border-radius:var(--r-lg);padding:0;background:var(--surface);color:var(--fg);width:min(520px,calc(100vw - 32px))}
 dialog::backdrop{background:rgba(6,18,31,.55)}
 .dlg{display:grid;gap:14px;padding:22px}
@@ -311,10 +331,104 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
   </div>
 </section>
 <section id="view-almuerzos" aria-labelledby="tab-almuerzos" hidden>
-  <div class="panel soon">
-    <span class="pill warn"><span class="es">Próximamente</span><span class="en">Coming next</span></span>
-    <h2><span class="es">Almuerzos cerca</span><span class="en">Lunch nearby</span></h2>
-    <p><span class="es">Las oficinas y negocios cerca del restaurante, con un volante de MealPool para cada uno.</span><span class="en">The offices and businesses near the restaurant, with a MealPool flyer for each one.</span></p>
+  <div class="tool">
+    <div class="col">
+      <div class="panel col">
+        <h2 class="step-h"><span class="num">1</span><span class="es">Busque lugares de trabajo cerca</span><span class="en">Find workplaces nearby</span></h2>
+        <span class="hint"><span class="es">Usa la dirección de arriba. Busca oficinas, clínicas, escuelas, gobierno y negocios con empleados.</span><span class="en">Uses the address above. Looks for offices, clinics, schools, government and businesses with staff.</span></span>
+        <div class="field">
+          <span class="lbl"><span class="es">Distancia</span><span class="en">Distance</span></span>
+          <div class="tri" role="radiogroup" aria-label="Distancia">
+            <label><input type="radio" name="radius" value="0.5"><span><span class="es">½ milla</span><span class="en">½ mile</span></span></label>
+            <label><input type="radio" name="radius" value="1" checked><span><span class="es">1 milla</span><span class="en">1 mile</span></span></label>
+            <label><input type="radio" name="radius" value="2"><span><span class="es">2 millas</span><span class="en">2 miles</span></span></label>
+          </div>
+        </div>
+        <div class="btns"><button type="button" class="btn primary" id="lunch-search"><span class="es">Buscar lugares cerca</span><span class="en">Find places nearby</span></button></div>
+        <div class="status" id="lunch-st" role="status"></div>
+      </div>
+
+      <div class="panel col" id="lunch-pick" hidden>
+        <h2 class="step-h"><span class="num">2</span><span class="es">Elija a quién invitar</span><span class="en">Choose who to invite</span></h2>
+        <span class="hint"><span class="es">Los 5 más cercanos ya están marcados. Cada uno recibe su propio volante.</span><span class="en">The 5 closest are already ticked. Each one gets its own flyer.</span></span>
+        <div class="chips" id="lunch-chips"></div>
+        <div class="plist" id="lunch-list"></div>
+        <details>
+          <summary><span class="es">Agregar un lugar que no aparece</span><span class="en">Add a place that's missing</span></summary>
+          <div class="addrow">
+            <input type="text" id="add-name" aria-label="Nombre del lugar" placeholder="Nombre / Name">
+            <select id="add-cat" aria-label="Tipo de lugar"></select>
+            <input type="text" id="add-dist" aria-label="Distancia en millas" placeholder="mi" inputmode="decimal">
+            <button type="button" class="btn small" id="add-btn"><span class="es">Agregar</span><span class="en">Add</span></button>
+          </div>
+        </details>
+      </div>
+
+      <div class="panel col">
+        <h2 class="step-h"><span class="num">3</span><span class="es">Detalles del almuerzo</span><span class="en">Lunch details</span></h2>
+        <div class="row2">
+          <div class="field"><label for="l-cutoff"><span class="es">Pedir antes de</span><span class="en">Order by</span></label><input type="text" id="l-cutoff" value="10:30 am"></div>
+          <div class="field"><label for="l-time"><span class="es">Almuerzo listo a las</span><span class="en">Lunch ready at</span></label><input type="text" id="l-time" value="12:00 pm"></div>
+        </div>
+        <div class="field">
+          <span class="lbl"><span class="es">¿Cómo reciben la comida?</span><span class="en">How do they get the food?</span></span>
+          <div class="tri" role="radiogroup" aria-label="Entrega">
+            <label><input type="radio" name="l-mode" value="deliver" checked><span><span class="es">Entrega a la oficina</span><span class="en">Delivered</span></span></label>
+            <label><input type="radio" name="l-mode" value="pickup"><span><span class="es">Recogen en el restaurante</span><span class="en">Pickup</span></span></label>
+          </div>
+        </div>
+        <div class="field">
+          <span class="lbl"><span class="es">Idioma del volante y el correo para la oficina</span><span class="en">Language of the office flyer and email</span></span>
+          <div class="tri" role="radiogroup" aria-label="Idioma para la oficina">
+            <label><input type="radio" name="l-lang" value="en" checked><span>English</span></label>
+            <label><input type="radio" name="l-lang" value="es"><span>Español</span></label>
+            <label><input type="radio" name="l-lang" value="both"><span><span class="es">Bilingüe</span><span class="en">Bilingual</span></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <article class="out">
+        <div class="out-head"><div><h3><span class="es">Mapa</span><span class="en">Map</span></h3><p><span class="es">El restaurante está en el centro. Toque un punto para agregarlo o quitarlo.</span><span class="en">The restaurant is in the middle. Tap a dot to add or remove it.</span></p></div></div>
+        <p class="empty" id="lunch-empty"><span class="es">Busque lugares cerca para ver el mapa y preparar el material.</span><span class="en">Find places nearby to see the map and make the materials.</span></p>
+        <div class="map" id="lunch-map" hidden></div>
+      </article>
+
+      <div class="col" id="lunch-outs" hidden>
+        <article class="out">
+          <div class="out-head">
+            <div><h3><span class="num">A</span><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h3><p><span class="es">La prueba: cuánta gente trabaja cerca. Va en el idioma del dueño (paso 3 del chequeo).</span><span class="en">The proof: how many workplaces are nearby. Uses the owner's language (check-up, step 3).</span></p></div>
+            <div class="btns"><button type="button" class="btn small" id="copy-radar"><span class="es">Copiar imagen</span><span class="en">Copy image</span></button><a class="btn small" id="dl-radar" download="almuerzos.png"><span class="es">Descargar</span><span class="en">Download</span></a></div>
+          </div>
+          <div class="shot"><img id="img-radar" alt="Lugares de trabajo cerca del restaurante"></div>
+          <div class="status" id="st-radar" role="status"></div>
+        </article>
+
+        <article class="out">
+          <div class="out-head">
+            <div><h3><span class="num">B</span><span class="es">Mensaje de WhatsApp para el dueño</span><span class="en">WhatsApp message to the owner</span></h3><p><span class="es">Puede editarlo antes de copiarlo.</span><span class="en">You can edit it before copying.</span></p></div>
+            <button type="button" class="btn primary small" id="copy-lunch-wa"><span class="es">Copiar mensaje</span><span class="en">Copy message</span></button>
+          </div>
+          <textarea id="lunch-wa" aria-label="Mensaje de WhatsApp para el dueño" style="min-height:260px"></textarea>
+          <div class="status" id="st-lunch-wa" role="status"></div>
+          <details><summary><span class="es">Ver en el otro idioma</span><span class="en">Other-language version</span></summary><pre id="lunch-wa-alt"></pre></details>
+        </article>
+
+        <article class="out">
+          <div class="out-head">
+            <div><h3><span class="num">C</span><span class="es">Volante y correo para cada oficina</span><span class="en">Flyer and email for each office</span></h3><p><span class="es">Para que el dueño los entregue o los mande él mismo.</span><span class="en">For the owner to hand over or send themselves.</span></p></div>
+          </div>
+          <div class="field"><label for="flyer-for"><span class="es">Material para</span><span class="en">Materials for</span></label><select id="flyer-for"></select></div>
+          <div class="btns"><button type="button" class="btn small" id="copy-flyer"><span class="es">Copiar volante</span><span class="en">Copy flyer</span></button><a class="btn small" id="dl-flyer" download="volante.png"><span class="es">Descargar volante</span><span class="en">Download flyer</span></a></div>
+          <div class="shot"><img id="img-flyer" alt="Volante para la oficina"></div>
+          <div class="status" id="st-flyer" role="status"></div>
+          <div class="out-head"><div><h3 style="font-size:16px"><span class="es">Correo para la oficina</span><span class="en">Email to the office</span></h3></div><button type="button" class="btn small" id="copy-email"><span class="es">Copiar correo</span><span class="en">Copy email</span></button></div>
+          <textarea id="lunch-email" aria-label="Correo para la oficina" style="min-height:300px"></textarea>
+          <div class="status" id="st-email" role="status"></div>
+        </article>
+      </div>
+    </div>
   </div>
 </section>
 </main>
@@ -358,7 +472,8 @@ $('lang-es').onclick=()=>setLang('es');$('lang-en').onclick=()=>setLang('en');
 /* ---------- Tabs ---------- */
 const VIEWS=['chequeo','marketing','almuerzos'];
 function route(){const h=location.hash.slice(1);const cur=VIEWS.includes(h)?h:'chequeo';
-  VIEWS.forEach(n=>{$('view-'+n).hidden=n!==cur;const t=$('tab-'+n);if(n===cur)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});}
+  VIEWS.forEach(n=>{$('view-'+n).hidden=n!==cur;const t=$('tab-'+n);if(n===cur)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
+  if(cur==='almuerzos'&&typeof lunch!=='undefined'&&lunch.map)setTimeout(()=>lunch.map.invalidateSize(),50);}
 window.addEventListener('hashchange',route);
 
 /* ---------- Settings (Google key) ---------- */
@@ -377,7 +492,8 @@ let logoImg=null;
 $('r-logo').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{const im=new Image();im.onload=()=>{logoImg=im;render();};im.src=rd.result;};rd.readAsDataURL(f);});
 function initials(n){return (n||'').replace(/[^\p{L}\s]/gu,' ').split(/\s+/).filter(w=>w&&!/^(la|el|los|las|de|del|y)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'R';}
-function updLogoPrev(){const p=$('logo-prev');p.innerHTML='';if(logoImg){const i=document.createElement('img');i.src=logoImg.src;i.alt='';p.appendChild(i);}else p.textContent=initials(v('r-name'));}
+function updLogoPrev(){const p=$('logo-prev');p.innerHTML='';const c=document.createElement('canvas');c.width=c.height=120;drawLogo(c.getContext('2d'),60,60,60);
+  const i=document.createElement('img');i.src=c.toDataURL();i.alt='';p.appendChild(i);}
 
 /* ---------- Part 1: 5 quick questions ----------
    Kept short on purpose: this is sales collateral, so we only ask what leads to SalesVu's pitch.
@@ -433,7 +549,7 @@ function renderLinks(){const name=v('r-name'),both=(name+' '+v('r-addr')).trim()
   $('links').innerHTML='';L.forEach(([t,u])=>{const a=document.createElement('a');a.className='btn small';a.href=u;a.target='_blank';a.rel='noopener noreferrer';a.textContent=t+' ↗';$('links').appendChild(a);});}
 
 /* ---------- Auto-fill: Google Places (with a key) or OpenStreetMap (free backup) ---------- */
-let place=null; // the chosen restaurant; Part 3 will reuse its location
+let place=null,placeKey=''; // the chosen restaurant and the name|address it was found for; Part 3 reuses its location
 const G_BASIC=['id','displayName','formattedAddress','location','googleMapsUri','websiteUri','nationalPhoneNumber','regularOpeningHours'];
 const G_FULL=G_BASIC.concat(['rating','userRatingCount','photos']);
 function fromGoogle(p){return {src:'Google',name:(p.displayName&&p.displayName.text)||'',addr:p.formattedAddress||'',
@@ -489,7 +605,7 @@ function siteKind(u){u=(u||'').toLowerCase();if(!u)return 'none';
   if(/toasttab|square\.site|squareup|clover|chownow|menufy|owner\.com|slicelife|beyondmenu|order/.test(u))return 'ordering';return 'website';}
 
 function applyPlace(p){place=p;const S=p.src;
-  if(p.addrOnly){render();return;} // we only found the street address, not the restaurant itself
+  if(p.addrOnly){placeKey=v('r-name')+'|'+v('r-addr');render();return;} // we only found the street address, not the restaurant itself
   if(S==='Google')setAns('gmaps',p.hours?'yes':'no',S); // only Google can answer the Google Maps question
   const k=siteKind(p.web);
   if(k==='website'||k==='ordering')setAns('web','yes',S);
@@ -497,6 +613,7 @@ function applyPlace(p){place=p;const S=p.src;
   if(k==='apps'){setAns('apps','yes',S);setAns('web','no',S);}
   if(k==='none'||k==='facebook'||k==='instagram')setAns('web','no',S);
   if(!v('r-addr')&&p.addr)$('r-addr').value=p.addr;
+  placeKey=v('r-name')+'|'+v('r-addr');
   render();}
 
 function showFound(list){const f=$('found');f.innerHTML='';
@@ -569,10 +686,22 @@ const F='Inter, system-ui, sans-serif';
 function wrap(ctx,text,maxW){const words=String(text).split(' '),lines=[];let line='';
   words.forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w;}else line=t;});if(line)lines.push(line);return lines;}
 function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
-function drawLogo(ctx,cx,cy,r,bg,fg){ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#FFFFFF';ctx.fill();ctx.clip();
+function drawLogo(ctx,cx,cy,r){ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#FFFFFF';ctx.fill();ctx.clip();
   if(logoImg){const s=Math.max(2*r/logoImg.width,2*r/logoImg.height);const w=logoImg.width*s,h=logoImg.height*s;ctx.drawImage(logoImg,cx-w/2,cy-h/2,w,h);}
-  else{ctx.fillStyle=bg;ctx.fillRect(cx-r,cy-r,2*r,2*r);ctx.fillStyle=fg;ctx.font=`800 ${Math.round(r*0.8)}px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(initials(v('r-name')),cx,cy+2);}
+  else genericLogo(ctx,cx,cy,r);
   ctx.restore();}
+/* No logo uploaded (the usual case): the restaurant's name in white over a faint pattern of Mexican food, in the restaurant's color. */
+const FOOD=['🌮','🌶️','🥑','🌯','🫔','🍋'],EMOJI='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+function genericLogo(ctx,cx,cy,r){ctx.fillStyle=brandColor;ctx.fillRect(cx-r,cy-r,2*r,2*r);
+  const step=r*0.62,fs=Math.round(r*0.34);ctx.save();ctx.globalAlpha=.30;ctx.font=`${fs}px ${EMOJI}`;ctx.textAlign='center';ctx.textBaseline='middle';let k=0;
+  for(let yy=-r;yy<=r+step;yy+=step){for(let xx=-r+((Math.round(yy/step)%2)?step/2:0);xx<=r+step;xx+=step){
+    ctx.save();ctx.translate(cx+xx,cy+yy);ctx.rotate(((k*37)%60-30)*Math.PI/180);ctx.fillText(FOOD[k%FOOD.length],0,0);ctx.restore();k++;}}
+  ctx.restore();
+  const g=ctx.createRadialGradient(cx,cy,r*0.15,cx,cy,r);g.addColorStop(0,'rgba(0,0,0,.28)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(cx-r,cy-r,2*r,2*r);
+  const name=(v('r-name')||'Restaurante').trim(),maxW=r*1.5;let lines=[name],size=r*0.5;
+  for(size=r*0.46;size>=r*0.14;size-=r*0.02){ctx.font=`800 ${size}px ${F}`;lines=wrap(ctx,name,maxW);if(lines.length<=3&&lines.every(l=>ctx.measureText(l).width<=maxW)&&lines.length*size*1.1<=r*1.3)break;}
+  ctx.font=`800 ${size}px ${F}`;ctx.fillStyle='#FFFFFF';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=r*0.06;
+  const lh=size*1.1;lines.slice(0,3).forEach((l,i)=>ctx.fillText(l,cx,cy+(i-(Math.min(lines.length,3)-1)/2)*lh));ctx.shadowBlur=0;}
 function qrCanvas(text,size,fg){try{if(!window.QRious)return null;const c=document.createElement('canvas');new QRious({element:c,value:text,size:size,level:'M',background:'#FFFFFF',foreground:fg,padding:0});return c;}catch(e){return null;}}
 
 function drawReport(){const W=1080,c=document.createElement('canvas');c.width=W;c.height=2200;const x=c.getContext('2d');
@@ -616,11 +745,279 @@ function drawReport(){const W=1080,c=document.createElement('canvas');c.width=W;
   const H=y+fh;const out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);
   return out.toDataURL('image/png');}
 
+/* ================= Part 3: Lunch customers nearby (MealPool) ================= */
+/* Each category: label, map color, and the Google Places types it searches (Table A). Industry is OpenStreetMap-only. */
+const CATS={
+ office:{es:'Oficinas',en:'Offices',color:'#0066FF',g:['corporate_office','accounting','lawyer','insurance_agency','real_estate_agency','bank']},
+ health:{es:'Salud',en:'Health',color:'#DC2626',g:['hospital','doctor','dentist']},
+ school:{es:'Escuelas',en:'Schools',color:'#7C3AED',g:['school','secondary_school','university']},
+ gov:{es:'Gobierno',en:'Government',color:'#0F766E',g:['city_hall','courthouse','local_government_office','police','fire_station','post_office']},
+ cars:{es:'Agencias y talleres',en:'Car dealers & shops',color:'#D97706',g:['car_dealer','car_repair']},
+ industry:{es:'Industria y bodegas',en:'Industry & warehouses',color:'#64748B',g:null}
+};
+const MI=1609.34;
+const lunch={center:null,places:[],sel:new Set(),radius:1,map:null,layer:null};
+const radiusMi=()=>+((document.querySelector('input[name=radius]:checked')||{}).value||1);
+const lmode=()=>((document.querySelector('input[name=l-mode]:checked')||{}).value)||'deliver';
+const llang=()=>((document.querySelector('input[name=l-lang]:checked')||{}).value)||'en';
+function distMi(a,b,c,d){const R=3958.8,t=x=>x*Math.PI/180,dLat=t(c-a),dLon=t(d-b);
+  const h=Math.sin(dLat/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+const fmtMi=m=>m<0.1?'0.1':m.toFixed(1);
+const walkMin=m=>Math.max(1,Math.round(m*20));
+const radLabel=(lang,mi)=>lang==='es'?(mi===0.5?'media milla':mi===1?'1 milla':mi+' millas'):(mi===0.5?'half a mile':mi===1?'1 mile':mi+' miles');
+const selected=()=>lunch.places.filter(p=>lunch.sel.has(p.id));
+
+/* Where is the restaurant? Reuse the check-up's look-up when it matches; otherwise look up the address. */
+async function findCenter(){
+  if(place&&place.lat!=null&&placeKey===v('r-name')+'|'+v('r-addr'))return {lat:place.lat,lon:place.lon};
+  const addr=v('r-addr');if(!addr)throw new Error(EN()?'Type the address first (top of the page).':'Escriba primero la dirección (arriba).');
+  if(gkey()){try{const l=await googleSearch(addr);if(l.length)return {lat:l[0].lat,lon:l[0].lon};}catch(e){console.warn(e);}}
+  const j=await osmQuery(addr);if(j.length)return {lat:+j[0].lat,lon:+j[0].lon};
+  throw new Error(EN()?'Address not found. Check it, or paste the Google Maps link in the check-up, step 1.':'No se encontró la dirección. Revísela, o pegue el enlace de Google Maps en el chequeo, paso 1.');}
+
+/* Google Places Nearby Search: one call per category, 20 closest each. A failed category is skipped. */
+async function googleNearby(c,mi){const key=gkey(),out=[];let ok=0;
+  const mask='places.displayName,places.location,places.formattedAddress,places.googleMapsUri';
+  for(const [cat,cfg] of Object.entries(CATS)){if(!cfg.g)continue;
+    try{const r=await fetch('https://places.googleapis.com/v1/places:searchNearby',{method:'POST',
+        headers:{'Content-Type':'application/json','X-Goog-Api-Key':key,'X-Goog-FieldMask':mask},
+        body:JSON.stringify({includedTypes:cfg.g,maxResultCount:20,rankPreference:'DISTANCE',languageCode:'en',
+          locationRestriction:{circle:{center:{latitude:c.lat,longitude:c.lon},radius:Math.min(50000,mi*MI)}}})});
+      if(!r.ok){console.warn('Google nearby',cat,r.status,await r.text());continue;}ok++;
+      ((await r.json()).places||[]).forEach(p=>out.push({name:(p.displayName&&p.displayName.text)||'',cat,lat:p.location.latitude,lon:p.location.longitude,addr:p.formattedAddress||'',maps:p.googleMapsUri||''}));
+    }catch(e){console.warn(e);}}
+  if(!ok)throw new Error('Google');return out;}
+
+/* OpenStreetMap Overpass: free backup. Named places only. */
+function osmCat(t){const a=t.amenity||'';
+  if(/^(hospital|clinic|doctors|dentist)$/.test(a)||t.healthcare)return 'health';
+  if(/^(school|college|university)$/.test(a))return 'school';
+  if(/^(townhall|courthouse|police|fire_station|post_office)$/.test(a)||t.office==='government')return 'gov';
+  if(t.shop==='car'||t.shop==='car_repair')return 'cars';
+  if(t.man_made==='works'||/^(industrial|warehouse)$/.test(t.building||'')||t.landuse==='industrial')return 'industry';
+  return 'office';}
+async function osmNearby(c,mi){const A=`(around:${Math.round(mi*MI)},${c.lat},${c.lon})`;
+  const q=`[out:json][timeout:25];(nwr${A}["office"]["name"];nwr${A}["building"~"^(office|commercial)$"]["name"];
+nwr${A}["amenity"~"^(hospital|clinic|doctors|dentist|school|college|university|townhall|courthouse|police|fire_station|post_office|bank)$"]["name"];
+nwr${A}["healthcare"]["name"];nwr${A}["shop"~"^(car|car_repair)$"]["name"];nwr${A}["man_made"="works"]["name"];
+nwr${A}["building"~"^(industrial|warehouse)$"]["name"];nwr${A}["landuse"="industrial"]["name"];);out center tags 250;`;
+  for(const ep of ['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter']){
+    try{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000); // a busy server shouldn't hang the rep: move on after 20 s
+      const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q),signal:ac.signal});clearTimeout(tm);if(!r.ok)continue;
+      return ((await r.json()).elements||[]).map(e=>{const t=e.tags||{},lat=e.lat!=null?e.lat:e.center&&e.center.lat,lon=e.lon!=null?e.lon:e.center&&e.center.lon;
+        return {name:t.name,cat:osmCat(t),lat,lon,addr:[t['addr:housenumber'],t['addr:street']].filter(Boolean).join(' '),
+          maps:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(t.name+' '+lat+','+lon)}`};}).filter(p=>p.lat!=null);
+    }catch(e){console.warn(e);}}
+  throw new Error(EN()?'The free map service is busy right now. Try again in a minute, or add a Google key in Settings.':'El servicio de mapas gratis está ocupado. Intente de nuevo en un minuto, o agregue una clave de Google en Ajustes.');}
+
+function cleanPlaces(list,c,mi){const seen=new Set(),self=(v('r-name')||'').toLowerCase().trim();
+  return list.map(p=>Object.assign(p,{dist:distMi(c.lat,c.lon,p.lat,p.lon)}))
+    .filter(p=>{const k=(p.name||'').toLowerCase().trim();if(!k||k===self||p.dist>mi*1.05)return false;
+      const kk=k+'|'+p.cat;if(seen.has(kk))return false;seen.add(kk);return true;})
+    .sort((a,b)=>a.dist-b.dist).map((p,i)=>Object.assign(p,{id:'p'+i}));}
+
+$('lunch-search').onclick=async()=>{const st=$('lunch-st');st.className='status';st.textContent=EN()?'Searching…':'Buscando…';$('lunch-search').disabled=true;
+  try{const c=await findCenter(),mi=radiusMi();let list=null,src='';
+    if(gkey()){try{list=await googleNearby(c,mi);src='Google Maps';}catch(e){console.warn(e);}}
+    if(!list){list=await osmNearby(c,mi);src='OpenStreetMap';}
+    lunch.center=c;lunch.radius=mi;lunch.places=cleanPlaces(list,c,mi);lunch.sel=new Set(lunch.places.slice(0,5).map(p=>p.id));
+    const n=lunch.places.length;
+    st.className=n?'status okc':'status err';
+    st.textContent=n?(EN()?`${n} workplaces found on ${src}.`:`${n} lugares de trabajo encontrados en ${src}.`)+(n<5?(EN()?' Try a wider distance, or add places by hand.':' Pruebe una distancia mayor, o agregue lugares a mano.'):'')
+      :(EN()?`Nothing found on ${src}. Try 2 miles, or add places by hand.`:`No se encontró nada en ${src}. Pruebe 2 millas, o agregue lugares a mano.`);
+    renderLunch();
+  }catch(e){st.className='status err';st.textContent=e.message.length<160?e.message:(EN()?'The search didn\'t work. Try again in a minute.':'La búsqueda no funcionó. Intente de nuevo en un minuto.');console.warn(e);}
+  finally{$('lunch-search').disabled=false;}};
+
+/* Add a place by hand: placed on the map at the given distance, in a random direction. */
+Object.entries(CATS).forEach(([k,c])=>{const o=document.createElement('option');o.value=k;o.textContent=c.es+' / '+c.en;$('add-cat').appendChild(o);});
+$('add-btn').onclick=()=>{const name=v('add-name');if(!name){$('add-name').focus();return;}
+  if(!lunch.center){$('lunch-st').className='status err';$('lunch-st').textContent=EN()?'Search first, then add places.':'Busque primero; después agregue lugares.';return;}
+  const d=Math.max(0.05,parseFloat(v('add-dist'))||0.3),a=Math.random()*Math.PI*2,c=lunch.center;
+  const p={id:'m'+Date.now(),name,cat:$('add-cat').value,dist:d,lat:c.lat+(d/69.17)*Math.sin(a),lon:c.lon+(d/(69.17*Math.cos(c.lat*Math.PI/180)))*Math.cos(a),
+    addr:'',maps:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name+' '+city())}`};
+  lunch.places.push(p);lunch.places.sort((x,y)=>x.dist-y.dist);lunch.sel.add(p.id);$('add-name').value='';$('add-dist').value='';renderLunch();};
+
+function toggleSel(id){if(lunch.sel.has(id))lunch.sel.delete(id);else lunch.sel.add(id);renderLunch();}
+
+function renderLunchList(){const counts={};lunch.places.forEach(p=>{counts[p.cat]=(counts[p.cat]||0)+1;});
+  $('lunch-chips').innerHTML=Object.keys(CATS).filter(k=>counts[k]).map(k=>`<span class="chip"><span class="dot" style="background:${CATS[k].color}"></span>${L(CATS[k])} · ${counts[k]}</span>`).join('');
+  const list=$('lunch-list');list.innerHTML='';
+  lunch.places.forEach(p=>{const row=document.createElement('label');row.className='prow';
+    row.innerHTML=`<input type="checkbox"><span class="dot"></span><span><strong></strong><small></small></span><a target="_blank" rel="noopener noreferrer">Maps ↗</a>`;
+    const cb=row.querySelector('input');cb.checked=lunch.sel.has(p.id);cb.onchange=()=>toggleSel(p.id);
+    row.querySelector('.dot').style.background=CATS[p.cat].color;row.querySelector('strong').textContent=p.name;
+    row.querySelector('small').textContent=`${L(CATS[p.cat])} · ${fmtMi(p.dist)} mi`+(p.dist<=1?(EN()?` · ${walkMin(p.dist)} min walk`:` · ${walkMin(p.dist)} min a pie`):'');
+    row.querySelector('a').href=p.maps;list.appendChild(row);});
+  $('lunch-pick').hidden=false;}
+
+function drawMap(){const LF=window.L,el=$('lunch-map');if(!LF||!lunch.center)return;el.hidden=false;$('lunch-empty').hidden=true;
+  if(!lunch.map){lunch.map=LF.map(el,{scrollWheelZoom:false});
+    LF.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(lunch.map);lunch.layer=LF.layerGroup().addTo(lunch.map);}
+  lunch.layer.clearLayers();const c=lunch.center,bounds=LF.latLng(c.lat,c.lon).toBounds(lunch.radius*MI*2);
+  lunch.map.fitBounds(bounds,{padding:[8,8]}); // the map needs a view before vector layers (the circle) can be added
+  LF.circle([c.lat,c.lon],{radius:lunch.radius*MI,color:'#0066FF',weight:1,fillOpacity:.04}).addTo(lunch.layer);
+  lunch.places.forEach(p=>{const on=lunch.sel.has(p.id),col=CATS[p.cat].color;
+    LF.circleMarker([p.lat,p.lon],{radius:on?8:5,color:on?'#FFFFFF':col,weight:on?2:1,fillColor:col,fillOpacity:on?1:.6})
+      .bindTooltip(`${p.name} · ${fmtMi(p.dist)} mi`).on('click',()=>toggleSel(p.id)).addTo(lunch.layer);});
+  LF.circleMarker([c.lat,c.lon],{radius:11,color:'#FFFFFF',weight:3,fillColor:brandColor,fillOpacity:1}).bindTooltip(v('r-name')||'Restaurante',{permanent:true,direction:'top',offset:[0,-10]}).addTo(lunch.layer);
+  setTimeout(()=>{lunch.map.invalidateSize();lunch.map.fitBounds(bounds,{padding:[8,8]});},30);}
+
+/* ---------- Part 3 outputs ---------- */
+function buildLunchMsg(lang){const es=lang==='es',N=lunch.places.length,sel=selected(),R=v('r-name')||(es?'su restaurante':'your restaurant'),O=v('r-owner'),
+    rep=v('r-rep')||(es?'[su nombre]':'[your name]'),next=v('r-next')||(es?'mañana':'tomorrow'),cut=v('l-cutoff')||'10:30 am',lt=v('l-time')||'12:00 pm',del=lmode()==='deliver';
+  const names=sel.slice(0,3).map(p=>p.name),and=es?' y ':' and ',list=names.length>1?names.slice(0,-1).join(', ')+and+names[names.length-1]:(names[0]||'');
+  const m=[];
+  m.push(es?`Buen día${O?', '+O:''}. Soy ${rep}, de SalesVu.`:`Good day${O?', '+O:''}. This is ${rep} from SalesVu.`);
+  m.push(es?`Le comparto algo que encontramos: hay ${N} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} de ${R}${list?`, como ${list}`:''}.`
+           :`Here's something we found: there are ${N} workplaces within ${radLabel('en',lunch.radius)} of ${R}${list?`, like ${list}`:''}.`);
+  m.push(es?`Esa gente almuerza todos los días. Con MealPool, los empleados de una oficina piden juntos, por adelantado, antes de las ${cut}, y usted ${del?'les lleva':'les tiene listo'} todo junto a las ${lt}. Usted decide cuántos pedidos acepta: su capacidad, sus horarios, su control.`
+           :`Those people eat lunch every day. With MealPool, an office's employees order together, ahead of time, by ${cut}, and you ${del?'deliver':'have'} it all ${del?'':'ready '}at ${lt}. You decide how many orders you take: your capacity, your cutoffs, your control.`);
+  if(sel.length)m.push(es?`Ya le preparé ${sel.length>1?`un volante y un correo para cada una de esas ${sel.length} oficinas`:`un volante y un correo para ${sel[0].name}`}, listos para entregar o mandar.`
+                         :`I've already made ${sel.length>1?`a flyer and an email for each of those ${sel.length} offices`:`a flyer and an email for ${sel[0].name}`}, ready to hand over or send.`);
+  m.push(es?`¿Le parece si le llamo ${next} y le muestro el mapa? Son 10 minutos.`:`Could I call you ${next} to show you the map? It takes 10 minutes.`);
+  m.push(es?`Saludos,\n${rep} · SalesVu`:`Best,\n${rep} · SalesVu`);
+  return m.join('\n\n');}
+
+function buildEmail(o,lang){const R=v('r-name')||'[restaurant]',O=v('r-owner'),addr=v('r-addr'),d=fmtMi(o.dist),near=o.dist<=1,
+    cut=v('l-cutoff')||'10:30 am',lt=v('l-time')||'12:00 pm',del=lmode()==='deliver',link=v('r-link')?tracked(v('r-link'),'regalo-almuerzo'):'[menu link]';
+  const en=`Subject: Team lunch from ${R}, ${d} miles from ${o.name}
+
+Hi ${o.name} team,
+
+I'm ${O||'the owner'} at ${R}, ${d} miles from your office${near?` (about ${walkMin(o.dist)} minutes on foot)`:''}.
+
+We've started group lunch orders for nearby teams: everyone orders by ${cut}, and lunch is ${del?'delivered to your office':'ready for pickup'} at ${lt}. One order for the whole team, made fresh.
+
+Menu and ordering: ${link}
+
+Would your team like to try a group lunch this week? Just reply to this email.
+
+Thanks,
+${O||'[owner name]'}
+${R}
+${addr}
+
+If you'd rather not hear from us, reply "no thanks" and we won't email again.`;
+  const es=`Asunto: Almuerzo en equipo de ${R}, a ${d} millas de ${o.name}
+
+Hola, equipo de ${o.name}:
+
+Soy ${O||'el dueño'} de ${R}, a ${d} millas de su oficina${near?` (unos ${walkMin(o.dist)} minutos a pie)`:''}.
+
+Empezamos a recibir pedidos de almuerzo en grupo para oficinas cercanas: todos piden antes de las ${cut} y la comida ${del?'llega a su oficina':'está lista para recoger'} a las ${lt}. Un solo pedido para todo el equipo, preparado al momento.
+
+Menú y pedidos: ${link}
+
+¿Les gustaría probar un almuerzo en equipo esta semana? Solo respondan a este correo.
+
+Gracias,
+${O||'[nombre del dueño]'}
+${R}
+${addr}
+
+Si prefieren no recibir estos correos, respondan "no, gracias" y no volveremos a escribir.`;
+  return lang==='es'?es:lang==='both'?en+'\n\n— — —\n\n'+es:en;}
+
+/* Owner image: a radar of the workplaces around the restaurant, in the owner's language. */
+function drawRadar(){const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  const es=olang()==='es',T=(a,b)=>es?a:b,R=v('r-name')||T('Su restaurante','Your restaurant'),mi=lunch.radius,N=lunch.places.length,c=lunch.center;
+  x.fillStyle='#0A1A2E';x.fillRect(0,0,W,H);
+  const g=x.createRadialGradient(W,0,40,W,0,700);g.addColorStop(0,'rgba(0,102,255,.5)');g.addColorStop(1,'rgba(0,102,255,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.textAlign='left';x.textBaseline='alphabetic';
+  x.font=`800 40px ${F}`;x.fillStyle='#FFFFFF';x.fillText('Sales',80,96);const sw=x.measureText('Sales').width;x.fillStyle='#4B93FF';x.fillText('Vu',80+sw,96);
+  x.font=`600 26px ${F}`;x.fillStyle='#BFD7FF';x.fillText(T('Almuerzos cerca de','Lunch customers near'),80,164);
+  x.font=`800 48px ${F}`;x.fillStyle='#FFFFFF';const nl=wrap(x,R,920);x.fillText(nl[0]+(nl.length>1?'…':''),80,222);
+  x.font=`800 128px ${F}`;x.fillStyle='#FFFFFF';x.fillText(String(N),80,370);const nw=x.measureText(String(N)).width;
+  x.font=`700 34px ${F}`;x.fillStyle='#FFFFFF';x.fillText(T('lugares de trabajo','workplaces'),80+nw+28,318);
+  x.font=`500 30px ${F}`;x.fillStyle='#BFD7FF';x.fillText(T(`a menos de ${radLabel('es',mi)}`,`within ${radLabel('en',mi)}`),80+nw+28,362);
+  const cx=540,cy=690,rad=270;
+  [1,.5].forEach(k=>{x.beginPath();x.arc(cx,cy,rad*k,0,Math.PI*2);x.fillStyle='rgba(255,255,255,.035)';x.fill();
+    x.setLineDash([10,10]);x.strokeStyle='rgba(255,255,255,.22)';x.lineWidth=2;x.stroke();x.setLineDash([]);
+    x.font=`600 20px ${F}`;x.fillStyle='rgba(255,255,255,.6)';x.textAlign='center';x.fillText(`${mi*k} mi`,cx,cy-rad*k-10);x.textAlign='left';});
+  const cos=Math.cos(c.lat*Math.PI/180),inner=72; // keep dots outside the logo in the middle
+  const pos=p=>{let dx=(p.lon-c.lon)*cos*69.17/mi*rad,dy=-(p.lat-c.lat)*69.17/mi*rad;let d=Math.hypot(dx,dy)||1;
+    const nd=inner+(d/rad)*(rad-6-inner);dx*=nd/d;dy*=nd/d;return [cx+dx,cy+dy];};
+  lunch.places.filter(p=>!lunch.sel.has(p.id)).forEach(p=>{const [px,py]=pos(p);x.beginPath();x.arc(px,py,8,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.globalAlpha=.85;x.fill();x.globalAlpha=1;});
+  const top=selected().slice(0,6);
+  const pts=top.map(p=>pos(p)); // nudge numbered dots apart so nearby offices don't hide each other
+  for(let it=0;it<40;it++)for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1],d=Math.hypot(dx,dy)||0.01;
+    if(d<40){const m=(40-d)/2,ux=d>0.01?dx/d:Math.cos(i+j),uy=d>0.01?dy/d:Math.sin(i+j);pts[i][0]-=ux*m;pts[i][1]-=uy*m;pts[j][0]+=ux*m;pts[j][1]+=uy*m;}}
+  pts.forEach(q=>{const dx=q[0]-cx,dy=q[1]-cy,d=Math.hypot(dx,dy)||1;if(d<inner){q[0]=cx+dx/d*inner;q[1]=cy+dy/d*inner;}});
+  top.forEach((p,i)=>{const [px,py]=pts[i];x.beginPath();x.arc(px,py,17,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.fill();x.lineWidth=4;x.strokeStyle='#FFFFFF';x.stroke();
+    x.fillStyle='#FFFFFF';x.font=`800 20px ${F}`;x.textAlign='center';x.fillText(String(i+1),px,py+7);x.textAlign='left';});
+  x.beginPath();x.arc(cx,cy,58,0,Math.PI*2);x.fillStyle='#FFFFFF';x.fill();drawLogo(x,cx,cy,52);
+  // numbered list of the chosen workplaces, two columns
+  let ly=1010;top.forEach((p,i)=>{const col=i%2,row=Math.floor(i/2),lx=80+col*470,yy=ly+row*44;
+    x.beginPath();x.arc(lx+14,yy-8,14,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.fill();x.fillStyle='#FFFFFF';x.font=`800 16px ${F}`;x.textAlign='center';x.fillText(String(i+1),lx+14,yy-2);x.textAlign='left';
+    x.font=`600 24px ${F}`;x.fillStyle='#FFFFFF';let t=p.name;while(x.measureText(t+' · '+fmtMi(p.dist)+' mi').width>410&&t.length>4)t=t.slice(0,-2);if(t!==p.name)t=t.trim()+'…';
+    x.fillText(t,lx+38,yy);const tw=x.measureText(t).width;x.font=`500 22px ${F}`;x.fillStyle='#9FB3CC';x.fillText(' · '+fmtMi(p.dist)+' mi',lx+38+tw,yy);});
+  const counts={};lunch.places.forEach(p=>{counts[p.cat]=(counts[p.cat]||0)+1;});
+  let lx=80;ly=1010+Math.ceil(top.length/2)*44+26;x.font=`600 22px ${F}`;
+  Object.keys(CATS).filter(k=>counts[k]).forEach(k=>{const t=`${T(CATS[k].es,CATS[k].en)} ${counts[k]}`,w=x.measureText(t).width+40;if(lx+w>W-80){lx=80;ly+=36;}
+    x.beginPath();x.arc(lx+8,ly-7,8,0,Math.PI*2);x.fillStyle=CATS[k].color;x.fill();x.fillStyle='#CBD5E1';x.fillText(t,lx+24,ly);lx+=w+10;});
+  x.font=`700 30px ${F}`;x.fillStyle='#FFFFFF';x.textAlign='center';
+  x.fillText(T('Sus próximos clientes de la comida están a la vuelta de la esquina.','Your next lunch customers are right around the corner.'),W/2,H-80,W-120);
+  x.font=`500 22px ${F}`;x.fillStyle='#9FB3CC';x.fillText('MealPool by SalesVu',W/2,H-40);
+  return cv.toDataURL('image/png');}
+
+/* Office flyer, in English, Spanish or both. */
+function drawFlyer(o,lang){const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  const col=brandColor,ink='#1A1A1A',mut='#5B6B82',R=v('r-name')||'Restaurant',d=fmtMi(o.dist),cut=v('l-cutoff')||'10:30 am',lt=v('l-time')||'12:00 pm',del=lmode()==='deliver';
+  const E=lang!=='es',S=lang!=='en',office=o.name.length>30?o.name.slice(0,29)+'…':o.name;
+  x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);x.fillStyle=col;x.fillRect(0,0,W,400);
+  x.fillStyle='#FFFFFF';for(let i=0;i<=W/60;i++){x.beginPath();x.arc(i*60+30,400,30,Math.PI,0);x.fill();}
+  drawLogo(x,W/2,150,96,'#FFFFFF',col);x.lineWidth=6;x.strokeStyle='#FFFFFF';x.beginPath();x.arc(W/2,150,96,0,Math.PI*2);x.stroke();
+  x.textAlign='center';x.fillStyle='#FFFFFF';x.font=`800 50px ${F}`;x.fillText(wrap(x,R,960)[0],W/2,306);
+  x.font=`500 28px ${F}`;x.fillStyle='rgba(255,255,255,.9)';x.fillText(E?`${d} mi from ${office}`:`a ${d} mi de ${office}`,W/2,350,960);
+  let y=500;x.fillStyle=ink;x.font=`800 60px ${F}`;
+  wrap(x,E?`Team lunch for ${office}`:`Almuerzo en equipo para ${office}`,960).slice(0,2).forEach(l=>{x.fillText(l,W/2,y);y+=70;});
+  if(E&&S){x.font=`600 30px ${F}`;x.fillStyle=mut;x.fillText(`Almuerzo en equipo para ${office}`,W/2,y,960);y+=46;}
+  y+=24;const steps=[
+    [`Order together by ${cut}`,`Pidan juntos antes de las ${cut}`],
+    [`${R} makes it fresh`,`${R} lo prepara al momento`],
+    [del?`Delivered to your office at ${lt}`:`Ready for pickup at ${lt}`,del?`Llega a su oficina a las ${lt}`:`Listo para recoger a las ${lt}`]];
+  x.textAlign='left';steps.forEach((s,i)=>{x.beginPath();x.arc(150,y-12,28,0,Math.PI*2);x.fillStyle=col;x.fill();x.fillStyle='#FFFFFF';x.font=`800 28px ${F}`;x.textAlign='center';x.fillText(String(i+1),150,y-2);x.textAlign='left';
+    x.fillStyle=ink;x.font=`600 34px ${F}`;x.fillText(E?s[0]:s[1],200,y,800);
+    if(E&&S){x.font=`500 26px ${F}`;x.fillStyle=mut;x.fillText(s[1],200,y+36,800);y+=96;}else y+=76;});
+  const link=v('r-link'),qs=Math.min(250,H-130-(y+20)),qy=y+10;x.textAlign='center';
+  const q=link?qrCanvas(tracked(link,'regalo-almuerzo'),qs,'#111111'):null;
+  if(q){x.drawImage(q,W/2-qs/2,qy,qs,qs);}else{x.fillStyle='#F2F2F2';x.fillRect(W/2-qs/2,qy,qs,qs);x.fillStyle='#777';x.font=`600 24px ${F}`;x.fillText(E?'QR: add the store link':'QR: agregue el enlace',W/2,qy+qs/2+8);}
+  x.font=`600 28px ${F}`;x.fillStyle=col;x.fillText(E&&S?'Scan for the menu & to order · Escanee para pedir':E?'Scan for the menu and to order':'Escanee para ver el menú y pedir',W/2,qy+qs+44,980);
+  x.font=`500 22px ${F}`;x.fillStyle='#8A8A8A';x.fillText('MealPool by SalesVu',W/2,H-36);
+  return cv.toDataURL('image/png');}
+
+function renderLunchOutputs(){if(!lunch.center){$('lunch-outs').hidden=true;return;}$('lunch-outs').hidden=false;
+  $('lunch-wa').value=buildLunchMsg(olang());$('lunch-wa-alt').textContent=buildLunchMsg(olang()==='es'?'en':'es');
+  const r=drawRadar();$('img-radar').src=r;$('dl-radar').href=r;$('dl-radar').download=`almuerzos-${slug(v('r-name'))}.png`;
+  const sel=selected(),fs=$('flyer-for'),keep=fs.value;fs.innerHTML='';
+  sel.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=`${p.name} · ${fmtMi(p.dist)} mi`;fs.appendChild(o);});
+  if(sel.some(p=>p.id===keep))fs.value=keep;
+  const o=sel.find(p=>p.id===fs.value);
+  $('img-flyer').closest('.out').querySelectorAll('.btns,.shot,textarea,#copy-email').forEach(e=>{e.hidden=!o;});
+  if(o){const f=drawFlyer(o,llang());$('img-flyer').src=f;$('dl-flyer').href=f;$('dl-flyer').download=`volante-${slug(o.name)}.png`;$('lunch-email').value=buildEmail(o,llang());}}
+function renderLunch(){renderLunchList();drawMap();renderLunchOutputs();}
+
+['l-cutoff','l-time'].forEach(id=>$(id).addEventListener('input',()=>{clearTimeout(t);t=setTimeout(renderLunchOutputs,150);}));
+document.querySelectorAll('input[name=l-mode],input[name=l-lang]').forEach(e=>e.addEventListener('change',renderLunchOutputs));
+$('flyer-for').addEventListener('change',renderLunchOutputs);
+['lunch-wa','lunch-email'].forEach(id=>$(id).addEventListener('input',e=>e.stopPropagation()));
+$('copy-lunch-wa').onclick=()=>copyText('lunch-wa','st-lunch-wa');
+$('copy-email').onclick=()=>copyText('lunch-email','st-email');
+$('copy-radar').onclick=()=>copyImage('img-radar','st-radar');
+$('copy-flyer').onclick=()=>copyImage('img-flyer','st-flyer');
+
 /* ---------- Render + copy ---------- */
 function slug(s){return (s||'restaurante').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'restaurante';}
 function render(){updLogoPrev();renderLinks();renderSummary();
   $('wa').value=buildMsg(olang());$('wa-en').textContent=buildMsg(olang()==='es'?'en':'es');
-  const img=drawReport();$('img-report').src=img;$('dl-report').href=img;$('dl-report').download=`chequeo-${slug(v('r-name'))}.png`;}
+  const img=drawReport();$('img-report').src=img;$('dl-report').href=img;$('dl-report').download=`chequeo-${slug(v('r-name'))}.png`;
+  if(lunch.center){renderLunchOutputs();drawMap();}}
+function copyText(taId,stId){const t=$(taId).value;const ok=()=>flash(stId,EN()?'Copied.':'Copiado.');
+  const fb=()=>{$(taId).focus();$(taId).select();flash(stId,EN()?'Text selected. Press Ctrl+C / Cmd+C to copy.':'Texto seleccionado. Presione Ctrl+C / Cmd+C para copiar.');};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb();}
+function copyImage(imgId,stId){const src=$(imgId).src;const fail=()=>flash(stId,EN()?'Your browser blocked copying. Use Download, or long-press the image.':'Su navegador no permitió copiar. Use Descargar, o mantenga presionada la imagen.');
+  try{fetch(src).then(r=>r.blob()).then(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})])).then(()=>flash(stId,EN()?'Image copied.':'Imagen copiada.'),fail);}catch(e){fail();}}
 function flash(id,msg){const s=$(id);s.className='status okc';s.textContent=msg;setTimeout(()=>{s.textContent='';},2500);}
 $('copy-wa').onclick=()=>{const t=$('wa').value;const ok=()=>flash('st-wa',EN()?'Copied. Paste it in WhatsApp.':'Copiado. Péguelo en WhatsApp.');
   const fb=()=>{$('wa').focus();$('wa').select();flash('st-wa',EN()?'Text selected. Press Ctrl+C / Cmd+C to copy.':'Texto seleccionado. Presione Ctrl+C / Cmd+C para copiar.');};
@@ -636,7 +1033,7 @@ let t;const later=()=>{clearTimeout(t);t=setTimeout(render,150);};
 $('shared').addEventListener('input',later);$('shared').addEventListener('submit',e=>e.preventDefault());
 $('qs').addEventListener('change',e=>{const id=e.target.name&&e.target.name.slice(2);if(id&&$('src-'+id))$('src-'+id).hidden=true;render();});
 $('r-next').addEventListener('input',later);$('show-score').addEventListener('change',render);
-document.querySelectorAll('input[name=olang]').forEach(e=>e.addEventListener('change',render));
+document.querySelectorAll('input[name=olang]').forEach(e=>e.addEventListener('change',render)); // render() also redraws Part 3
 $('wa').addEventListener('input',e=>e.stopPropagation());
 
 /* ---------- Shortcuts for reps ----------
