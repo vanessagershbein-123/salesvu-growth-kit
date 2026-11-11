@@ -18,6 +18,7 @@ One website, one link, used on a laptop or phone by the reps:
 It sits next to the existing **Kit de ventas** (follow-up generator + call guide). The two are linked from each other's menus.
 
 ## Decisions (Nov 10)
+- **Public repo in Vanessa's GitHub account** (portfolio piece). Pascal gets the link, and can be added as a collaborator or receive a transfer later if he wants it.
 - **Treat MealPool as live.** The materials are a sales tool: they **show the owner our research and the content they'll get**, so they want to try SalesVu and MealPool. They're labeled as a preview for the restaurant ("Ejemplo para su restaurante").
 - **Use Google Maps data** (Places API) for the lunch search and to auto-fill the health check. **OpenStreetMap is the free backup** when no Google key is entered.
 
