@@ -236,7 +236,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-rig
       <div class="grid2">
         <div class="field"><label for="r-owner"><span class="es">Nombre del dueño</span><span class="en">Owner's name</span></label><input type="text" id="r-owner" placeholder="Don Ramiro"></div>
         <div class="field"><label for="r-rep"><span class="es">Su nombre</span><span class="en">Your name</span></label><input type="text" id="r-rep" value="Andrea"></div>
-        <div class="field"><label for="r-link"><span class="es">Enlace de la tienda en línea (del CRM)</span><span class="en">Online store link (from the CRM)</span></label><input type="url" id="r-link" placeholder="https://…"></div>
+        <div class="field"><label for="r-link"><span class="es">Enlace para el dueño (opcional)</span><span class="en">Link for the owner (optional)</span></label><input type="text" id="r-link" inputmode="url" placeholder="https://…"><span class="hint"><span class="es">Va en el mensaje y en los códigos QR. Lo ideal: la tienda que SalesVu le preparó (del CRM). También sirve su página, Google Maps o un enlace para agendar.</span><span class="en">It goes in the message and the QR codes. Best: the store SalesVu built for them (from the CRM). Their website, Google Maps or a booking link also work.</span></span></div>
         <div class="field">
           <span class="lbl"><span class="es">Logo</span><span class="en">Logo</span></span>
           <div class="logo-row"><div class="logo-prev" id="logo-prev"></div><label class="btn small" for="r-logo"><span class="es">Subir logo</span><span class="en">Upload logo</span></label><input type="file" id="r-logo" accept="image/*" hidden><span class="hint"><span class="es">Si no hay, se crea uno.</span><span class="en">One is made if there's none.</span></span></div>
@@ -390,6 +390,7 @@ const gkey=()=>store.get('svkit-gkey')||SALESVU_GOOGLE_KEY;
 const EN=()=>document.documentElement.getAttribute('data-lang')==='en';
 const v=id=>$(id).value.trim();
 const isURL=t=>/^https?:\/\//i.test(t);
+const fixLink=t=>{t=(t||'').trim();return !t||isURL(t)?t:(/^[\w-]+(\.[\w-]+)+(\/|$)/.test(t)?'https://'+t:t);};
 function city(){if(isURL(v('r-addr')))return '';const parts=v('r-addr').split(',').map(s=>s.trim()).filter(Boolean);return parts.length>1?parts.slice(1).join(', '):parts[0]||'';}
 const L=o=>EN()?o.en:o.es;
 const on=id=>$(id).checked;
@@ -483,7 +484,7 @@ const MEALPOOL={id:'mealpool',who:'sv',short:{es:'recibir pedidos de almuerzo en
   fix:{es:'Más ventas a la hora de la comida: las oficinas y negocios cerca de usted pueden pedir almuerzo en grupo, por adelantado, con MealPool. Le muestro cuáles.',en:'More lunchtime sales: offices and businesses near you can pre-order group lunch with MealPool. I\'ll show you which ones.'}};
 const pitch=r=>r.top.concat([MEALPOOL]);
 /* Tag store links so SalesVu can count visits that came from a gift (e.g. ?ref=regalo-chequeo). */
-function tracked(link,ref){try{const u=new URL(link);u.searchParams.set('ref',ref);return u.toString();}catch(e){return link;}}
+function tracked(link,ref){link=fixLink(link);try{const u=new URL(link);u.searchParams.set('ref',ref);return u.toString();}catch(e){return link;}}
 
 const olang=()=>((document.querySelector('input[name=olang]:checked')||{}).value)||'es';
 const F='Inter, system-ui, sans-serif';
@@ -1056,6 +1057,7 @@ $('r-addr').addEventListener('paste',()=>setTimeout(()=>{if(isURL(v('r-addr'))&&
 ['m-offices','m-presence','m-comp','m-kit'].forEach(id=>{const s=store.get('svkit-'+id);if(s!=null)$(id).checked=s==='1';$(id).addEventListener('change',()=>store.set('svkit-'+id,$(id).checked?'1':'0'));});
 if(store.get('svkit-rep'))$('r-rep').value=store.get('svkit-rep');
 $('r-rep').addEventListener('change',()=>store.set('svkit-rep',v('r-rep')));
+$('r-link').addEventListener('change',()=>{$('r-link').value=fixLink($('r-link').value);});
 
 /* Language, settings, logo */
 function setLang(l){document.documentElement.setAttribute('data-lang',l);document.documentElement.lang=l;$('lang-es').setAttribute('aria-pressed',l==='es');$('lang-en').setAttribute('aria-pressed',l==='en');store.set('svkit-lang',l);
