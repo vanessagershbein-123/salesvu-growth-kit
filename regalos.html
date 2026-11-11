@@ -518,15 +518,23 @@ $('lookup').onclick=async()=>{const st=$('lookup-st');const link=v('r-url')?read
   }catch(e){st.className='status err';st.textContent=(EN()?'The search didn\'t work. Answer the questions by hand. ':'La búsqueda no funcionó. Conteste las preguntas a mano. ')+e.message;console.warn(e);}
   finally{$('lookup').disabled=false;}};
 
+/* MealPool closes every pitch: it's SalesVu's lead offer ("recurring orders from nearby corporate workers"),
+   and it leads into Part 3, which finds those offices. */
+const MEALPOOL={id:'mealpool',who:'sv',
+  fix:{es:'Más ventas a la hora de la comida: las oficinas y negocios cerca de usted pueden pedir almuerzo en grupo, por adelantado, con MealPool. Le muestro cuáles.',en:'More lunchtime sales: offices and businesses nearby can pre-order group lunch with MealPool. I\'ll show which ones.'}};
+const pitch=r=>r.top.concat([MEALPOOL]);
+/* Tag store links so SalesVu can count visits that came from a gift (e.g. ?ref=regalo-chequeo). */
+function tracked(link,ref){try{const u=new URL(link);u.searchParams.set('ref',ref);return u.toString();}catch(e){return link;}}
+
 /* ---------- Summary for the rep ---------- */
 function L(o){return EN()?o.en:o.es;}
 function renderSummary(){const r=evaluate(),el=$('summary'),R=v('r-name')||(EN()?'the restaurant':'su restaurante'),O=v('r-owner');
-  const n=r.top.length;let h='';
+  const P=pitch(r),n=P.length;let h='';
   const open=EN()?`"${O?O+', ':''}I looked at how ${R} shows up online and found ${n?n+' way'+(n>1?'s':''):'a way'} to get you more sales."`
     :`«${O?O+', ':''}revisé cómo aparece ${R} en internet y encontré ${n===0?'una forma':n===1?'una forma':n+' formas'} de conseguirle más ventas.»`;
   h+=`<p style="margin:0;font-size:16px;font-weight:600">${open}</p>`;
-  if(n)h+=`<ol class="opps">`+r.top.map((c,i)=>`<li><span class="num">${i+1}</span><div><p>${L(c.fix)}</p><span class="pill ${TAGS[c.who].cls}">${L(TAGS[c.who])}</span></div></li>`).join('')+`</ol>`;
-  else h+=`<ol class="opps"><li><span class="num">1</span><div><p>${EN()?'More lunch sales: group orders from nearby offices with MealPool.':'Más ventas a la hora de la comida: pedidos en grupo de oficinas cercanas con MealPool.'}</p><span class="pill">${L(TAGS.sv)}</span></div></li></ol>`;
+  h+=`<ol class="opps">`+P.map((c,i)=>`<li><span class="num">${i+1}</span><div><p>${L(c.fix)}</p><span class="pill ${TAGS[c.who].cls}">${L(TAGS[c.who])}</span></div></li>`).join('')+`</ol>`;
+  h+=`<a class="btn small" href="#almuerzos" style="justify-self:start">${EN()?'See the offices near this restaurant →':'Ver las oficinas cerca de este restaurante →'}</a>`;
   h+=`<p style="margin:0;font-size:15px">${EN()?`"Can I send you this on WhatsApp so we can go over it ${v('r-next')||'tomorrow'}?"`:`«¿Le mando esto por WhatsApp y lo revisamos ${v('r-next')||'mañana'}?»`}</p>`;
   const extra=[r.good.length?(EN()?'Already doing well: ':'Ya hace bien: ')+r.good.slice(0,3).map(c=>L(c.good)).join(' · '):'',
     r.score!=null?(EN()?`Score (for you): ${r.score}/100`:`Puntaje (para usted): ${r.score}/100`):'',
@@ -540,10 +548,10 @@ function buildMsg(lang){const es=lang==='es',r=evaluate(),R=v('r-name')||(es?'su
   m.push(es?`Buen día${O?', '+O:''}. Soy ${rep}, de SalesVu.`:`Good day${O?', '+O:''}. This is ${rep} from SalesVu.`);
   m.push(es?`Como le comenté, le preparé un chequeo gratis de cómo aparece ${R} en internet. Se lo mando en la imagen.`:`As I mentioned, I put together a free check-up of how ${R} shows up online. It's in the image.`);
   if(r.good.length)m.push((es?'Lo que ya hace bien:\n':'What you already do well:\n')+r.good.slice(0,3).map(c=>'✅ '+T(c.good)).join('\n'));
-  if(r.top.length){m.push((es?`Encontré ${r.top.length===1?'una forma':r.top.length+' formas'} de conseguirle más ventas:\n`:`I found ${r.top.length===1?'one way':r.top.length+' ways'} to get you more sales:\n`)+r.top.map((c,i)=>`${i+1}. ${T(c.fix)}`).join('\n'));
-    if(r.top.some(c=>c.who!=='owner'))m.push(es?'Lo que le toca a SalesVu se lo dejamos listo, sin que usted tenga que hacer nada.':'Whatever is on SalesVu\'s side, we set up for you, with nothing for you to do.');}
-  else m.push(es?`${R} está muy bien en internet. El siguiente paso es llenar la hora de la comida con pedidos en grupo de oficinas cercanas, con MealPool.`:`${R} is in great shape online. The next step is filling lunchtime with group orders from nearby offices, with MealPool.`);
-  if(link)m.push((es?'Aquí puede ver la tienda en línea que le preparamos:\n':'Here\'s the online store we set up for you:\n')+link);
+  const P=pitch(r);
+  m.push((es?`Encontré ${P.length} formas de conseguirle más ventas:\n`:`I found ${P.length} ways to get you more sales:\n`)+P.map((c,i)=>`${i+1}. ${T(c.fix)}`).join('\n'));
+  m.push(es?'Lo que le toca a SalesVu se lo dejamos listo, sin que usted tenga que hacer nada.':'Whatever is on SalesVu\'s side, we set up for you, with nothing for you to do.');
+  if(link)m.push((es?'Aquí puede ver la tienda en línea que le preparamos:\n':'Here\'s the online store we set up for you:\n')+tracked(link,'regalo-chequeo'));
   m.push(es?`¿Le parece si le llamo ${next} para revisarlo juntos? Son 10 minutos.`:`Would it be OK if I call you ${next} to go over it together? It takes 10 minutes.`);
   m.push(es?`Saludos,\n${rep} · SalesVu`:`Best,\n${rep} · SalesVu`);
   return m.join('\n\n');}
@@ -580,20 +588,19 @@ function drawReport(){const W=1080,c=document.createElement('canvas');c.width=W;
     x.font=`500 28px ${F}`;r.good.slice(0,3).forEach(gd=>{x.strokeStyle=green;x.lineWidth=5;x.lineCap='round';x.lineJoin='round';x.beginPath();x.moveTo(84,y-10);x.lineTo(94,y);x.lineTo(112,y-22);x.stroke();
       x.fillStyle=ink;x.fillText(gd.good.es,130,y);y+=44;});y+=30;}
   x.font=`800 44px ${F}`;x.fillStyle=ink;
-  const title=r.top.length?`${r.top.length===1?'Una forma':r.top.length+' formas'} de vender más`:'Su restaurante está muy bien en internet';
+  const P=pitch(r),title=`${P.length} formas de vender más`;
   wrap(x,title,W-160).forEach(l=>{x.fillText(l,80,y+10);y+=56;});y+=24;
   const tagCol={sv:['#E6F0FF',blue],kit:['#E7F5EC',green],owner:['#FDF1DE','#9A5B00']};
-  if(r.top.length){r.top.forEach((cki,i)=>{x.font=`500 30px ${F}`;const lines=wrap(x,cki.fix.es,W-160-130);const h=40+lines.length*42+56;
+  {P.forEach((cki,i)=>{x.font=`500 30px ${F}`;const lines=wrap(x,cki.fix.es,W-160-130);const h=40+lines.length*42+56;
       rr(x,80,y,W-160,h,24);x.fillStyle='#F5F8FF';x.fill();
       x.beginPath();x.arc(132,y+52,26,0,Math.PI*2);x.fillStyle=blue;x.fill();x.fillStyle='#FFFFFF';x.font=`800 28px ${F}`;x.textAlign='center';x.fillText(String(i+1),132,y+62);x.textAlign='left';
       x.font=`500 30px ${F}`;x.fillStyle=ink;lines.forEach((l,j)=>x.fillText(l,180,y+62+j*42));
       const tg=TAGS[cki.who].es;x.font=`700 22px ${F}`;const tw=x.measureText(tg).width+32,ty=y+62+lines.length*42-8;
       rr(x,180,ty,tw,38,19);x.fillStyle=tagCol[cki.who][0];x.fill();x.fillStyle=tagCol[cki.who][1];x.fillText(tg,196,ty+27);
       y+=h+18;});}
-  else{x.font=`500 30px ${F}`;x.fillStyle=ink;wrap(x,'El siguiente paso: llenar la hora de la comida con pedidos en grupo de oficinas cercanas, con MealPool.',W-160).forEach(l=>{x.fillText(l,80,y+10);y+=42;});}
   // footer: who made it, plus a QR to the store
   y+=30;const fh=170;x.fillStyle='#E2E8F0';x.fillRect(80,y,W-160,2);
-  const q=link?qrCanvas(link,130,'#0A1A2E'):null;
+  const q=link?qrCanvas(tracked(link,'regalo-chequeo'),130,'#0A1A2E'):null;
   x.font=`600 26px ${F}`;x.fillStyle=ink;x.fillText(`Preparado por ${rep} · SalesVu`,80,y+64);
   x.font=`500 24px ${F}`;x.fillStyle=mut;x.fillText(q?'Escanee para ver su tienda en línea':'Le atendemos en español',80,y+104);
   if(q)x.drawImage(q,W-80-130,y+22,130,130);
