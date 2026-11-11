@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-11-11T02:49:39.309Z",
         "reason": "Claude: Inter is SalesVu's brand font on salesvu.com (recorded in knowledge/salesvu-brief.md); the kit deliberately matches it"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "files": [
+          "/Users/vanessagershbein/Desktop/SalesVu/salesvu-growth-kit/p.html"
+        ],
+        "createdAt": "2026-11-11T05:01:29.286Z",
+        "reason": "Claude: Inter is the font salesvu.com uses (verified in its computed styles); the user asked the page to match salesvu.com"
       }
     ]
   }

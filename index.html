@@ -994,59 +994,105 @@ function renderComps(){const sec=$('sec-comp');sec.hidden=!on('m-comp');if(sec.h
     tr.children[2].textContent=p.rating!=null?`${p.rating.toFixed(1)}★ (${p.ratings||0})`:'—';tr.children[3].textContent=p.web?(EN()?'Yes':'Sí'):'—';tb.appendChild(tr);});
   tb.closest('.tbl').hidden=!comps.length;}
 
-/* ================= Owner pack pages (1080×1350, MealPool collateral style) ================= */
+/* ================= Owner pack pages (1080×1350): the salesvu.com look ================= */
+/* White page, soft blue/purple glow, SalesVu wordmark, dot badge, bold headline with key words in blue,
+   rounded white cards, and a quiet footer with the rep and page number. */
+const PK={ink:'#0F1729',muted:'#5B6B82',blue:'#0066FF',blueInk:'#0052CC',line:'#E3E8EF',soft:'#F5F8FF',ok:'#0E7A4E',okSoft:'#E8F6EF',bad:'#C2410C',badSoft:'#FDEEE4',unk:'#94A3B8'};
 function newPage(){const cv=document.createElement('canvas');cv.width=1080;cv.height=1350;const x=cv.getContext('2d');x.fillStyle='#FFFFFF';x.fillRect(0,0,1080,1350);x.textBaseline='alphabetic';return [cv,x];}
-function pagePill(x,t){x.font=`800 22px ${F}`;x.textAlign='left';const w=x.measureText(t).width+36;rr(x,80,56,w,44,22);x.fillStyle='#EEEAFB';x.fill();x.fillStyle='#6D4FD8';x.fillText(t,98,86);}
-function pageFooter(x,es){const rep=v('r-rep');x.textAlign='center';x.font=`500 24px ${F}`;x.fillStyle='#5B6B82';
-  x.fillText((es?'Preparado por ':'Prepared by ')+(rep?rep+' · ':'')+'SalesVu · MealPool',540,1300);}
-function drawCover(){const [cv,x]=newPage(),es=olang()==='es',T=(a,b)=>es?a:b,R=v('r-name')||T('Su restaurante','Your restaurant');
-  doodlePattern(x,0,1060,1080,290,MP.blue,120,.16);
-  pagePill(x,'MEALPOOL BY SALESVU');
-  drawLogo(x,540,330,150);x.lineWidth=6;x.strokeStyle=MP.ring;x.beginPath();x.arc(540,330,150,0,Math.PI*2);x.stroke();
-  x.textAlign='center';x.font=`600 36px ${F}`;x.fillStyle=MP.blue;x.fillText(T('Más pedidos para','More orders for'),540,570);
-  x.font=`800 74px ${F}`;x.fillStyle=MP.navy;let y=655;wrap(x,R,920).slice(0,2).forEach(l=>{x.fillText(l,540,y);y+=82;});
-  x.fillStyle=MP.green;rr(x,495,y-28,90,9,4);x.fill();y+=40;
-  const items=[];
-  if(on('m-offices')&&lunch.places.length)items.push(T(`${lunch.places.length} lugares de trabajo a menos de ${radLabel('es',lunch.radius)} que pueden pedirle almuerzo`,`${lunch.places.length} workplaces within ${radLabel('en',lunch.radius)} that could order lunch from you`));
-  if(on('m-presence')){const ev=evaluate(),n=ev.top.length;items.push(ev.unk.length===CHECKS.length?T('Cómo recibir más pedidos directos','How to get more direct orders'):n?T(`${n} formas de recibir más pedidos directos`,`${n} ways to get more direct orders`):T('Su presencia en internet va bien','Your online presence is in good shape'));}
-  if(on('m-kit'))items.push(T('Su kit MealPool con su logo, listo para usar','Your MealPool kit with your logo, ready to use'));
-  x.textAlign='left';items.forEach(t=>{x.beginPath();x.arc(150,y-12,12,0,Math.PI*2);x.fillStyle=MP.blue;x.fill();
-    x.font=`600 34px ${F}`;x.fillStyle=MP.navy;const ls=wrap(x,t,800);ls.slice(0,2).forEach((l,i)=>x.fillText(l,185,y+i*44));y+=Math.min(ls.length,2)*44+34;});
-  pageFooter(x,es);return cv;}
-function drawPresencePage(){const [cv,x]=newPage(),es=olang()==='es',T=(a,b)=>es?a:b,O=o=>es?o.es:o.en,r=evaluate(),R=v('r-name')||T('Su restaurante','Your restaurant');
-  pagePill(x,T('MÁS PEDIDOS DIRECTOS','MORE DIRECT ORDERS'));
-  x.textAlign='left';x.font=`800 58px ${F}`;x.fillStyle=MP.navy;x.fillText(T('Su presencia en internet','Your online presence'),80,190,760);
-  x.font=`600 30px ${F}`;x.fillStyle=MP.blue;x.fillText(wrap(x,R,720)[0],80,240);x.fillStyle=MP.green;rr(x,80,266,90,9,4);x.fill();
-  drawLogo(x,940,180,90);x.lineWidth=4;x.strokeStyle=MP.ring;x.beginPath();x.arc(940,180,90,0,Math.PI*2);x.stroke();
-  let y=350;
-  CHECKS.forEach(c=>{const a=ans[c.id]||'unk',good=a==='unk'?null:(c.bad?a==='no':a==='yes');
-    rr(x,80,y,920,64,14);x.fillStyle='#F5F8FF';x.fill();
-    x.beginPath();x.arc(126,y+32,18,0,Math.PI*2);x.fillStyle=good==null?'#CBD5E1':good?'#16BD77':'#EA580C';x.fill();
-    x.strokeStyle='#FFFFFF';x.lineWidth=5;x.lineCap='round';x.lineJoin='round';x.beginPath();
-    if(good){x.moveTo(117,y+33);x.lineTo(124,y+40);x.lineTo(136,y+25);}else if(good===false){x.moveTo(119,y+25);x.lineTo(133,y+39);x.moveTo(133,y+25);x.lineTo(119,y+39);}else{x.moveTo(120,y+32);x.lineTo(132,y+32);}x.stroke();
-    x.font=`600 30px ${F}`;x.fillStyle=MP.navy;x.fillText(O(LABEL[c.id]),164,y+43,560);
-    x.textAlign='right';x.font=`700 26px ${F}`;x.fillStyle=good==null?'#8A97AB':good?'#0E7A4E':'#C2410C';
-    x.fillText(good==null?T('Por revisar','To check'):good?T('Bien','Good'):T('Le ayudamos','We can help'),975,y+42);x.textAlign='left';y+=74;});
-  y+=44;x.font=`800 40px ${F}`;x.fillStyle=MP.navy;x.fillText(T('Cómo le ayudamos a recibir más pedidos','How we help you get more orders'),80,y,920);y+=30;
-  pitch(r).slice(0,3).forEach((c,i)=>{x.font=`500 27px ${F}`;const ls=wrap(x,O(c.fix),820);const h=28+ls.length*35+16;if(y+h>1250)return;
-    x.beginPath();x.arc(104,y+30,16,0,Math.PI*2);x.fillStyle=MP.blue;x.fill();x.fillStyle='#FFFFFF';x.font=`800 20px ${F}`;x.textAlign='center';x.fillText(String(i+1),104,y+37);x.textAlign='left';
-    x.font=`500 27px ${F}`;x.fillStyle=MP.navy;ls.forEach((l,j)=>x.fillText(l,140,y+40+j*35));y+=h;});
-  pageFooter(x,es);return cv;}
-function drawKitPage(){const [cv,x]=newPage(),es=olang()==='es',T=(a,b)=>es?a:b,link=v('r-link'),rep=v('r-rep');
-  pagePill(x,T('SU KIT MEALPOOL','YOUR MEALPOOL KIT'));
-  x.textAlign='left';x.font=`800 56px ${F}`;x.fillStyle=MP.navy;let y=190;wrap(x,T('Material listo para atraer pedidos','Ready-made materials that bring in orders'),920).forEach(l=>{x.fillText(l,80,y);y+=64;});
-  x.font=`500 28px ${F}`;x.fillStyle='#5B6B82';x.fillText(T('Con su logo, para su puerta, Facebook y WhatsApp.','With your logo, for your door, Facebook and WhatsApp.'),80,y);y+=40;
-  const s1=drawSample('sticker'),s2=drawSample('fb'),s3=drawSample('status'),top=y+10;
-  [[s1,80,290,290],[s2,395,290,290],[s3,710,290,516]].forEach(([c,X,w,h])=>{x.drawImage(c,X,top,w,h);x.lineWidth=2;x.strokeStyle=MP.ring;rr(x,X,top,w,h,14);x.stroke();});
-  x.font=`600 22px ${F}`;x.fillStyle='#5B6B82';x.fillText(T('Puerta o caja','Door or register'),80,top+325);x.fillText('Facebook',395,top+325);
-  y=top+400;x.font=`800 36px ${F}`;x.fillStyle=MP.navy;x.fillText(T('Lo que SalesVu hace por usted','What SalesVu does for you'),80,y);y+=20;
-  [T('Armamos su tienda en línea con su menú y sus precios.','We build your online store with your menu and prices.'),
-   T('Sus clientes piden directo, sin comisión por pedido.','Your customers order directly, with no per-order commission.'),
-   T('MealPool: pedidos de almuerzo en grupo de las oficinas cercanas.','MealPool: group lunch orders from nearby offices.')].forEach(t=>{
-    x.font=`500 26px ${F}`;const ls=wrap(x,t,580);x.beginPath();x.arc(92,y+32,7,0,Math.PI*2);x.fillStyle=MP.green;x.fill();x.fillStyle=MP.navy;ls.forEach((l,i)=>x.fillText(l,112,y+40+i*34));y+=ls.length*34+18;});
-  rr(x,80,1150,920,90,18);x.fillStyle='#EAF7F0';x.fill();x.font=`700 30px ${F}`;x.fillStyle='#0E5C3A';x.textAlign='center';
-  x.fillText(link?T('Su tienda: ','Your store: ')+link.replace(/^https?:\/\//,'').slice(0,46):T(`Su contacto: ${rep||'SalesVu'}`,`Your contact: ${rep||'SalesVu'}`),540,1205,880);
-  pageFooter(x,es);return cv;}
+function pkPage(){const [cv,x]=newPage();
+  [[250,330,'rgba(124,92,255,.11)'],[760,250,'rgba(0,102,255,.10)']].forEach(([gx,gy,c])=>{const g=x.createRadialGradient(gx,gy,0,gx,gy,620);g.addColorStop(0,c);g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,1080,1000);});
+  x.textAlign='left';x.font=`800 40px ${F}`;x.fillStyle=PK.ink;x.fillText('Sales',80,106);const w=x.measureText('Sales').width;x.fillStyle=PK.blue;x.fillText('Vu',80+w,106);
+  x.font=`600 22px ${F}`;x.fillStyle=PK.muted;x.textAlign='right';x.fillText('MealPool by SalesVu',1000,102);x.textAlign='left';return [cv,x];}
+function pkBadge(x,t,y){x.font=`500 24px ${F}`;const w=Math.min(920,x.measureText(t).width+66);rr(x,80,y,w,50,25);x.fillStyle='rgba(0,102,255,.08)';x.fill();
+  x.beginPath();x.arc(108,y+25,6,0,Math.PI*2);x.fillStyle=PK.blue;x.fill();x.fillStyle=PK.blueInk;x.textAlign='left';x.fillText(t,126,y+33,880);}
+/* Headline in two colors; wraps by word and returns the baseline of its last line. */
+function pkHead(x,parts,y,size,maxW,X=80){x.font=`800 ${size}px ${F}`;const ls=-size*0.035;try{x.letterSpacing=ls+'px';}catch(e){}
+  const words=[];parts.forEach(([t,c])=>String(t).split(' ').filter(Boolean).forEach(wd=>words.push([wd,c])));
+  const sp=x.measureText(' ').width,lines=[];let line=[],lw=0;
+  words.forEach(([wd,c])=>{const ww=x.measureText(wd).width;if(line.length&&lw+sp+ww>maxW){lines.push(line);line=[];lw=0;}lw+=(line.length?sp:0)+ww;line.push([wd,c,ww]);});if(line.length)lines.push(line);
+  x.textAlign='left';lines.forEach((ln,i)=>{let xx=X;ln.forEach(([wd,c,ww])=>{x.fillStyle=c;x.fillText(wd,xx,y+i*size*1.06);xx+=ww+sp;});});
+  try{x.letterSpacing='0px';}catch(e){}return y+(lines.length-1)*size*1.06;}
+function pkText(x,t,X,y,maxW,size,color,weight=500,lh=1.42,max=9){x.font=`${weight} ${size}px ${F}`;x.fillStyle=color;x.textAlign='left';let ls=wrap(x,t,maxW);if(ls.length>max){ls=ls.slice(0,max);ls[max-1]+='…';}ls.forEach((l,i)=>x.fillText(l,X,y+i*size*lh));return y+(ls.length-1)*size*lh;}
+function pkCard(x,X,Y,w,h,fill='#FFFFFF'){x.save();x.shadowColor='rgba(15,23,41,.08)';x.shadowBlur=36;x.shadowOffsetY=12;rr(x,X,Y,w,h,28);x.fillStyle=fill;x.fill();x.restore();x.lineWidth=2;x.strokeStyle=PK.line;rr(x,X,Y,w,h,28);x.stroke();}
+function pkFooter(x,n,total){const es=olang()==='es',rep=v('r-rep');x.fillStyle=PK.line;x.fillRect(80,1262,920,2);x.font=`500 22px ${F}`;x.fillStyle=PK.muted;x.textAlign='left';
+  x.fillText((es?'Preparado por ':'Prepared by ')+(rep?rep+' · ':'')+'SalesVu'+(v('r-wa')?' · WhatsApp '+v('r-wa'):''),80,1306,820);x.textAlign='right';x.fillText(`${n} / ${total}`,1000,1306);x.textAlign='left';}
+function pkStatus(x,cx,cy,good){x.beginPath();x.arc(cx,cy,19,0,Math.PI*2);x.fillStyle=good==null?'#EEF1F5':good?PK.okSoft:PK.badSoft;x.fill();
+  x.strokeStyle=good==null?PK.unk:good?PK.ok:PK.bad;x.lineWidth=4;x.lineCap='round';x.lineJoin='round';x.beginPath();
+  if(good){x.moveTo(cx-8,cy+1);x.lineTo(cx-2,cy+7);x.lineTo(cx+9,cy-6);}else if(good===false){x.moveTo(cx-6,cy-6);x.lineTo(cx+6,cy+6);x.moveTo(cx+6,cy-6);x.lineTo(cx-6,cy+6);}else{x.moveTo(cx-7,cy);x.lineTo(cx+7,cy);}x.stroke();}
+/* Line icons on a 24-unit grid, drawn from SVG path data. */
+const PK_ICONS={store:['M4 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.2a1 1 0 0 0 1-.8L20 8H7',[10,19,1.4],[17,19,1.4]],pct:['M19 5 5 19',[7,7,2.5],[17,17,2.5]],
+  group:['M3.5 19a5.5 5.5 0 0 1 11 0','M14 19a4 4 0 0 1 7-2.6',[9,8,3],[17,9,2.4]],mega:['M4 10v4a1 1 0 0 0 1 1h2l6 4V5L7 9H5a1 1 0 0 0-1 1Z','M16.5 8.5a5 5 0 0 1 0 7','M19 6a8.5 8.5 0 0 1 0 12']};
+function pkIcon(x,k,cx,cy,box){x.save();rr(x,cx-box/2,cy-box/2,box,box,box*0.28);x.fillStyle='rgba(0,102,255,.08)';x.fill();
+  const s=box*0.5/24;x.translate(cx-12*s,cy-12*s);x.scale(s,s);x.strokeStyle=PK.blue;x.lineWidth=2;x.lineCap='round';x.lineJoin='round';
+  PK_ICONS[k].forEach(p=>{if(typeof p==='string')x.stroke(new Path2D(p));else{x.beginPath();x.arc(p[0],p[1],p[2],0,Math.PI*2);x.stroke();}});x.restore();}
+
+function pkCover(n,total){const [cv,x]=pkPage(),es=olang()==='es',T=(a,b)=>es?a:b,R=v('r-name')||T('su restaurante','your restaurant');
+  drawLogo(x,900,262,92);x.lineWidth=3;x.strokeStyle=PK.line;x.beginPath();x.arc(900,262,92,0,Math.PI*2);x.stroke();
+  pkBadge(x,T('Preparado para ','Prepared for ')+R,178);
+  let y=pkHead(x,[[T('Más pedidos para','More orders for'),PK.ink],[R,PK.blue]],420,96,900);
+  y=pkText(x,T('Almuerzos de oficina, pedidos por adelantado. Empiece el día con pedidos, no con suposiciones.','Office lunches, pre-ordered. Start the day with orders, not guesswork.'),80,y+86,820,34,PK.muted);
+  const st=[];
+  if(on('m-offices')&&lunch.places.length)st.push([String(lunch.places.length),T(`lugares de trabajo a menos de ${radLabel('es',lunch.radius)}`,`workplaces within ${radLabel('en',lunch.radius)}`)]);
+  if(on('m-presence')){const k=evaluate().top.length;if(k)st.push([String(k),T('formas de recibir más pedidos directos','ways to get more direct orders')]);}
+  st.push(['0%',T('comisión por pedido con su propio enlace','commission per order on your own link')]);
+  if(on('m-kit')&&st.length<3)st.push(['3',T('piezas de marketing con su logo','marketing pieces with your logo')]);
+  const cards=st.slice(0,3),gap=24,cw=(920-gap*(cards.length-1))/cards.length,cy=Math.max(y+90,880);
+  cards.forEach(([num,lbl],i)=>{const cx=80+i*(cw+gap);pkCard(x,cx,cy,cw,300);x.font=`800 84px ${F}`;x.fillStyle=i===0?PK.blue:PK.ink;x.textAlign='left';
+    try{x.letterSpacing='-3px';}catch(e){}x.fillText(num,cx+32,cy+118);try{x.letterSpacing='0px';}catch(e){}pkText(x,lbl,cx+32,cy+176,cw-64,26,PK.muted,500,1.4,4);});
+  pkFooter(x,n,total);return cv;}
+
+function pkOffices(n,total){const [cv,x]=pkPage(),es=olang()==='es',T=(a,b)=>es?a:b,R=v('r-name')||T('su restaurante','your restaurant'),c=lunch.center,mi=lunch.radius,N=lunch.places.length;
+  pkBadge(x,T('Oficinas cerca de ','Offices near ')+R,178);
+  pkHead(x,[[T('Sus próximos clientes de la comida están','Your next lunch customers are'),PK.ink],[T('a la vuelta de la esquina','right around the corner'),PK.blue]],310,62,920);
+  const y0=480,h0=460;pkCard(x,80,y0,920,h0);
+  const cx=300,cyy=y0+h0/2,rad=180,cos=Math.cos(c.lat*Math.PI/180),inner=52;
+  [1,.5].forEach(k=>{x.beginPath();x.arc(cx,cyy,rad*k,0,Math.PI*2);x.fillStyle=k===1?PK.soft:'#EEF3FF';x.fill();x.setLineDash([8,8]);x.strokeStyle='rgba(15,23,41,.14)';x.lineWidth=2;x.stroke();x.setLineDash([]);
+    x.font=`600 18px ${F}`;x.fillStyle=PK.muted;x.textAlign='center';x.fillText(`${mi*k} mi`,cx,cyy-rad*k-8);});
+  const pos=p=>{let dx=(p.lon-c.lon)*cos*69.17/mi*rad,dy=-(p.lat-c.lat)*69.17/mi*rad,d=Math.hypot(dx,dy)||1,nd=inner+(d/rad)*(rad-8-inner);return [cx+dx*nd/d,cyy+dy*nd/d];};
+  lunch.places.forEach(p=>{const [px,py]=pos(p);x.beginPath();x.arc(px,py,6,0,Math.PI*2);x.fillStyle=CATS[p.cat].color;x.globalAlpha=.75;x.fill();x.globalAlpha=1;});
+  const top=(selected().length?selected():lunch.places).slice(0,4),pts=top.map(pos);
+  for(let it=0;it<40;it++)for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[j][0]-pts[i][0],dy=pts[j][1]-pts[i][1],d=Math.hypot(dx,dy)||.01;if(d<34){const m=(34-d)/2,ux=d>.01?dx/d:Math.cos(i+j),uy=d>.01?dy/d:Math.sin(i+j);pts[i][0]-=ux*m;pts[i][1]-=uy*m;pts[j][0]+=ux*m;pts[j][1]+=uy*m;}}
+  top.forEach((p,i)=>{const [px,py]=pts[i];x.beginPath();x.arc(px,py,15,0,Math.PI*2);x.fillStyle=PK.blue;x.fill();x.lineWidth=3;x.strokeStyle='#fff';x.stroke();x.fillStyle='#fff';x.font=`800 17px ${F}`;x.textAlign='center';x.fillText(String(i+1),px,py+6);});
+  x.beginPath();x.arc(cx,cyy,44,0,Math.PI*2);x.fillStyle='#fff';x.fill();drawLogo(x,cx,cyy,40);
+  x.textAlign='left';x.font=`800 104px ${F}`;x.fillStyle=PK.ink;try{x.letterSpacing='-4px';}catch(e){}x.fillText(String(N),540,y0+130);try{x.letterSpacing='0px';}catch(e){}
+  pkText(x,T(`lugares de trabajo a menos de ${radLabel('es',mi)}`,`workplaces within ${radLabel('en',mi)}`),540,y0+176,420,26,PK.muted,500,1.35,2);
+  let ly=y0+256;top.forEach((p,i)=>{x.beginPath();x.arc(554,ly-8,14,0,Math.PI*2);x.fillStyle=PK.blue;x.fill();x.fillStyle='#fff';x.font=`800 15px ${F}`;x.textAlign='center';x.fillText(String(i+1),554,ly-3);
+    x.textAlign='left';x.font=`600 24px ${F}`;x.fillStyle=PK.ink;let t=p.name;while(x.measureText(t).width>300&&t.length>4)t=t.slice(0,-2);if(t!==p.name)t=t.trim()+'…';x.fillText(t,580,ly);
+    x.textAlign='right';x.font=`500 22px ${F}`;x.fillStyle=PK.muted;x.fillText(fmtMi(p.dist)+' mi',968,ly);x.textAlign='left';ly+=46;});
+  if(N>=EST.offices){const y1=y0+h0+40;pkCard(x,80,y1,920,170,'#F2FBF6');x.font=`800 40px ${F}`;x.fillStyle=PK.ok;x.textAlign='left';
+    x.fillText(T(`${EST.offices} oficinas × ${EST.people} almuerzos = ${EST.offices*EST.people} pedidos más por semana`,`${EST.offices} offices × ${EST.people} lunches = ${EST.offices*EST.people} more orders a week`),116,y1+80,850);
+    pkText(x,T('Ejemplo: si 3 de estas oficinas piden almuerzo para 10 personas una vez por semana.','Example: if 3 of these offices order lunch for 10 people once a week.'),116,y1+124,850,24,PK.muted,500);}
+  pkFooter(x,n,total);return cv;}
+
+function pkPresence(n,total){const [cv,x]=pkPage(),es=olang()==='es',T=(a,b)=>es?a:b,O=o=>es?o.es:o.en,r=evaluate(),R=v('r-name')||T('su restaurante','your restaurant');
+  pkBadge(x,T('Presencia en línea','Online presence'),178);
+  pkHead(x,[[T('Lo que encontramos de','What we found about'),PK.ink],[R,PK.blue]],310,62,920);
+  const y0=460,rowH=60;pkCard(x,80,y0,920,rowH*5+30);
+  CHECKS.forEach((c,i)=>{const a=ans[c.id]||'unk',good=a==='unk'?null:(c.bad?a==='no':a==='yes'),yy=y0+18+i*rowH;
+    if(i)x.fillStyle=PK.line,x.fillRect(112,yy,856,1.5);pkStatus(x,136,yy+rowH/2,good);
+    x.font=`600 27px ${F}`;x.fillStyle=PK.ink;x.textAlign='left';x.fillText(O(LABEL[c.id]),176,yy+rowH/2+9,560);
+    x.textAlign='right';x.font=`600 22px ${F}`;x.fillStyle=good==null?PK.unk:good?PK.ok:PK.bad;x.fillText(good==null?T('Por revisar','To check'):good?T('Bien','Good'):T('Le ayudamos','We can help'),968,yy+rowH/2+8);x.textAlign='left';});
+  let y=y0+rowH*5+30+72;x.font=`800 34px ${F}`;x.fillStyle=PK.ink;x.fillText(T('Cómo le ayudamos a recibir más pedidos','How we help you get more orders'),80,y,920);y+=34;
+  pitch(r).slice(0,3).forEach((c,i)=>{const [hd,...rest]=O(c.fix).split(': ');let body=rest.join(': ');body=body.charAt(0).toUpperCase()+body.slice(1);if(y>1180)return;
+    x.beginPath();x.arc(98,y+22,16,0,Math.PI*2);x.fillStyle=PK.blue;x.fill();x.fillStyle='#fff';x.font=`800 17px ${F}`;x.textAlign='center';x.fillText(String(i+1),98,y+28);x.textAlign='left';
+    x.font=`700 25px ${F}`;x.fillStyle=PK.ink;x.fillText(body?hd:'',130,y+30,860);const by=pkText(x,body||hd,130,y+(body?62:30),860,22,PK.muted,500,1.38,2);y=by+34;});
+  pkFooter(x,n,total);return cv;}
+
+function pkKit(n,total){const [cv,x]=pkPage(),es=olang()==='es',T=(a,b)=>es?a:b;
+  pkBadge(x,T('Su kit MealPool','Your MealPool kit'),178);
+  pkHead(x,[[T('Material listo para atraer','Ready-made materials that bring in'),PK.ink],[T('pedidos','orders'),PK.blue]],310,62,920);
+  const y0=440,s1=drawSample('sticker'),s2=drawSample('fb'),s3=drawSample('status');
+  [[s1,80,280,280,T('Puerta o caja','Door or register')],[s2,400,280,280,'Facebook'],[s3,720,280,498,T('Estado de WhatsApp','WhatsApp Status')]].forEach(([c,X,w,h,lbl])=>{
+    x.save();x.shadowColor='rgba(15,23,41,.10)';x.shadowBlur=28;x.shadowOffsetY=10;rr(x,X,y0,w,h,20);x.fillStyle='#fff';x.fill();x.restore();
+    x.save();rr(x,X,y0,w,h,20);x.clip();x.drawImage(c,X,y0,w,h);x.restore();x.lineWidth=2;x.strokeStyle=PK.line;rr(x,X,y0,w,h,20);x.stroke();
+    x.font=`600 22px ${F}`;x.fillStyle=PK.muted;x.textAlign='left';x.fillText(lbl,X,y0+h+36);});
+  pkText(x,T('Todo con su logo y su enlace de pedidos. Usted solo lo imprime o lo publica.','Everything with your logo and ordering link. You just print or post it.'),80,y0+412,600,28,PK.ink,600,1.4,3);
+  const hy=y0+498+92;x.font=`800 34px ${F}`;x.fillStyle=PK.ink;x.textAlign='left';x.fillText(T('SalesVu trabaja para usted','SalesVu works for you'),80,hy,920);
+  const feats=[['store',T('Su tienda en línea','Your online store'),T('Con su menú y sus precios.','With your menu and prices.')],['pct',T('Sin comisión por pedido','No per-order commission'),T('Sus clientes piden directo.','Customers order directly.')],
+    ['group',T('Almuerzos en grupo','Group lunches'),T('MealPool trae oficinas cercanas.','MealPool brings nearby offices.')],['mega',T('Marketing con su logo','Marketing with your logo'),T('Listo para publicar.','Ready to post.')]];
+  const fy=hy+28,fw=(920-24)/2;feats.forEach(([ic,hd,bd],i)=>{const fx=80+(i%2)*(fw+24),yy=fy+Math.floor(i/2)*106;pkCard(x,fx,yy,fw,92);pkIcon(x,ic,fx+50,yy+46,50);
+    x.font=`700 24px ${F}`;x.fillStyle=PK.ink;x.fillText(hd,fx+94,yy+40,fw-114);x.font=`500 20px ${F}`;x.fillStyle=PK.muted;x.fillText(bd,fx+94,yy+70,fw-114);});
+  pkFooter(x,n,total);return cv;}
 
 /* Office flyer (MealPool style), English, Spanish or both. */
 function drawFlyer(o,lang){const [cv,x]=newPage(),R=v('r-name')||'Restaurant',d=fmtMi(o.dist),cut=v('l-cutoff')||'10:30 am',lt=v('l-time')||'12:00 pm',del=lmode()==='deliver';
@@ -1070,10 +1116,11 @@ function drawFlyer(o,lang){const [cv,x]=newPage(),R=v('r-name')||'Restaurant',d=
 /* ================= Pack: pages, WhatsApp message, PDF ================= */
 let packPages=[];
 function buildPack(){const sec=$('sec-pack');const any=on('m-offices')||on('m-presence')||on('m-kit');sec.hidden=!any;if(!any){packPages=[];return;}
-  const es=olang()==='es',pages=[[drawCover(),es?'Portada':'Cover']];
-  if(on('m-offices')&&lunch.places.length){pages.push([drawRadar(),es?'Oficinas cerca':'Nearby offices']);}
-  if(on('m-presence'))pages.push([drawPresencePage(),es?'Presencia en línea':'Online presence']);
-  if(on('m-kit'))pages.push([drawKitPage(),es?'Kit MealPool':'MealPool kit']);
+  const es=olang()==='es',kinds=[[pkCover,es?'Portada':'Cover']];
+  if(on('m-offices')&&lunch.places.length)kinds.push([pkOffices,es?'Oficinas cerca':'Nearby offices']);
+  if(on('m-presence'))kinds.push([pkPresence,es?'Presencia en línea':'Online presence']);
+  if(on('m-kit'))kinds.push([pkKit,es?'Kit MealPool':'MealPool kit']);
+  const pages=kinds.map(([f,t],i)=>[f(i+1,kinds.length),t]);
   packPages=pages.map(([c,t])=>({c,t,url:c.toDataURL('image/png')}));
   const box=$('pages');box.innerHTML='';
   packPages.forEach((p,i)=>{const d=document.createElement('div');d.className='page';
