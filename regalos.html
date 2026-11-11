@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regalos SalesVu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<style>
+/* Same tokens as the Kit de ventas (index.html), so both pages feel like one product. */
+:root{
+  --bg:#F5F7FB; --surface:#FFFFFF; --fg:#0F1B33; --muted:#5B6B82; --line:#E2E8F0;
+  --blue:#0066FF; --btn:#0066FF; --blue-ink:#0052CC; --blue-soft:rgba(0,102,255,.09); --band:#0A1A2E; --band-fg:#F1F5F9;
+  --ok:#15803D; --ok-soft:rgba(21,128,61,.10); --warn:#9A5B00; --warn-soft:rgba(234,150,0,.14);
+  --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r-lg:18px; --r-md:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0A1A2E; --surface:#0F2340; --fg:#EEF2F8; --muted:#97A6BC; --line:#1F3553;
+  --blue:#4B93FF; --btn:#1664E6; --blue-ink:#7AB0FF; --blue-soft:rgba(75,147,255,.15); --band:#06121F; --band-fg:#F1F5F9;
+  --ok:#4ADE80; --ok-soft:rgba(74,222,128,.12); --warn:#FBBF24; --warn-soft:rgba(251,191,36,.13); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1A2E; --surface:#0F2340; --fg:#EEF2F8; --muted:#97A6BC; --line:#1F3553;
+  --blue:#4B93FF; --btn:#1664E6; --blue-ink:#7AB0FF; --blue-soft:rgba(75,147,255,.15); --band:#06121F; --band-fg:#F1F5F9;
+  --ok:#4ADE80; --ok-soft:rgba(74,222,128,.12); --warn:#FBBF24; --warn-soft:rgba(251,191,36,.13); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+:root:not([data-lang="en"]) .en{display:none!important}
+:root[data-lang="en"] .es{display:none!important}
+[hidden]{display:none!important}
+
+.band{background:var(--band);color:var(--band-fg);padding:18px 16px 0}
+.wrap{max-width:1180px;margin:0 auto}
+.band-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.wordmark{font-weight:800;font-size:24px;letter-spacing:-.02em}
+.wordmark b{color:#4B93FF;font-weight:800}
+.kit-pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:rgba(75,147,255,.18);color:#BFD7FF;letter-spacing:.02em}
+.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lang{display:inline-flex;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:3px}
+.lang button{all:unset;cursor:pointer;font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;color:#C9D4E3}
+.lang button[aria-pressed="true"]{background:#fff;color:#0A1A2E}
+.lang button:focus-visible,.gear:focus-visible{outline:2px solid #4B93FF;outline-offset:2px}
+.gear{all:unset;cursor:pointer;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.2);color:#C9D4E3;display:inline-flex;gap:6px;align-items:center}
+.datasrc{font-size:12px;color:#9FB3CC}
+.band h1{font-size:clamp(22px,3.2vw,30px);line-height:1.2;letter-spacing:-.02em;margin:22px 0 6px;text-wrap:balance;font-weight:700}
+.band p.lede{margin:0;color:#B8C4D6;max-width:72ch;font-size:15px}
+.tabs{display:flex;gap:4px;margin-top:22px;overflow-x:auto}
+.tabs a{color:#B8C4D6;text-decoration:none;font-weight:600;font-size:14px;padding:12px 16px;border-radius:12px 12px 0 0;white-space:nowrap}
+.tabs a[aria-current="page"]{background:var(--bg);color:var(--fg)}
+.tabs a:focus-visible{outline:2px solid #4B93FF}
+.tabs a.ext{margin-left:auto}
+
+main{padding:24px 16px 64px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--blue-soft);color:var(--blue-ink);letter-spacing:.01em;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.eyebrow{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.field{display:grid;gap:6px;min-width:0}
+.field label,.field .lbl{font-size:13px;font-weight:600}
+.hint{font-size:12px;color:var(--muted)}
+input[type=text],input[type=url],input[type=password]{font:inherit;font-size:15px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+input:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-color:transparent}
+.btn{font:inherit;font-size:14px;font-weight:600;border-radius:10px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn.primary{background:var(--btn);border-color:var(--btn);color:#fff}
+.btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn.small{font-size:13px;padding:6px 10px}
+.btn[disabled]{opacity:.6;cursor:progress}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--blue)}
+.sw:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.logo-row{display:flex;align-items:center;gap:12px}
+.logo-prev{width:44px;height:44px;border-radius:50%;border:1px dashed var(--line);display:grid;place-items:center;overflow:hidden;font-weight:700;color:var(--muted);background:var(--bg);flex:none}
+.logo-prev img{width:100%;height:100%;object-fit:cover}
+
+/* Shared restaurant details (Part 0) */
+.shared{display:grid;gap:16px;margin-bottom:24px}
+.shared-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.shared-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:14px}
+.shared-grid .wide{grid-column:span 2}
+@media (max-width:520px){.shared-grid .wide{grid-column:auto}}
+
+/* Two-column tool layout */
+.tool{display:grid;grid-template-columns:minmax(0,430px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:900px){.tool{grid-template-columns:minmax(0,1fr)}}
+.col{display:grid;gap:16px;min-width:0}
+.step-h{display:flex;align-items:center;gap:8px;margin:0;font-size:16px;letter-spacing:-.01em}
+.num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--btn);color:#fff;font-size:12px;font-weight:700;flex:none}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.found{display:grid;gap:8px}
+.place{all:unset;box-sizing:border-box;display:grid;gap:2px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:var(--bg);width:100%}
+.place strong{font-size:14px}
+.place small{color:var(--muted);font-size:12px}
+.place[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+.place:focus-visible{outline:2px solid var(--blue)}
+.status{font-size:12px;min-height:1em;color:var(--muted)}
+.status.err{color:var(--warn);font-weight:600}
+.status.okc{color:var(--ok)}
+
+/* Health-check questions */
+.qs{display:grid}
+.q{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.q:last-child{border-bottom:0}
+.q-text{font-size:14px}
+.q-text .pill{margin-left:6px;font-size:11px;padding:1px 8px}
+@media (max-width:520px){.q{grid-template-columns:1fr}}
+.tri{display:inline-grid;grid-template-columns:repeat(3,auto);gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px}
+.tri label{display:block;text-align:center;font-size:13px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;color:var(--muted);white-space:nowrap}
+.tri input{position:absolute;opacity:0;pointer-events:none}
+.tri label:has(input:checked){background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);color:var(--fg)}
+.tri label:has(input[value=yes]:checked){color:var(--ok)}
+.tri label:has(input[value=no]:checked){color:var(--warn)}
+.tri label:has(input:focus-visible){outline:2px solid var(--blue)}
+
+/* Outputs */
+.out{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;display:grid;gap:14px;min-width:0}
+.out-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.out-head h3{margin:0;font-size:17px;letter-spacing:-.01em;display:flex;gap:8px;align-items:center}
+.out-head p{margin:2px 0 0;color:var(--muted);font-size:13px;max-width:60ch}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.summary{display:grid;gap:12px}
+.bar{height:12px;border-radius:999px;background:var(--line);overflow:hidden}
+.bar span{display:block;height:100%;border-radius:999px;background:var(--blue);transition:width .3s}
+.score-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.score-row strong{font-size:28px;letter-spacing:-.02em}
+.opps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.opps li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:12px 14px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.opps li p{margin:0 0 6px;font-size:14px}
+.goods{margin:0;font-size:14px;color:var(--muted)}
+textarea{font:inherit;font-size:15px;line-height:1.55;width:100%;min-height:300px;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg);resize:vertical}
+details{font-size:13px;color:var(--muted)}
+details summary{cursor:pointer;font-weight:600}
+details pre{white-space:pre-wrap;font-family:var(--font);font-size:13px;background:var(--bg);border-radius:10px;padding:12px;margin:8px 0 0;color:var(--fg)}
+.shot img{width:100%;max-width:420px;border-radius:12px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(10,26,46,.10);display:block}
+.check{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600;cursor:pointer}
+.check input{accent-color:var(--blue);width:16px;height:16px}
+.warnbox{padding:12px 14px;border-radius:12px;background:var(--warn-soft);color:var(--fg);font-size:13px}
+.warnbox strong{color:var(--warn)}
+.soon{display:grid;gap:10px;justify-items:start;max-width:62ch}
+.soon h2{margin:0;font-size:22px;letter-spacing:-.015em}
+
+dialog{border:1px solid var(--line);border-radius:var(--r-lg);padding:0;background:var(--surface);color:var(--fg);width:min(520px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(6,18,31,.55)}
+.dlg{display:grid;gap:14px;padding:22px}
+.dlg h2{margin:0;font-size:20px}
+.dlg .row{display:flex;gap:8px;flex-wrap:wrap}
+footer{max-width:1180px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font-size:12px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="wrap">
+    <div class="band-top">
+      <div class="brand"><span class="wordmark">Sales<b>Vu</b></span><span class="kit-pill"><span class="es">Regalos para restaurantes</span><span class="en">Gifts for restaurants</span></span></div>
+      <div class="top-actions">
+        <span class="datasrc" id="datasrc"></span>
+        <button type="button" class="gear" id="open-settings" aria-haspopup="dialog">⚙️ <span class="es">Ajustes</span><span class="en">Settings</span></button>
+        <div class="lang" role="group" aria-label="Idioma / Language">
+          <button type="button" id="lang-es" aria-pressed="true">Español</button>
+          <button type="button" id="lang-en" aria-pressed="false">English</button>
+        </div>
+      </div>
+    </div>
+    <h1><span class="es">Algo útil para el dueño, antes de pedirle algo</span><span class="en">Something useful for the owner, before asking for anything</span></h1>
+    <p class="lede"><span class="es">Prepare un regalo gratis con los datos del restaurante: un chequeo en línea, marketing listo para usar, y las oficinas cercanas que pueden pedir almuerzo en grupo con MealPool.</span><span class="en">Make a free gift from the restaurant's details: an online check-up, ready-to-use marketing, and the nearby offices that could order group lunch with MealPool.</span></p>
+    <nav class="tabs" aria-label="Secciones">
+      <a href="#chequeo" id="tab-chequeo" aria-current="page"><span class="es">1 · Chequeo en línea</span><span class="en">1 · Online check-up</span></a>
+      <a href="#marketing" id="tab-marketing"><span class="es">2 · Kit de marketing</span><span class="en">2 · Marketing kit</span></a>
+      <a href="#almuerzos" id="tab-almuerzos"><span class="es">3 · Almuerzos cerca</span><span class="en">3 · Lunch nearby</span></a>
+      <a href="index.html" class="ext"><span class="es">Kit de ventas ↗</span><span class="en">Sales kit ↗</span></a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ================= PART 0: SHARED RESTAURANT DETAILS ================= -->
+<section class="panel shared" aria-labelledby="shared-h">
+  <div class="shared-head">
+    <div>
+      <div class="eyebrow" id="shared-h"><span class="es">El restaurante</span><span class="en">The restaurant</span></div>
+      <span class="hint"><span class="es">Escríbalo una vez. Los tres regalos usan estos datos.</span><span class="en">Enter it once. All three gifts use these details.</span></span>
+    </div>
+    <button type="button" class="btn small" id="reset"><span class="es">Borrar el ejemplo</span><span class="en">Clear the example</span></button>
+  </div>
+  <form class="shared-grid" id="shared" autocomplete="off">
+    <div class="field">
+      <label for="r-name"><span class="es">Nombre del restaurante</span><span class="en">Restaurant name</span></label>
+      <input type="text" id="r-name" value="Taquería Los Compadres">
+    </div>
+    <div class="field wide">
+      <label for="r-addr"><span class="es">Dirección (calle y ciudad)</span><span class="en">Address (street and city)</span></label>
+      <input type="text" id="r-addr" value="2400 Navigation Blvd, Houston, TX">
+    </div>
+    <div class="field">
+      <label for="r-owner"><span class="es">Nombre del dueño</span><span class="en">Owner's name</span></label>
+      <input type="text" id="r-owner" value="Don Ramiro" placeholder="Opcional">
+    </div>
+    <div class="field">
+      <label for="r-rep"><span class="es">Su nombre</span><span class="en">Your name</span></label>
+      <input type="text" id="r-rep" value="Andrea">
+    </div>
+    <div class="field wide">
+      <label for="r-link"><span class="es">Enlace de la tienda en línea</span><span class="en">Online store link</span></label>
+      <input type="url" id="r-link" placeholder="https://…">
+      <span class="hint"><span class="es">La tienda que SalesVu preparó para este restaurante. Va en los mensajes y los códigos QR.</span><span class="en">The store SalesVu set up for this restaurant. It goes in the messages and QR codes.</span></span>
+    </div>
+    <div class="field">
+      <span class="lbl"><span class="es">Logo</span><span class="en">Logo</span></span>
+      <div class="logo-row">
+        <div class="logo-prev" id="logo-prev">TC</div>
+        <label class="btn small" for="r-logo"><span class="es">Subir logo</span><span class="en">Upload logo</span></label>
+        <input type="file" id="r-logo" accept="image/*" hidden>
+      </div>
+    </div>
+    <div class="field">
+      <span class="lbl"><span class="es">Color del restaurante</span><span class="en">Restaurant color</span></span>
+      <div class="swatches" id="swatches"></div>
+    </div>
+  </form>
+</section>
+
+<!-- ================= PART 1: ONLINE HEALTH CHECK ================= -->
+<section id="view-chequeo" aria-labelledby="tab-chequeo">
+  <div class="tool">
+    <div class="col">
+      <div class="panel col">
+        <h2 class="step-h"><span class="num">1</span><span class="es">Busque el restaurante</span><span class="en">Look up the restaurant</span></h2>
+        <div class="btns">
+          <button type="button" class="btn primary" id="lookup"><span class="es">Buscar y llenar automáticamente</span><span class="en">Look up and auto-fill</span></button>
+        </div>
+        <div class="status" id="lookup-st" role="status"></div>
+        <div class="found" id="found"></div>
+        <div>
+          <div class="hint" style="margin-bottom:6px"><span class="es">Revise usted mismo (se abre en otra pestaña):</span><span class="en">Check for yourself (opens in a new tab):</span></div>
+          <div class="links" id="links"></div>
+        </div>
+      </div>
+
+      <div class="panel col">
+        <h2 class="step-h"><span class="num">2</span><span class="es">Confirme las respuestas</span><span class="en">Confirm the answers</span></h2>
+        <span class="hint"><span class="es">Las que dicen <span class="pill">Google</span> se llenaron solas. Corríjalas si algo no cuadra.</span><span class="en">Ones marked <span class="pill">Google</span> were filled in automatically. Fix anything that looks wrong.</span></span>
+        <div class="qs" id="qs"></div>
+      </div>
+
+      <div class="panel col">
+        <h2 class="step-h"><span class="num">3</span><span class="es">Cierre</span><span class="en">Wrap up</span></h2>
+        <div class="field">
+          <label for="r-next"><span class="es">¿Cuándo vuelve a llamar?</span><span class="en">When will you call back?</span></label>
+          <input type="text" id="r-next" value="mañana a las 3 de la tarde">
+          <span class="hint"><span class="es">Escríbalo en español: "hoy a las 4".</span><span class="en">Type it in Spanish, e.g. "hoy a las 4".</span></span>
+        </div>
+        <label class="check"><input type="checkbox" id="show-score" checked><span><span class="es">Mostrar el puntaje en la imagen para el dueño</span><span class="en">Show the score on the owner's image</span></span></label>
+      </div>
+    </div>
+
+    <div class="col">
+      <article class="out">
+        <div class="out-head"><div><h3><span class="es">Resumen para usted</span><span class="en">Summary for you</span></h3><p><span class="es">Lo que va a ver el dueño, en orden de importancia.</span><span class="en">What the owner will see, in order of importance.</span></p></div></div>
+        <div class="summary" id="summary"></div>
+      </article>
+
+      <article class="out">
+        <div class="out-head">
+          <div><h3><span class="num">A</span><span class="es">Imagen para el dueño</span><span class="en">Image for the owner</span></h3><p><span class="es">Mándela por WhatsApp junto con el mensaje.</span><span class="en">Send it on WhatsApp with the message.</span></p></div>
+          <div class="btns"><button type="button" class="btn small" id="copy-report"><span class="es">Copiar imagen</span><span class="en">Copy image</span></button><a class="btn small" id="dl-report" download="chequeo.png"><span class="es">Descargar</span><span class="en">Download</span></a></div>
+        </div>
+        <div class="shot"><img id="img-report" alt="Chequeo en línea para el dueño"></div>
+        <div class="status" id="st-report" role="status"></div>
+      </article>
+
+      <article class="out">
+        <div class="out-head">
+          <div><h3><span class="num">B</span><span class="es">Mensaje de WhatsApp</span><span class="en">WhatsApp message</span></h3><p><span class="es">Puede editar el texto aquí antes de copiarlo.</span><span class="en">You can edit the text here before copying.</span></p></div>
+          <button type="button" class="btn primary small" id="copy-wa"><span class="es">Copiar mensaje</span><span class="en">Copy message</span></button>
+        </div>
+        <textarea id="wa" aria-label="Mensaje de WhatsApp"></textarea>
+        <div class="status" id="st-wa" role="status"></div>
+        <details><summary><span class="es">Ver en inglés (para revisión del equipo)</span><span class="en">English version (for team review)</span></summary><pre id="wa-en"></pre></details>
+      </article>
+
+      <div class="warnbox"><strong><span class="es">Usted revisa y envía.</span><span class="en">You review and send.</span></strong> <span class="es">La herramienta no manda nada. No agregue precios ni cuotas en el mensaje.</span><span class="en">The tool never sends anything. Don't add prices or fees to the message.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PART 2 / PART 3 (next) ================= -->
+<section id="view-marketing" aria-labelledby="tab-marketing" hidden>
+  <div class="panel soon">
+    <span class="pill warn"><span class="es">Próximamente</span><span class="en">Coming next</span></span>
+    <h2><span class="es">Kit de marketing</span><span class="en">Marketing kit</span></h2>
+    <p><span class="es">Calcomanía con QR, tarjeta de mesa, estado de WhatsApp y publicación de Facebook, con el logo del restaurante.</span><span class="en">QR window sticker, table tent, WhatsApp Status and Facebook post, with the restaurant's logo.</span></p>
+  </div>
+</section>
+<section id="view-almuerzos" aria-labelledby="tab-almuerzos" hidden>
+  <div class="panel soon">
+    <span class="pill warn"><span class="es">Próximamente</span><span class="en">Coming next</span></span>
+    <h2><span class="es">Almuerzos cerca</span><span class="en">Lunch nearby</span></h2>
+    <p><span class="es">Las oficinas y negocios cerca del restaurante, con un volante de MealPool para cada uno.</span><span class="en">The offices and businesses near the restaurant, with a MealPool flyer for each one.</span></p>
+  </div>
+</section>
+</main>
+
+<footer><span class="es">Hecho por Vanessa Gershbein (McCombs+) para SalesVu. Datos de lugares: Google Maps (con clave) u OpenStreetMap (© colaboradores de OpenStreetMap).</span><span class="en">Built by Vanessa Gershbein (McCombs+) for SalesVu. Place data: Google Maps (with a key) or OpenStreetMap (© OpenStreetMap contributors).</span></footer>
+
+<dialog id="settings" aria-labelledby="settings-h">
+  <form method="dialog" class="dlg">
+    <h2 id="settings-h"><span class="es">Ajustes</span><span class="en">Settings</span></h2>
+    <div class="field">
+      <label for="gkey"><span class="es">Clave de Google Maps (opcional)</span><span class="en">Google Maps key (optional)</span></label>
+      <input type="password" id="gkey" autocomplete="off" spellcheck="false">
+      <span class="hint"><span class="es">Se guarda solo en este navegador, nunca en el código. Sin clave, la herramienta usa OpenStreetMap: gratis, pero encuentra menos datos.</span><span class="en">Saved only in this browser, never in the code. Without a key, the tool uses OpenStreetMap: free, but it finds less.</span></span>
+    </div>
+    <div class="row">
+      <button type="submit" value="save" class="btn primary"><span class="es">Guardar</span><span class="en">Save</span></button>
+      <button type="submit" value="clear" class="btn"><span class="es">Borrar clave</span><span class="en">Remove key</span></button>
+      <button type="submit" value="cancel" class="btn"><span class="es">Cerrar</span><span class="en">Close</span></button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+
+/* SalesVu can put its own browser key here (restricted in Google Cloud to this site's address and the Places API)
+   so reps never paste one. Leave it empty in the public repo; never put a personal or Demo Key here. */
+const SALESVU_GOOGLE_KEY='';
+const gkey=()=>store.get('svkit-gkey')||SALESVU_GOOGLE_KEY;
+
+const EN=()=>document.documentElement.getAttribute('data-lang')==='en';
+const v=id=>$(id).value.trim();
+
+/* ---------- Language (shared with the Kit de ventas) ---------- */
+function setLang(l){document.documentElement.setAttribute('data-lang',l);document.documentElement.lang=l;
+  $('lang-es').setAttribute('aria-pressed',l==='es');$('lang-en').setAttribute('aria-pressed',l==='en');store.set('svkit-lang',l);showSrc();renderSummary();}
+$('lang-es').onclick=()=>setLang('es');$('lang-en').onclick=()=>setLang('en');
+
+/* ---------- Tabs ---------- */
+const VIEWS=['chequeo','marketing','almuerzos'];
+function route(){const h=location.hash.slice(1);const cur=VIEWS.includes(h)?h:'chequeo';
+  VIEWS.forEach(n=>{$('view-'+n).hidden=n!==cur;const t=$('tab-'+n);if(n===cur)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});}
+window.addEventListener('hashchange',route);
+
+/* ---------- Settings (Google key) ---------- */
+function showSrc(){$('datasrc').textContent=gkey()?(EN()?'Data: Google Maps':'Datos: Google Maps'):(EN()?'Data: OpenStreetMap':'Datos: OpenStreetMap');}
+$('open-settings').onclick=()=>{$('gkey').value=store.get('svkit-gkey')||'';$('settings').showModal();};
+$('settings').addEventListener('close',()=>{const r=$('settings').returnValue;
+  if(r==='save'){const k=$('gkey').value.trim();if(k)store.set('svkit-gkey',k);else store.del('svkit-gkey');}
+  if(r==='clear')store.del('svkit-gkey');$('gkey').value='';showSrc();});
+
+/* ---------- Colors and logo ---------- */
+const COLORS=[{n:'Rojo',c:'#B4122B'},{n:'Verde',c:'#00694A'},{n:'Naranja',c:'#D9600F'},{n:'Azul',c:'#0066FF'},{n:'Negro',c:'#1C1C1E'}];
+let brandColor=COLORS[0].c;
+COLORS.forEach((o,i)=>{const b=document.createElement('button');b.type='button';b.className='sw';b.style.background=o.c;b.setAttribute('aria-label',o.n);b.setAttribute('aria-pressed',i===0);
+  b.onclick=()=>{brandColor=o.c;document.querySelectorAll('.sw').forEach(s=>s.setAttribute('aria-pressed',s===b));render();};$('swatches').appendChild(b);});
+let logoImg=null;
+$('r-logo').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{const im=new Image();im.onload=()=>{logoImg=im;render();};im.src=rd.result;};rd.readAsDataURL(f);});
+function initials(n){return (n||'').replace(/[^\p{L}\s]/gu,' ').split(/\s+/).filter(w=>w&&!/^(la|el|los|las|de|del|y)$/i.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'R';}
+function updLogoPrev(){const p=$('logo-prev');p.innerHTML='';if(logoImg){const i=document.createElement('img');i.src=logoImg.src;i.alt='';p.appendChild(i);}else p.textContent=initials(v('r-name'));}
+
+/* ---------- Part 1: the 10 questions ----------
+   w = points toward the score (sums to 100). p = how urgent the fix is (sets the order of the 3 opportunities).
+   who: sv = SalesVu does it · kit = included free in this kit · owner = free tip the owner can do. bad:'yes' = a "yes" is the problem. */
+const CHECKS=[
+ {id:'gmaps',w:20,p:95,who:'owner',
+  q:{es:'¿Aparece en Google Maps con su horario?',en:'On Google Maps with its hours?'},
+  good:{es:'Aparece en Google Maps con su horario',en:'Shows up on Google Maps with its hours'},
+  fix:{es:'Revise su perfil de Google: horario, teléfono y dirección. Es lo primero que ven los clientes nuevos.',en:'Check the Google profile: hours, phone and address. It is the first thing new customers see.'}},
+ {id:'order',w:20,p:100,who:'sv',
+  q:{es:'¿Sus clientes pueden pedir en línea directo, sin apps?',en:'Can customers order online directly, without apps?'},
+  good:{es:'Recibe pedidos en línea directos',en:'Takes direct online orders'},
+  fix:{es:'Tenga su propio enlace de pedidos: sus clientes piden directo y usted no paga comisión por cada pedido.',en:'Get its own ordering link: customers order directly and there is no commission on each order.'}},
+ {id:'apps',w:5,p:85,who:'sv',bad:'yes',
+  q:{es:'¿Paga comisión a DoorDash, Uber Eats o Grubhub?',en:'Pays commission to DoorDash, Uber Eats or Grubhub?'},
+  good:{es:'No paga comisiones a apps de entrega',en:'Pays no delivery-app commissions'},
+  fix:{es:'Las apps de entrega cobran entre 15% y 30% por pedido. Invite a sus clientes de siempre a pedir por su propio enlace.',en:'Delivery apps charge 15–30% per order. Invite regulars to order through the restaurant\'s own link.'}},
+ {id:'web',w:10,p:80,who:'sv',
+  q:{es:'¿Tiene página web con su menú?',en:'Website with its menu?'},
+  good:{es:'Tiene su menú en internet',en:'Has its menu online'},
+  fix:{es:'Le preparamos una página con su menú y sus precios. Usted solo la revisa.',en:'We prepare a page with the menu and prices. The owner just reviews it.'}},
+ {id:'fb',w:10,p:70,who:'kit',
+  q:{es:'¿Publicó en Facebook en los últimos 30 días?',en:'Posted on Facebook in the last 30 days?'},
+  good:{es:'Está activo en Facebook',en:'Active on Facebook'},
+  fix:{es:'Publique 2 veces por semana: el platillo del día o fotos de sus clientes. Le damos imágenes listas con su logo.',en:'Post twice a week: the dish of the day or customer photos. We provide ready images with the logo.'}},
+ {id:'photos',w:10,p:65,who:'owner',
+  q:{es:'¿Tiene 10 fotos o más de sus platillos en Google?',en:'10+ food photos on Google?'},
+  good:{es:'Tiene fotos de sus platillos en Google',en:'Has food photos on Google'},
+  fix:{es:'Suba 10 fotos de sus platillos más vendidos a Google. Con buenas fotos, más gente se anima a pedir.',en:'Upload 10 photos of best-selling dishes to Google. Good photos get more people to order.'}},
+ {id:'rating',w:10,p:60,who:'kit',
+  q:{es:'¿Tiene 4.3 estrellas o más en Google?',en:'4.3 stars or more on Google?'},
+  good:{es:'Tiene buena calificación en Google',en:'Has a strong Google rating'},
+  fix:{es:'Pida reseñas a sus clientes contentos. Una tarjeta con código QR en la mesa ayuda; se la preparamos.',en:'Ask happy customers for reviews. A QR card on the table helps; we prepare it.'}},
+ {id:'replies',w:5,p:40,who:'owner',
+  q:{es:'¿Contesta las reseñas?',en:'Replies to reviews?'},
+  good:{es:'Contesta sus reseñas',en:'Replies to its reviews'},
+  fix:{es:'Conteste sus últimas 5 reseñas, aunque sea con un "¡Gracias por visitarnos!". Los clientes nuevos lo notan.',en:'Reply to the last 5 reviews, even just "Thanks for visiting!". New customers notice.'}},
+ {id:'wa',w:5,p:35,who:'owner',
+  q:{es:'¿Toma pedidos o preguntas por WhatsApp?',en:'Takes orders or questions on WhatsApp?'},
+  good:{es:'Atiende por WhatsApp',en:'Answers on WhatsApp'},
+  fix:{es:'Ponga su número de WhatsApp en Google y en Facebook. Muchos clientes prefieren escribir que llamar.',en:'Add the WhatsApp number to Google and Facebook. Many customers would rather text than call.'}},
+ {id:'ig',w:5,p:30,who:'kit',
+  q:{es:'¿Tiene Instagram activo?',en:'Active Instagram?'},
+  good:{es:'Está activo en Instagram',en:'Active on Instagram'},
+  fix:{es:'Use las mismas imágenes de Facebook en Instagram. No tiene que hacer nada extra.',en:'Reuse the Facebook images on Instagram. Nothing extra to make.'}}
+];
+const TAGS={sv:{es:'Nosotros lo hacemos',en:'SalesVu does it',cls:''},kit:{es:'Incluido gratis en este kit',en:'Included free in this kit',cls:'ok'},owner:{es:'Consejo gratis',en:'Free tip',cls:'warn'}};
+const EXAMPLE={gmaps:'yes',order:'no',apps:'yes',web:'no',fb:'no',photos:'no',rating:'yes',replies:'no',wa:'yes',ig:'unk'};
+const ANS_LBL={yes:['Sí','Yes'],no:['No','No'],unk:['No sé','Not sure']};
+
+CHECKS.forEach(c=>{const row=document.createElement('div');row.className='q';
+  row.innerHTML=`<div class="q-text" id="qt-${c.id}"><span class="es">${c.q.es}</span><span class="en">${c.q.en}</span><span class="pill" id="src-${c.id}" hidden>Google</span></div>
+  <div class="tri" role="radiogroup" aria-labelledby="qt-${c.id}">${['yes','no','unk'].map(a=>`<label><input type="radio" name="q-${c.id}" value="${a}"><span><span class="es">${ANS_LBL[a][0]}</span><span class="en">${ANS_LBL[a][1]}</span></span></label>`).join('')}</div>`;
+  $('qs').appendChild(row);});
+function ans(id){const el=document.querySelector(`input[name="q-${id}"]:checked`);return el?el.value:'unk';}
+function setAns(id,a,src){const el=document.querySelector(`input[name="q-${id}"][value="${a}"]`);if(el)el.checked=true;
+  const s=$('src-'+id);if(s){s.hidden=!src;if(src)s.textContent=src;}}
+function setAll(map){CHECKS.forEach(c=>setAns(c.id,map[c.id]||'unk',null));}
+
+function evaluate(){let got=0,max=0;const good=[],bad=[],unk=[];
+  CHECKS.forEach(c=>{const a=ans(c.id);if(a==='unk'){unk.push(c);return;}max+=c.w;
+    const ok=c.bad?a==='no':a==='yes';if(ok){got+=c.w;good.push(c);}else bad.push(c);});
+  bad.sort((a,b)=>b.p-a.p);good.sort((a,b)=>b.p-a.p);
+  return {score:max?Math.round(got/max*100):null,good,bad,unk,top:bad.slice(0,3)};}
+
+/* ---------- Look-up links ---------- */
+function city(){const parts=v('r-addr').split(',').map(s=>s.trim()).filter(Boolean);return parts.length>1?parts.slice(1).join(', '):parts[0]||'';}
+function renderLinks(){const name=v('r-name'),both=(name+' '+v('r-addr')).trim(),nc=(name+' '+city()).trim();const e=encodeURIComponent;
+  const L=[['Google Maps',`https://www.google.com/maps/search/?api=1&query=${e(both)}`],['Google',`https://www.google.com/search?q=${e(both)}`],
+    ['Facebook',`https://www.facebook.com/search/pages/?q=${e(name)}`],['Instagram',`https://www.google.com/search?q=${e('site:instagram.com '+nc)}`],
+    ['DoorDash / Uber Eats',`https://www.google.com/search?q=${e(nc+' doordash OR ubereats OR grubhub')}`]];
+  $('links').innerHTML='';L.forEach(([t,u])=>{const a=document.createElement('a');a.className='btn small';a.href=u;a.target='_blank';a.rel='noopener noreferrer';a.textContent=t+' ↗';$('links').appendChild(a);});}
+
+/* ---------- Auto-fill: Google Places (with a key) or OpenStreetMap (free backup) ---------- */
+let place=null; // the chosen restaurant; Part 3 will reuse its location
+async function googleSearch(q){const key=gkey();
+  const basic='places.id,places.displayName,places.formattedAddress,places.location,places.googleMapsUri,places.websiteUri,places.nationalPhoneNumber,places.regularOpeningHours';
+  const full=basic+',places.rating,places.userRatingCount,places.photos';
+  let lastErr='';
+  for(const mask of [full,basic]){ // the free Demo Key may refuse ratings/photos, so retry with the basic fields
+    const r=await fetch('https://places.googleapis.com/v1/places:searchText',{method:'POST',
+      headers:{'Content-Type':'application/json','X-Goog-Api-Key':key,'X-Goog-FieldMask':mask},
+      body:JSON.stringify({textQuery:q,pageSize:5,regionCode:'US',languageCode:'es'})});
+    if(r.ok){const j=await r.json();return (j.places||[]).map(p=>({src:'Google',name:(p.displayName&&p.displayName.text)||'',addr:p.formattedAddress||'',
+      lat:p.location&&p.location.latitude,lon:p.location&&p.location.longitude,maps:p.googleMapsUri||'',web:p.websiteUri||'',phone:p.nationalPhoneNumber||'',
+      hours:!!(p.regularOpeningHours&&(p.regularOpeningHours.weekdayDescriptions||p.regularOpeningHours.periods)),
+      rating:typeof p.rating==='number'?p.rating:null,ratings:p.userRatingCount||null,photos:Array.isArray(p.photos)?p.photos.length:null}));}
+    lastErr=r.status+' '+(await r.text()).slice(0,160);}
+  throw new Error('Google '+lastErr);}
+async function osmQuery(q){const u='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=us&extratags=1&q='+encodeURIComponent(q);
+  const r=await fetch(u,{headers:{'Accept-Language':'es,en'}});if(!r.ok)throw new Error('OpenStreetMap '+r.status);return r.json();}
+const pause=ms=>new Promise(r=>setTimeout(r,ms));
+/* OpenStreetMap's search is strict, so try simpler searches in turn (max 1 per second, per its usage policy).
+   If only the street address matches, keep the location for the lunch map but don't auto-fill any answers. */
+async function osmSearch(name,addr){const tries=[[name+' '+addr,false],[name+' '+city(),false],[addr,true]].filter(([q])=>q.trim());
+  for(let i=0;i<tries.length;i++){if(i)await pause(1100);const [q,addrOnly]=tries[i];const j=await osmQuery(q);
+    if(j.length)return j.map(p=>{const t=p.extratags||{};return {src:'OpenStreetMap',addrOnly,name:addrOnly?name:(p.name||p.display_name.split(',')[0]),addr:p.display_name,lat:+p.lat,lon:+p.lon,
+      maps:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.lat+','+p.lon)}`,web:addrOnly?'':(t.website||t['contact:website']||''),phone:addrOnly?'':(t.phone||t['contact:phone']||''),
+      hours:!addrOnly&&!!t.opening_hours,rating:null,ratings:null,photos:null};});}
+  return [];}
+function siteKind(u){u=(u||'').toLowerCase();if(!u)return 'none';
+  if(/facebook\.com|fb\.com/.test(u))return 'facebook';if(/instagram\.com/.test(u))return 'instagram';
+  if(/doordash|ubereats|grubhub|postmates/.test(u))return 'apps';
+  if(/toasttab|square\.site|squareup|clover|chownow|menufy|owner\.com|slicelife|beyondmenu|order/.test(u))return 'ordering';return 'website';}
+
+function applyPlace(p){place=p;const S=p.src;
+  if(p.addrOnly){render();return;} // we only found the street address, not the restaurant itself
+  if(S==='Google')setAns('gmaps',p.hours?'yes':'no',S); // only Google can answer the Google Maps question
+  const k=siteKind(p.web);
+  if(k==='website'||k==='ordering')setAns('web','yes',S);
+  if(k==='ordering')setAns('order','yes',S);
+  if(k==='apps'){setAns('apps','yes',S);setAns('web','no',S);}
+  if(k==='none'||k==='facebook'||k==='instagram')setAns('web','no',S);
+  if(p.rating!=null)setAns('rating',p.rating>=4.3?'yes':'no',S);
+  if(p.photos!=null)setAns('photos',p.photos>=10?'yes':'no',S); // Google returns at most 10 photos
+  if(!v('r-addr')&&p.addr)$('r-addr').value=p.addr;
+  render();}
+
+function showFound(list){const f=$('found');f.innerHTML='';
+  list.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='place';b.setAttribute('aria-pressed',i===0);
+    const bits=[p.rating!=null?`★ ${p.rating.toFixed(1)}${p.ratings?` (${p.ratings})`:''}`:'',p.web?(EN()?'website':'página web'):'',p.hours?(EN()?'hours listed':'con horario'):''].filter(Boolean).join(' · ');
+    b.innerHTML=`<strong></strong><small></small><small></small>`;b.children[0].textContent=p.name;b.children[1].textContent=p.addr;b.children[2].textContent=`${p.src}${bits?' · '+bits:''}`;
+    b.onclick=()=>{f.querySelectorAll('.place').forEach(x=>x.setAttribute('aria-pressed',x===b));applyPlace(p);};f.appendChild(b);});}
+
+$('lookup').onclick=async()=>{const q=(v('r-name')+' '+v('r-addr')).trim();const st=$('lookup-st');
+  if(!v('r-name')){st.className='status err';st.textContent=EN()?'Type the restaurant name first.':'Escriba primero el nombre del restaurante.';return;}
+  $('lookup').disabled=true;st.className='status';st.textContent=EN()?'Searching…':'Buscando…';$('found').innerHTML='';
+  try{let list,src;
+    if(gkey()){try{list=await googleSearch(q);src='Google';}catch(e){st.className='status err';st.textContent=(EN()?'Google didn\'t answer (check the key in Settings). Trying OpenStreetMap… ':'Google no respondió (revise la clave en Ajustes). Probando con OpenStreetMap… ')+e.message;console.warn(e);}}
+    if(!list){list=await osmSearch(v('r-name'),v('r-addr'));src='OpenStreetMap';}
+    if(!list.length){st.className='status err';st.textContent=EN()?`No match on ${src}. Check the name and address, or answer the questions by hand.`:`No se encontró en ${src}. Revise el nombre y la dirección, o conteste las preguntas a mano.`;return;}
+    if(list[0].addrOnly){st.className='status';st.textContent=EN()?'OpenStreetMap found the address but not the restaurant. Answer the questions with the links below (a Google key in Settings finds much more).':'OpenStreetMap encontró la dirección, pero no el restaurante. Conteste las preguntas con los enlaces de abajo (con una clave de Google en Ajustes encuentra mucho más).';applyPlace(list[0]);return;}
+    st.className='status okc';st.textContent=EN()?`Found on ${src}. Pick the right one if there are several.`:`Encontrado en ${src}. Elija el correcto si hay varios.`+(src==='OpenStreetMap'?(EN()?' (Fewer details than Google.)':' (Menos datos que Google.)'):'');
+    showFound(list);applyPlace(list[0]);
+  }catch(e){st.className='status err';st.textContent=(EN()?'The search didn\'t work. Answer the questions by hand. ':'La búsqueda no funcionó. Conteste las preguntas a mano. ')+e.message;console.warn(e);}
+  finally{$('lookup').disabled=false;}};
+
+/* ---------- Summary for the rep ---------- */
+function L(o){return EN()?o.en:o.es;}
+function renderSummary(){const r=evaluate(),el=$('summary');
+  const col=r.score==null?'var(--muted)':r.score<50?'var(--warn)':r.score<75?'var(--blue)':'var(--ok)';
+  let h=`<div class="score-row"><span class="eyebrow">${EN()?'Online presence':'Presencia en internet'}</span><strong style="color:${col}">${r.score==null?'—':r.score+'/100'}</strong></div>
+  <div class="bar"><span style="width:${r.score||0}%;background:${col}"></span></div>`;
+  if(r.good.length)h+=`<p class="goods"><strong>${EN()?'Already doing well:':'Ya hace bien:'}</strong> ${r.good.slice(0,3).map(c=>L(c.good)).join(' · ')}</p>`;
+  if(r.top.length){h+=`<ol class="opps">`+r.top.map((c,i)=>`<li><span class="num">${i+1}</span><div><p>${L(c.fix)}</p><span class="pill ${TAGS[c.who].cls}">${L(TAGS[c.who])}</span></div></li>`).join('')+`</ol>`;}
+  else h+=`<p class="goods">${EN()?'No gaps found. Lead with MealPool: group lunch orders from nearby offices.':'No hay huecos. Hable de MealPool: pedidos de almuerzo en grupo de oficinas cercanas.'}</p>`;
+  if(r.unk.length)h+=`<p class="hint">${EN()?'Not checked':'Sin revisar'}: ${r.unk.map(c=>L(c.q)).join(' · ')}</p>`;
+  el.innerHTML=h;}
+
+/* ---------- WhatsApp message (Spanish for the owner, English for team review) ---------- */
+function buildMsg(lang){const es=lang==='es',r=evaluate(),R=v('r-name')||(es?'su restaurante':'your restaurant'),O=v('r-owner'),rep=v('r-rep')||(es?'[su nombre]':'[your name]'),next=v('r-next')||(es?'mañana':'tomorrow'),link=v('r-link');
+  const T=o=>es?o.es:o.en;let m=[];
+  m.push(es?`Buen día${O?', '+O:''}. Soy ${rep}, de SalesVu.`:`Good day${O?', '+O:''}. This is ${rep} from SalesVu.`);
+  m.push(es?`Como le comenté, le preparé un chequeo gratis de cómo aparece ${R} en internet. Se lo mando en la imagen.`:`As I mentioned, I put together a free check-up of how ${R} shows up online. It's in the image.`);
+  if(r.good.length)m.push((es?'Lo que ya hace bien:\n':'What you already do well:\n')+r.good.slice(0,3).map(c=>'✅ '+T(c.good)).join('\n'));
+  if(r.top.length){m.push((es?`${r.top.length===1?'Una oportunidad':r.top.length+' oportunidades'} para conseguir más pedidos esta semana:\n`:`${r.top.length===1?'One opportunity':r.top.length+' opportunities'} to get more orders this week:\n`)+r.top.map((c,i)=>`${i+1}. ${T(c.fix)}`).join('\n'));
+    if(r.top.some(c=>c.who!=='owner'))m.push(es?'Lo que le toca a SalesVu se lo dejamos listo, sin que usted tenga que hacer nada.':'Whatever is on SalesVu\'s side, we set up for you, with nothing for you to do.');}
+  else m.push(es?`${R} está muy bien en internet. El siguiente paso es llenar la hora de la comida con pedidos en grupo de oficinas cercanas, con MealPool.`:`${R} is in great shape online. The next step is filling lunchtime with group orders from nearby offices, with MealPool.`);
+  if(link)m.push((es?'Aquí puede ver la tienda en línea que le preparamos:\n':'Here\'s the online store we set up for you:\n')+link);
+  m.push(es?`¿Le parece si le llamo ${next} para revisarlo juntos? Son 10 minutos.`:`Would it be OK if I call you ${next} to go over it together? It takes 10 minutes.`);
+  m.push(es?`Saludos,\n${rep} · SalesVu`:`Best,\n${rep} · SalesVu`);
+  return m.join('\n\n');}
+
+/* ---------- Report image (always Spanish: it goes to the owner) ---------- */
+const F='Inter, system-ui, sans-serif';
+function wrap(ctx,text,maxW){const words=String(text).split(' '),lines=[];let line='';
+  words.forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w;}else line=t;});if(line)lines.push(line);return lines;}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function drawLogo(ctx,cx,cy,r,bg,fg){ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#FFFFFF';ctx.fill();ctx.clip();
+  if(logoImg){const s=Math.max(2*r/logoImg.width,2*r/logoImg.height);const w=logoImg.width*s,h=logoImg.height*s;ctx.drawImage(logoImg,cx-w/2,cy-h/2,w,h);}
+  else{ctx.fillStyle=bg;ctx.fillRect(cx-r,cy-r,2*r,2*r);ctx.fillStyle=fg;ctx.font=`800 ${Math.round(r*0.8)}px ${F}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(initials(v('r-name')),cx,cy+2);}
+  ctx.restore();}
+function qrCanvas(text,size,fg){try{if(!window.QRious)return null;const c=document.createElement('canvas');new QRious({element:c,value:text,size:size,level:'M',background:'#FFFFFF',foreground:fg,padding:0});return c;}catch(e){return null;}}
+
+function drawReport(){const W=1080,c=document.createElement('canvas');c.width=W;c.height=2200;const x=c.getContext('2d');
+  const navy='#0A1A2E',blue='#0066FF',ink='#0F1B33',mut='#5B6B82',green='#15803D',r=evaluate(),R=v('r-name')||'Su restaurante',rep=v('r-rep')||'SalesVu',link=v('r-link');
+  x.fillStyle='#FFFFFF';x.fillRect(0,0,W,c.height);
+  // header band with the salesvu.com blue glow
+  x.fillStyle=navy;x.fillRect(0,0,W,320);
+  const g=x.createRadialGradient(W,0,40,W,0,620);g.addColorStop(0,'rgba(0,102,255,.55)');g.addColorStop(1,'rgba(0,102,255,0)');x.fillStyle=g;x.fillRect(0,0,W,320);
+  x.textAlign='left';x.textBaseline='alphabetic';
+  x.font=`800 44px ${F}`;x.fillStyle='#FFFFFF';x.fillText('Sales',80,104);const sw=x.measureText('Sales').width;x.fillStyle='#4B93FF';x.fillText('Vu',80+sw,104);
+  x.font=`600 26px ${F}`;x.fillStyle='#BFD7FF';x.fillText('Chequeo en línea gratis para',80,180);
+  x.font=`800 52px ${F}`;x.fillStyle='#FFFFFF';const nl=wrap(x,R,700);x.fillText(nl[0]+(nl.length>1?'…':''),80,244);
+  drawLogo(x,W-170,320,100,'#FFFFFF',brandColor);x.lineWidth=8;x.strokeStyle='#FFFFFF';x.beginPath();x.arc(W-170,320,100,0,Math.PI*2);x.stroke();
+  let y=476;
+  if($('show-score').checked&&r.score!=null){const col=r.score<50?'#C2410C':r.score<75?blue:green;
+    x.font=`600 28px ${F}`;x.fillStyle=mut;x.fillText('Su restaurante en internet',80,y);
+    x.font=`800 44px ${F}`;x.fillStyle=col;x.textAlign='right';x.fillText(`${r.score}/100`,W-80,y+4);x.textAlign='left';
+    rr(x,80,y+30,W-160,22,11);x.fillStyle='#E8EEF7';x.fill();if(r.score>0){rr(x,80,y+30,Math.max(22,(W-160)*r.score/100),22,11);x.fillStyle=col;x.fill();}
+    y+=120;}
+  if(r.good.length){x.font=`700 28px ${F}`;x.fillStyle=green;x.fillText('Lo que ya hace bien',80,y);y+=46;
+    x.font=`500 28px ${F}`;r.good.slice(0,3).forEach(gd=>{x.strokeStyle=green;x.lineWidth=5;x.lineCap='round';x.lineJoin='round';x.beginPath();x.moveTo(84,y-10);x.lineTo(94,y);x.lineTo(112,y-22);x.stroke();
+      x.fillStyle=ink;x.fillText(gd.good.es,130,y);y+=44;});y+=30;}
+  x.font=`800 44px ${F}`;x.fillStyle=ink;
+  const title=r.top.length?`${r.top.length===1?'Una oportunidad':r.top.length+' oportunidades'} para conseguir más pedidos esta semana`:'Su restaurante está muy bien en internet';
+  wrap(x,title,W-160).forEach(l=>{x.fillText(l,80,y+10);y+=56;});y+=24;
+  const tagCol={sv:['#E6F0FF',blue],kit:['#E7F5EC',green],owner:['#FDF1DE','#9A5B00']};
+  if(r.top.length){r.top.forEach((cki,i)=>{x.font=`500 30px ${F}`;const lines=wrap(x,cki.fix.es,W-160-130);const h=40+lines.length*42+56;
+      rr(x,80,y,W-160,h,24);x.fillStyle='#F5F8FF';x.fill();
+      x.beginPath();x.arc(132,y+52,26,0,Math.PI*2);x.fillStyle=blue;x.fill();x.fillStyle='#FFFFFF';x.font=`800 28px ${F}`;x.textAlign='center';x.fillText(String(i+1),132,y+62);x.textAlign='left';
+      x.font=`500 30px ${F}`;x.fillStyle=ink;lines.forEach((l,j)=>x.fillText(l,180,y+62+j*42));
+      const tg=TAGS[cki.who].es;x.font=`700 22px ${F}`;const tw=x.measureText(tg).width+32,ty=y+62+lines.length*42-8;
+      rr(x,180,ty,tw,38,19);x.fillStyle=tagCol[cki.who][0];x.fill();x.fillStyle=tagCol[cki.who][1];x.fillText(tg,196,ty+27);
+      y+=h+18;});}
+  else{x.font=`500 30px ${F}`;x.fillStyle=ink;wrap(x,'El siguiente paso: llenar la hora de la comida con pedidos en grupo de oficinas cercanas, con MealPool.',W-160).forEach(l=>{x.fillText(l,80,y+10);y+=42;});}
+  // footer: who made it, plus a QR to the store
+  y+=30;const fh=170;x.fillStyle='#E2E8F0';x.fillRect(80,y,W-160,2);
+  const q=link?qrCanvas(link,130,'#0A1A2E'):null;
+  x.font=`600 26px ${F}`;x.fillStyle=ink;x.fillText(`Preparado por ${rep} · SalesVu`,80,y+64);
+  x.font=`500 24px ${F}`;x.fillStyle=mut;x.fillText(q?'Escanee para ver su tienda en línea':'Le atendemos en español',80,y+104);
+  if(q)x.drawImage(q,W-80-130,y+22,130,130);
+  const H=y+fh;const out=document.createElement('canvas');out.width=W;out.height=H;out.getContext('2d').drawImage(c,0,0);
+  return out.toDataURL('image/png');}
+
+/* ---------- Render + copy ---------- */
+function slug(s){return (s||'restaurante').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'restaurante';}
+function render(){updLogoPrev();renderLinks();renderSummary();
+  $('wa').value=buildMsg('es');$('wa-en').textContent=buildMsg('en');
+  const img=drawReport();$('img-report').src=img;$('dl-report').href=img;$('dl-report').download=`chequeo-${slug(v('r-name'))}.png`;}
+function flash(id,msg){const s=$(id);s.className='status okc';s.textContent=msg;setTimeout(()=>{s.textContent='';},2500);}
+$('copy-wa').onclick=()=>{const t=$('wa').value;const ok=()=>flash('st-wa',EN()?'Copied. Paste it in WhatsApp.':'Copiado. Péguelo en WhatsApp.');
+  const fb=()=>{$('wa').focus();$('wa').select();flash('st-wa',EN()?'Text selected. Press Ctrl+C / Cmd+C to copy.':'Texto seleccionado. Presione Ctrl+C / Cmd+C para copiar.');};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb();};
+$('copy-report').onclick=()=>{const src=$('img-report').src;const fail=()=>flash('st-report',EN()?'Your browser blocked copying. Use Download, or long-press the image.':'Su navegador no permitió copiar. Use Descargar, o mantenga presionada la imagen.');
+  try{fetch(src).then(r=>r.blob()).then(b=>navigator.clipboard.write([new ClipboardItem({'image/png':b})])).then(()=>flash('st-report',EN()?'Image copied. Paste it in WhatsApp.':'Imagen copiada. Péguela en WhatsApp.'),fail);}catch(e){fail();}};
+
+$('reset').onclick=()=>{['r-name','r-addr','r-owner','r-link'].forEach(i=>$(i).value='');$('r-next').value='mañana';logoImg=null;$('r-logo').value='';place=null;
+  $('found').innerHTML='';$('lookup-st').textContent='';setAll({});CHECKS.forEach(c=>{$('src-'+c.id).hidden=true;});render();$('r-name').focus();};
+
+/* ---------- Wire up ---------- */
+let t;const later=()=>{clearTimeout(t);t=setTimeout(render,150);};
+$('shared').addEventListener('input',later);$('shared').addEventListener('submit',e=>e.preventDefault());
+$('qs').addEventListener('change',e=>{const id=e.target.name&&e.target.name.slice(2);if(id&&$('src-'+id))$('src-'+id).hidden=true;render();});
+$('r-next').addEventListener('input',later);$('show-score').addEventListener('change',render);
+$('wa').addEventListener('input',e=>e.stopPropagation());
+
+setAll(EXAMPLE);
+setLang(store.get('svkit-lang')==='en'?'en':'es');
+route();render();
+(document.fonts&&document.fonts.load?Promise.all(['800','700','600','500'].map(w=>document.fonts.load(`${w} 40px Inter`))):Promise.resolve()).then(render,render);
+})();
+</script>
+</body>
+</html>
