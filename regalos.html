@@ -6,6 +6,7 @@
 <title>Regalos SalesVu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Emoji:wght@500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -694,43 +695,20 @@ function drawLogo(ctx,cx,cy,r){ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math
   if(logoImg){const s=Math.max(2*r/logoImg.width,2*r/logoImg.height);const w=logoImg.width*s,h=logoImg.height*s;ctx.drawImage(logoImg,cx-w/2,cy-h/2,w,h);}
   else genericLogo(ctx,cx,cy,r);
   ctx.restore();}
-/* ---------- Mexican-food doodles (original line art, drawn in code) ----------
-   Each icon fits a ~100 px box centered on 0,0. doodlePattern() tiles them, slightly turned, in one color. */
-function dRound(x,w){x.lineWidth=w;x.lineCap='round';x.lineJoin='round';}
-const DOODLE=[
- function taco(x){x.beginPath();x.arc(0,14,44,Math.PI,0);x.closePath();x.stroke();
-   for(let a=200;a<=340;a+=20){const r=a*Math.PI/180;x.beginPath();x.arc(Math.cos(r)*36,14+Math.sin(r)*36,6,0,Math.PI*2);x.stroke();}
-   [[-14,-2],[6,4],[20,-6],[-2,-14]].forEach(([a,b])=>{x.beginPath();x.arc(a,b,2.6,0,Math.PI*2);x.fill();});},
- function chile(x){const w=x.lineWidth;x.lineWidth=w*2.6;x.beginPath();x.moveTo(-34,30);x.quadraticCurveTo(-4,26,22,-10);x.stroke();
-   x.lineWidth=w;x.beginPath();x.moveTo(22,-10);x.quadraticCurveTo(26,-26,40,-30);x.stroke();x.beginPath();x.moveTo(14,-14);x.lineTo(30,-6);x.stroke();},
- function avocado(x){x.beginPath();x.ellipse(0,0,32,44,0.35,0,Math.PI*2);x.stroke();x.beginPath();x.ellipse(0,2,22,32,0.35,0,Math.PI*2);x.stroke();
-   x.beginPath();x.arc(5,12,12,0,Math.PI*2);x.fill();},
- function lime(x){x.beginPath();x.arc(0,10,40,Math.PI,0);x.closePath();x.stroke();x.beginPath();x.arc(0,10,30,Math.PI,0);x.stroke();
-   for(let a=Math.PI*1.15;a<Math.PI*1.95;a+=Math.PI/5){x.beginPath();x.moveTo(0,10);x.lineTo(Math.cos(a)*28,10+Math.sin(a)*28);x.stroke();}},
- function burrito(x){x.save();x.rotate(-0.35);x.beginPath();x.roundRect?x.roundRect(-46,-20,80,40,18):rr(x,-46,-20,80,40,18);x.stroke();
-   x.beginPath();x.moveTo(-20,-20);x.quadraticCurveTo(-10,0,-20,20);x.stroke();x.beginPath();x.moveTo(6,-20);x.quadraticCurveTo(16,0,6,20);x.stroke();
-   for(let i=0;i<4;i++){x.beginPath();x.arc(38+(i%2)*6,-14+i*9,6,0,Math.PI*2);x.stroke();}x.restore();},
- function corn(x){x.save();x.rotate(0.6);x.beginPath();x.ellipse(0,-6,16,40,0,0,Math.PI*2);x.stroke();
-   for(let i=-30;i<=18;i+=12){x.beginPath();x.moveTo(-13,i);x.lineTo(13,i);x.stroke();}x.beginPath();x.moveTo(0,-42);x.lineTo(0,26);x.stroke();
-   x.beginPath();x.moveTo(0,34);x.lineTo(0,52);x.stroke();x.restore();},
- function chips(x){[[-14,-6,0.2],[16,10,-0.5]].forEach(([cx,cy,r])=>{x.save();x.translate(cx,cy);x.rotate(r);x.beginPath();x.moveTo(-22,16);x.lineTo(0,-24);x.lineTo(22,16);x.closePath();x.stroke();
-   [[-6,4],[6,6],[0,-6]].forEach(([a,b])=>{x.beginPath();x.arc(a,b,2.2,0,Math.PI*2);x.fill();});x.restore();});},
- function guac(x){x.beginPath();x.moveTo(-42,0);x.quadraticCurveTo(-40,40,0,40);x.quadraticCurveTo(40,40,42,0);x.closePath();x.stroke();
-   x.beginPath();x.moveTo(-30,20);for(let i=0;i<4;i++)x.quadraticCurveTo(-22+i*16,30,-14+i*16,20);x.stroke();
-   for(let i=-28;i<=28;i+=14){x.beginPath();x.arc(i,-4,7,Math.PI,0);x.stroke();}
-   x.beginPath();x.moveTo(14,-6);x.lineTo(30,-36);x.lineTo(42,-14);x.closePath();x.stroke();},
- function salsa(x){x.beginPath();x.roundRect?x.roundRect(-16,-14,32,56,8):rr(x,-16,-14,32,56,8);x.stroke();x.beginPath();x.moveTo(-7,-14);x.lineTo(-7,-32);x.lineTo(7,-32);x.lineTo(7,-14);x.stroke();
-   x.beginPath();x.moveTo(-4,-32);x.lineTo(-4,-42);x.lineTo(4,-42);x.lineTo(4,-32);x.stroke();x.beginPath();x.moveTo(0,4);x.lineTo(10,16);x.lineTo(0,28);x.lineTo(-10,16);x.closePath();x.stroke();}
-];
-function doodlePattern(x,X,Y,W,H,color,cell,alpha){x.save();x.beginPath();x.rect(X,Y,W,H);x.clip();x.globalAlpha=alpha;x.strokeStyle=color;x.fillStyle=color;
-  const sc=cell/120;let k=0;for(let r=0,y=Y-cell/2;y<Y+H+cell;y+=cell*0.86,r++){for(let xx=X-cell/2+(r%2?cell/2:0);xx<X+W+cell;xx+=cell){
-    x.save();x.translate(xx,y);x.rotate(((k*47)%50-25)*Math.PI/180);x.scale(sc,sc);dRound(x,6);DOODLE[(k*5+r)%DOODLE.length](x);x.restore();k++;}}
+/* ---------- Mexican-food doodles ----------
+   Google's Noto Emoji: one-color, professionally drawn icons under the Open Font License (free to use),
+   so they can be drawn in SalesVu blue. If the font can't load, the system's color emoji show instead. */
+const DOODLES=['🌮','🌶','🥑','🌯','🌽','🌮','🌵','🍋','🌶','🫔','🫘','🍅'],DFONT='"Noto Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif';
+function doodlePattern(x,X,Y,W,H,color,cell,alpha){x.save();x.beginPath();x.rect(X,Y,W,H);x.clip();x.globalAlpha=alpha;x.fillStyle=color;
+  x.font=`500 ${Math.round(cell*0.5)}px ${DFONT}`;x.textAlign='center';x.textBaseline='middle';let k=0;
+  for(let r=0,y=Y-cell/2;y<Y+H+cell;y+=cell*0.8,r++){for(let xx=X-cell/2+(r%2?cell/2:0);xx<X+W+cell;xx+=cell){
+    x.save();x.translate(xx,y);x.rotate(((k*47)%40-20)*Math.PI/180);x.fillText(DOODLES[(k*5+r*3)%DOODLES.length],0,0);x.restore();k++;}}
   x.restore();}
 /* No logo uploaded (the usual case): SalesVu-blue food doodles around a white center with the name in bold navy
    and a short green rule, matching the MealPool collateral. */
 const MP={navy:'#132F52',blue:'#2D7CFF',green:'#16BD77',ring:'#E3E8EF',tint:'#EEF4FF'},EMOJI='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
 function genericLogo(ctx,cx,cy,r){ctx.fillStyle=MP.tint;ctx.fillRect(cx-r,cy-r,2*r,2*r);
-  doodlePattern(ctx,cx-r,cy-r,2*r,2*r,MP.blue,Math.max(36,r*0.62),.55);
+  doodlePattern(ctx,cx-r,cy-r,2*r,2*r,MP.blue,Math.max(34,r*0.56),.6);
   const ir=r*0.7;ctx.beginPath();ctx.arc(cx,cy,ir,0,Math.PI*2);ctx.fillStyle='#FFFFFF';ctx.fill();
   const name=(v('r-name')||'Restaurante').trim(),maxW=ir*1.55;let lines=[name],size;
   for(size=ir*0.42;size>=ir*0.14;size-=ir*0.02){ctx.font=`800 ${size}px ${F}`;lines=wrap(ctx,name,maxW);
@@ -1072,7 +1050,7 @@ function qrOrBox(x,link,X,Y,size){const q=link?qrCanvas(tracked(link,'regalo-kit
 function drawSample(kind){const R=v('r-name')||'Su restaurante',link=v('r-link'),cut=v('l-cutoff')||'10:30 am';
   const W=1080,H=kind==='status'?1920:1080,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
   x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);x.textBaseline='alphabetic';
-  if(kind!=='sticker')doodlePattern(x,0,kind==='status'?H-420:H-130,W,kind==='status'?420:130,MP.blue,kind==='status'?150:110,.14);
+  if(kind!=='sticker')doodlePattern(x,0,kind==='status'?H-420:H-130,W,kind==='status'?420:130,MP.blue,kind==='status'?140:100,.18);
   if(kind==='sticker'){ // window or register sticker: big QR to order online
     x.lineWidth=18;x.strokeStyle=MP.navy;rr(x,30,30,W-60,H-60,48);x.stroke();
     x.textAlign='center';x.fillStyle=MP.navy;x.font=`800 92px ${F}`;x.fillText('Pida en línea',W/2,200);
@@ -1151,7 +1129,7 @@ else{setAll(EXAMPLE);if(store.get('svkit-rep'))$('r-rep').value=store.get('svkit
 setLang(store.get('svkit-lang')==='en'?'en':'es');
 route();render();
 if(FROM_URL&&(v('r-name')||v('r-addr')))prepare();
-(document.fonts&&document.fonts.load?Promise.all(['800','700','600','500'].map(w=>document.fonts.load(`${w} 40px Inter`))):Promise.resolve()).then(render,render);
+(document.fonts&&document.fonts.load?Promise.all(['800','700','600','500'].map(w=>document.fonts.load(`${w} 40px Inter`)).concat([document.fonts.load('500 40px "Noto Emoji"',DOODLES.join(''))])):Promise.resolve()).then(render,render);
 })();
 </script>
 </body>
