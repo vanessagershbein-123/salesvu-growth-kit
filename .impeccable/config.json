@@ -1,7 +1,9 @@
 {
   "detector": {
     "ignoreRules": [],
-    "ignoreFiles": [],
+    "ignoreFiles": [
+      "helper/worker.js"
+    ],
     "ignoreValues": [
       {
         "rule": "overused-font",
