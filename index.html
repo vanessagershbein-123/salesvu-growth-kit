@@ -440,7 +440,7 @@ const EN=()=>document.documentElement.getAttribute('data-lang')==='en';
 const v=id=>$(id).value.trim();
 const isURL=t=>/^https?:\/\//i.test(t);
 /* Pasted text can carry extra characters (".https://…", "see https://… thanks"): keep just the link. */
-const pickLink=t=>{const m=(t||'').match(/https?:\/\/[^\s<>"']+/i);return m?m[0].replace(/[).,;!?]+$/,''):(t||'').trim();};
+const pickLink=t=>{const m=(t||'').match(/https?:\/\/[^\s<>"]+/i);return m?m[0].replace(/[).,;!?]+$/,''):(t||'').trim();};
 const fixLink=t=>{t=(t||'').trim();return !t||isURL(t)?t:(/^[\w-]+(\.[\w-]+)+(\/|$)/.test(t)?'https://'+t:t);};
 function city(){if(isURL(v('r-addr')))return '';const parts=v('r-addr').split(',').map(s=>s.trim()).filter(Boolean);return parts.length>1?parts.slice(1).join(', '):parts[0]||'';}
 const L=o=>EN()?o.en:o.es;
@@ -851,6 +851,8 @@ async function lookupRestaurant(){clearAns();place=null;placeKey='';matches=[];
   // A name guessed from a web address is weak: keep only places whose name really matches it (or that list this website),
   // so "mimadresrestaurant.com" never turns into some other "Taco Madres" in another state.
   if(site&&guess&&name===guess.q&&list&&list.length)list=list.filter(p=>p.addrOnly?false:((guess.domain&&(p.web||'').includes(guess.domain))||nameMatch(guess.q,p.name)));
+  // Same for a name read from a Google link with no pin: only keep places that really carry that name (best match first).
+  if(!near&&link&&(link.kind==='maps'||link.kind==='gsearch')&&name&&list&&list.length){const ok=list.filter(p=>!p.addrOnly&&nameMatch(name,p.name));list=ok;}
   if(near&&list&&list.length&&list[0].lat!=null&&distMi(near.lat,near.lon,list[0].lat,list[0].lon)>0.3)list=[]; // same name, different location: trust the pin
   if((!list||!list.length)&&near){let addr='';try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${near.lat}&lon=${near.lon}`);if(r.ok){const a=(await r.json()).address||{};addr=[[a.house_number,a.road].filter(Boolean).join(' '),a.city||a.town||a.village||'',a.state||''].filter(Boolean).join(', ');}}catch(e){}
     list=[{src:'Google Maps',addrOnly:true,pin:true,name,addr,lat:near.lat,lon:near.lon}];}
